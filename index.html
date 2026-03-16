@@ -14,17 +14,12 @@
             background: rgba(133, 94, 66, 0.9); padding: 15px; text-align: center; color: white; 
             position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5); 
         }
-        
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
-        
-        /* SEARCH & FILTER */
         .filter-box { 
             background: rgba(255,255,255,0.4); border-radius: 10px; padding: 15px; 
             margin-bottom: 20px; backdrop-filter: blur(10px); display: flex; gap: 10px; 
         }
         .filter-box input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ddd; outline: none; }
-
-        /* GRID SYSTEM ALA TIKTOK */
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .item-card { 
             background: rgba(255,255,255,0.4); border-radius: 12px; overflow: hidden; 
@@ -37,24 +32,17 @@
         .item-name { font-weight: bold; font-size: 14px; color: #111; margin-bottom: 5px; }
         .item-price { color: #d35400; font-weight: bold; font-size: 13px; }
         .item-stock { font-size: 10px; background: var(--secondary); color: white; padding: 2px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }
-
-        /* MODAL PEMBELIAN */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; animation: zoomIn 0.3s; }
         @keyframes zoomIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         .modal-header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; }
         .modal-body { padding: 20px; max-height: 80vh; overflow-y: auto; }
-
         label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9em; }
         input, select { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
-        
-        /* PENDING LIST */
         .pending-section { background: rgba(255,255,255,0.4); border-radius: 10px; padding: 15px; margin-top: 30px; backdrop-filter: blur(5px); }
         .pending-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); font-size: 13px; }
         .status-tag { color: #d35400; font-weight: bold; font-size: 10px; border: 1px solid #d35400; padding: 2px 5px; border-radius: 4px; }
-
         .footer { text-align: center; padding: 30px; color: #000; font-weight: bold; font-size: 12px; }
     </style>
 </head>
@@ -62,12 +50,12 @@
 
 <div class="navbar">
     <h2 style="margin:0">DZKALL SHOP</h2>
-    <small>Minecraft Edition Store</small>
+    <small>Top Up Aman & Real-time</small>
 </div>
 
 <div class="container">
     <div class="filter-box">
-        <input type="text" id="searchInput" placeholder="Cari item (Money, Armor, dll)..." onkeyup="filterItems()">
+        <input type="text" id="searchInput" placeholder="Cari item..." onkeyup="filterItems()">
     </div>
 
     <div class="item-grid" id="product-list">
@@ -75,7 +63,7 @@
     </div>
 
     <div class="pending-section">
-        <h4 style="margin-top:0; color: #855e42;">⏳ Antrean Proses</h4>
+        <h4 style="margin-top:0; color: #855e42;">⏳ Antrean Pesanan (Pending)</h4>
         <div id="pending-list"></div>
     </div>
 </div>
@@ -87,7 +75,7 @@
             <label>Jumlah Beli:</label>
             <input type="number" id="buyQty" value="1" min="1" oninput="updateModalPrice()">
             <label>In Game Name (IGN):</label>
-            <input type="text" id="buyIgn" placeholder="Nickname Minecraft">
+            <input type="text" id="buyIgn" placeholder="Nickname Game">
             <label>Metode Pembayaran:</label>
             <select id="buyMetode" onchange="toggleQrisModal()">
                 <option value="DANA">DANA (08989294545)</option>
@@ -120,7 +108,6 @@
     let allProducts = [];
     let selectedProduct = null;
 
-    // 1. Load Data Produk & Antrean
     async function loadData() {
         try {
             const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { 
@@ -132,16 +119,11 @@
         } catch(e) { console.error("Gagal load produk"); }
     }
 
-    // 2. Tampilkan Produk di Grid
     function renderProducts(data) {
         const list = document.getElementById("product-list");
-        if(data.length === 0) {
-            list.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Belum ada produk.</p>';
-            return;
-        }
         list.innerHTML = data.map(p => `
             <div class="item-card" onclick="openModal(${p.id})">
-                <img src="${p.img_url || 'https://via.placeholder.com/150?text=Item'}" class="item-img" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                <img src="${p.img_url || 'https://via.placeholder.com/150'}" class="item-img">
                 <div class="item-info">
                     <div class="item-name">${p.nama_produk}</div>
                     <div class="item-price">Rp ${p.harga.toLocaleString()}</div>
@@ -151,7 +133,6 @@
         `).join("");
     }
 
-    // 3. Load Daftar Antrean PENDING
     async function fetchPending() {
         try {
             const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, {
@@ -159,22 +140,14 @@
             });
             const data = await res.json();
             const list = document.getElementById("pending-list");
-            let html = data.length === 0 ? '<p style="font-size: 11px; text-align: center; color: #666;">Tidak ada antrean</p>' : "";
-            data.forEach(i => {
-                const sensorIgn = i.ign.length > 2 ? i.ign[0] + "***" + i.ign.slice(-1) : i.ign;
-                html += `
-                    <div class="pending-item">
-                        <span><b>${sensorIgn}</b> (${i.jumlah} unit)</span>
-                        <span class="status-tag">Proses</span>
-                    </div>`;
-            });
-            list.innerHTML = html;
+            list.innerHTML = data.length === 0 ? '<p style="font-size: 11px; text-align: center;">Tidak ada antrean</p>' : 
+            data.map(i => `<div class="pending-item"><span><b>${i.ign}</b> (${i.nama_item || 'Item'})</span><span class="status-tag">Proses</span></div>`).join("");
         } catch(e) { console.error("Gagal load antrean"); }
     }
 
-    // 4. Modal Logic
     function openModal(id) {
         selectedProduct = allProducts.find(p => p.id === id);
+        if(selectedProduct.stok <= 0) return alert("Stok Habis!");
         document.getElementById("modalTitle").innerText = "Beli " + selectedProduct.nama_produk;
         document.getElementById("buyQty").value = 1;
         document.getElementById("buyModal").style.display = "flex";
@@ -192,76 +165,88 @@
         document.getElementById("qrisModal").style.display = (document.getElementById("buyMetode").value === "QRIS") ? "block" : "none";
     }
 
-    // 5. PROSES BELI (FIXED: GAS & SUPABASE)
+    // FUNGSI PROSES BELI DENGAN BOOKING STOK
     async function prosesBeli() {
         const ign = document.getElementById("buyIgn").value;
         const qty = parseInt(document.getElementById("buyQty").value);
         const file = document.getElementById("buyBukti").files[0];
         const metodenya = document.getElementById("buyMetode").value;
 
-        if (!ign || !file || qty < 1) return alert("Lengkapi data dan lampirkan bukti transfer!");
-        if (qty > selectedProduct.stok) return alert("Stok tidak mencukupi!");
+        if (!ign || !file || qty < 1) return alert("Lengkapi data!");
+        
+        // Cek ulang stok di server sebelum memproses (mencegah double order)
+        const checkRes = await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}&select=stok`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        const checkData = await checkRes.json();
+        if(checkData[0].stok < qty) return alert("Maaf, stok baru saja habis atau tidak cukup!");
 
         const btn = document.getElementById("btn-submit-order");
-        btn.innerText = "Mengirim..."; btn.disabled = true;
+        btn.innerText = "Booking Stok..."; btn.disabled = true;
 
         try {
-            // Step 1: Simpan Data Penjualan ke Supabase
+            // 1. KURANGI STOK DULU (Booking)
+            const stokBaru = checkData[0].stok - qty;
+            await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}`, {
+                method: "PATCH",
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ stok: stokBaru })
+            });
+
+            // 2. SIMPAN PENJUALAN
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
-                headers: { 
-                    "apikey": S_KEY, 
-                    "Authorization": `Bearer ${S_KEY}`, 
-                    "Content-Type": "application/json", 
-                    "Prefer": "return=representation" 
-                },
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
                 body: JSON.stringify({ 
-                    ign: ign, 
-                    jumlah: qty, 
-                    total_bayar: qty * selectedProduct.harga, 
-                    status: "PENDING"
+                    ign: ign, jumlah: qty, total_bayar: qty * selectedProduct.harga, 
+                    status: "PENDING", nama_item: selectedProduct.nama_produk 
                 })
             });
             const dataJual = await resJual.json();
 
-            // Step 2: Kirim Foto ke Telegram via GAS
+            // 3. KIRIM TELEGRAM
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(",")[1];
-                await fetch(GAS_URL, {
+                const resTele = await fetch(GAS_URL, {
                     method: "POST",
                     body: JSON.stringify({
-                        action: "upload_bukti",
-                        image: base64,
-                        type: file.type,
-                        id_jual: dataJual[0].id,
-                        jumlah_beli: qty,
-                        caption: `🚀 PESANAN BARU\n━━━━━━━━━━━━━━\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Jumlah: ${qty}\n💳 Metode: ${metodenya}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}\n━━━━━━━━━━━━━━`
+                        action: "upload_bukti", image: base64, type: file.type, id_jual: dataJual[0].id,
+                        caption: `🚀 PESANAN BARU\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Jumlah: ${qty}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}`
                     })
                 });
-                
-                alert("Pesanan terkirim! Admin akan segera memproses.");
-                closeModal();
-                loadData(); // Refresh UI
+
+                if(resTele.ok) {
+                    alert("Berhasil! Stok telah dipotong & Pesanan dikirim.");
+                    closeModal();
+                    loadData();
+                } else {
+                    // ROLLBACK STOK jika telegram gagal
+                    await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}`, {
+                        method: "PATCH",
+                        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ stok: checkData[0].stok })
+                    });
+                    alert("Gagal kirim bukti. Stok dikembalikan.");
+                    btn.disabled = false;
+                }
             };
             reader.readAsDataURL(file);
 
         } catch (err) {
-            alert("Kesalahan koneksi database!");
+            alert("Terjadi masalah jaringan.");
             btn.disabled = false;
-            btn.innerText = "KIRIM PESANAN";
         }
     }
 
     function filterItems() {
         const txt = document.getElementById("searchInput").value.toLowerCase();
-        const filtered = allProducts.filter(p => p.nama_produk.toLowerCase().includes(txt));
-        renderProducts(filtered);
+        renderProducts(allProducts.filter(p => p.nama_produk.toLowerCase().includes(txt)));
     }
 
-    // Inisialisasi
     loadData();
-    setInterval(fetchPending, 20000); // Refresh antrean tiap 20 detik
+    setInterval(fetchPending, 15000);
 </script>
 </body>
 </html>
+    
