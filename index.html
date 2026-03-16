@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Minecraft Edition</title>
+    <title>DZKALL SHOP - Minecraft Store</title>
     <style>
         :root { --primary: #855e42; --secondary: #2ecc71; }
         body { 
@@ -15,54 +15,73 @@
             position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5); 
         }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+        
+        /* GRID TIKTOK STYLE */
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .item-card { 
-            background: rgba(255,255,255,0.4); border-radius: 12px; overflow: hidden; 
+            background: rgba(255,255,255,0.6); border-radius: 12px; overflow: hidden; 
             backdrop-filter: blur(10px); border: 2px solid rgba(133,94,66,0.3);
-            transition: 0.3s; cursor: pointer; display: flex; flex-direction: column;
+            transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; position: relative;
         }
-        .item-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #eee; }
+        .item-card:hover { transform: translateY(-5px); border-color: var(--secondary); }
+        .item-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #fff; }
         .item-info { padding: 10px; text-align: center; }
-        .item-name { font-weight: bold; font-size: 14px; color: #111; }
-        .item-price { color: #d35400; font-weight: bold; }
-        .item-stock { font-size: 10px; background: var(--secondary); color: white; padding: 2px 8px; border-radius: 10px; }
+        .item-name { font-weight: bold; font-size: 14px; color: #111; margin-bottom: 5px; }
+        .item-price { color: #d35400; font-weight: bold; font-size: 13px; display: block; }
+        .item-stock { font-size: 10px; background: var(--secondary); color: white; padding: 2px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }
+
+        /* MODAL */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; }
-        .modal-body { padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; animation: zoomIn 0.3s; }
+        .modal-body { padding: 20px; max-height: 80vh; overflow-y: auto; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9em; }
         input, select { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 16px; }
+
+        /* ANTREAN */
+        .pending-section { background: rgba(255,255,255,0.7); border-radius: 10px; padding: 15px; margin-top: 30px; }
+        .pending-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ccc; font-size: 13px; }
+        .status-tag { color: #d35400; font-weight: bold; border: 1px solid #d35400; padding: 2px 5px; border-radius: 4px; font-size: 10px; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
     <h2 style="margin:0">DZKALL SHOP</h2>
-    <small>Top Up Aman & Real-time</small>
+    <small>Minecraft Edition Store</small>
 </div>
 
 <div class="container">
-    <div id="product-list" class="item-grid">
+    <div class="item-grid" id="product-list">
         <p style="text-align: center; grid-column: 1/-1;">Memuat produk...</p>
+    </div>
+
+    <div class="pending-section">
+        <h4 style="margin:0 0 10px 0; color: #855e42;">⏳ Antrean Pembeli</h4>
+        <div id="pending-list"></div>
     </div>
 </div>
 
 <div id="buyModal" class="modal">
     <div class="modal-content">
         <div class="modal-body">
-            <h3 id="modalTitle">Konfirmasi</h3>
+            <h3 id="modalTitle" style="margin-top:0">Beli Item</h3>
             <label>Jumlah Beli:</label>
             <input type="number" id="buyQty" value="1" min="1" oninput="updateModalPrice()">
             <label>In Game Name (IGN):</label>
-            <input type="text" id="buyIgn" placeholder="Nickname Game">
-            <label>Metode:</label>
-            <select id="buyMetode">
+            <input type="text" id="buyIgn" placeholder="Nickname Minecraft">
+            <label>Metode Pembayaran:</label>
+            <select id="buyMetode" onchange="toggleQris()">
                 <option value="DANA">DANA (08989294545)</option>
-                <option value="QRIS">QRIS</option>
+                <option value="QRIS">QRIS (Scan Gambar)</option>
             </select>
-            <label>Bukti Transfer:</label>
+            <div id="qrisContainer" style="display:none; text-align: center;">
+                <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" style="width: 180px; margin: 10px auto; border: 1px solid #ddd;">
+            </div>
+            <label>Upload Bukti:</label>
             <input type="file" id="buyBukti" accept="image/*">
-            <div style="background: #fff9e6; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                Total: <b id="modalTotalPrice">Rp 0</b>
+            <div style="background: #fff9e6; padding: 10px; margin: 10px 0; border-radius: 8px;">
+                Total Bayar: <b id="modalTotalPrice">Rp 0</b>
             </div>
             <button class="btn-beli" id="btn-submit-order" onclick="prosesBeli()">KIRIM PESANAN</button>
             <button onclick="closeModal()" style="width:100%; border:none; background:none; color:red; margin-top:10px; cursor:pointer;">Batal</button>
@@ -70,10 +89,15 @@
     </div>
 </div>
 
+<div style="text-align: center; padding: 20px;">
+    <a href="admin-produk.html" style="color:#555; text-decoration:none; font-size:12px;">⚙️ Admin Panel</a>
+</div>
+
 <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzOIIEuzPnWAZsiq25TYbfVq4ulUl6maPdUV5d7SkKuoX7jZhBEi3A_-QcznjKP5IjxrA/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby3Kwd0egyzlAJ8aPrc7GHwYBGcNlEBeSAjp4512lUpG5lzrM5koBcYy7MV62vFNW0UqA/exec";
+    
     
     let allProducts = [];
     let selectedProduct = null;
@@ -85,7 +109,8 @@
             });
             allProducts = await res.json();
             renderProducts(allProducts);
-        } catch(e) { console.error("Gagal load produk"); }
+            fetchPending();
+        } catch(e) { console.error("Load Gagal"); }
     }
 
     function renderProducts(data) {
@@ -102,6 +127,18 @@
         `).join("");
     }
 
+    async function fetchPending() {
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            const list = document.getElementById("pending-list");
+            list.innerHTML = data.length === 0 ? '<p style="font-size:11px; text-align:center;">Tidak ada antrean</p>' : 
+            data.map(i => `<div class="pending-item"><span><b>${i.ign}</b> (${i.nama_item})</span><span class="status-tag">Proses</span></div>`).join("");
+        } catch(e) {}
+    }
+
     function openModal(id) {
         selectedProduct = allProducts.find(p => p.id === id);
         if(!selectedProduct || selectedProduct.stok <= 0) return alert("Stok Habis!");
@@ -111,7 +148,8 @@
     }
 
     function closeModal() { document.getElementById("buyModal").style.display = "none"; }
-
+    function toggleQris() { document.getElementById("qrisContainer").style.display = (document.getElementById("buyMetode").value === "QRIS") ? "block" : "none"; }
+    
     function updateModalPrice() {
         const qty = parseInt(document.getElementById("buyQty").value) || 0;
         document.getElementById("modalTotalPrice").innerText = "Rp " + (qty * selectedProduct.harga).toLocaleString();
@@ -121,68 +159,56 @@
         const ign = document.getElementById("buyIgn").value;
         const qty = parseInt(document.getElementById("buyQty").value);
         const file = document.getElementById("buyBukti").files[0];
-
         if (!ign || !file || qty < 1) return alert("Lengkapi data!");
         
         const btn = document.getElementById("btn-submit-order");
         btn.innerText = "Booking Stok..."; btn.disabled = true;
 
         try {
-            // 1. Kurangi stok di Supabase (Booking)
-            const stokBaru = selectedProduct.stok - qty;
-            const updateRes = await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}`, {
+            // 1. Ambil stok terbaru & Booking
+            const checkRes = await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}&select=stok`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+            const checkData = await checkRes.json();
+            const stokAsli = checkData[0].stok;
+
+            if(stokAsli < qty) throw new Error("Stok tidak cukup");
+
+            await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}`, {
                 method: "PATCH",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ stok: stokBaru })
+                body: JSON.stringify({ stok: stokAsli - qty })
             });
 
-            if(!updateRes.ok) throw new Error("Gagal booking stok");
-
-            // 2. Simpan Data Penjualan
+            // 2. Simpan Penjualan
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
-                body: JSON.stringify({ 
-                    ign: ign, jumlah: qty, total_bayar: qty * selectedProduct.harga, 
-                    status: "PENDING", nama_item: selectedProduct.nama_produk 
-                })
+                body: JSON.stringify({ ign: ign, jumlah: qty, total_bayar: qty * selectedProduct.harga, status: "PENDING", nama_item: selectedProduct.nama_produk })
             });
             const dataJual = await resJual.json();
 
-            // 3. Kirim ke Telegram (Kirim ID PRODUK agar GAS tidak salah potong stok)
+            // 3. Kirim ke Telegram via GAS
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(",")[1];
-                const resTele = await fetch(GAS_URL, {
+                await fetch(GAS_URL, {
                     method: "POST",
                     body: JSON.stringify({
-                        action: "upload_bukti",
-                        image: base64,
-                        type: file.type,
-                        id_jual: dataJual[0].id,
-                        id_produk: selectedProduct.id, // ID Produk yang benar
-                        nama_produk: selectedProduct.nama_produk,
-                        jumlah_beli: qty,
-                        caption: `🚀 PESANAN BARU\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Jumlah: ${qty}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}`
+                        action: "upload_bukti", image: base64, type: file.type, 
+                        id_jual: dataJual[0].id, id_produk: selectedProduct.id, jumlah_beli: qty,
+                        caption: `🚀 PESANAN BARU\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Qty: ${qty}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}`
                     })
                 });
-
-                if(resTele.ok) {
-                    alert("Berhasil! Stok dipotong & Pesanan dikirim.");
-                    location.reload();
-                } else {
-                    throw new Error("Gagal kirim Telegram");
-                }
+                alert("Berhasil! Menunggu Konfirmasi Admin.");
+                location.reload();
             };
             reader.readAsDataURL(file);
-
         } catch (err) {
-            alert("Gagal memproses. Stok mungkin tidak berkurang.");
+            alert("Gagal: " + err.message);
             btn.disabled = false; btn.innerText = "KIRIM PESANAN";
         }
     }
-
     loadData();
+    setInterval(fetchPending, 10000);
 </script>
 </body>
 </html>
