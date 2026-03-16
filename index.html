@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Minecraft Edition</title>
+    <title>DZKALL SHOP - Official Store</title>
     <style>
         :root { --primary: #855e42; --secondary: #2ecc71; }
         body { 
@@ -27,9 +27,21 @@
         .qris-section img { width: 200px; height: auto; border: 1px solid #eee; }
         .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 15px; margin-top: 20px; border-radius: 8px; }
         .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 18px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-        .btn-beli:disabled { background: #ccc; }
+        .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
+        
+        /* Style Footer & Tombol Admin/Rekap */
         .footer { text-align: center; padding: 20px; font-size: 11px; color: #666; }
-        .admin-link { color: var(--primary); text-decoration: none; opacity: 0.5; }
+        .admin-nav { margin-top: 10px; display: flex; justify-content: center; gap: 15px; }
+        .admin-link { 
+            color: var(--primary); 
+            text-decoration: none; 
+            opacity: 0.6; 
+            font-weight: bold;
+            padding: 5px 10px;
+            border: 1px solid rgba(133, 94, 66, 0.3);
+            border-radius: 5px;
+        }
+        .admin-link:hover { opacity: 1; background: rgba(133, 94, 66, 0.1); }
     </style>
 </head>
 <body>
@@ -60,7 +72,7 @@
 
         <div id="qris-area" class="qris-section">
             <p style="font-size: 10px; color: red; font-weight: bold;">SCAN QRIS DI BAWAH INI</p>
-            <img src="https://i.ibb.co.com/ZRDgCpXZ/qris.png" alt="QRIS">
+            <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" alt="QRIS">
         </div>
 
         <label>Upload Bukti Transfer</label>
@@ -70,9 +82,13 @@
         
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
     </div>
+
     <div class="footer">
-        © 2026 DZKALL SHOP<br><br>
-        <a href="login.html" class="admin-link">Admin Login</a>
+        © 2026 DZKALL SHOP<br>
+        <div class="admin-nav">
+            <a href="login.html" class="admin-link">🔑 Staff Login</a>
+            <a href="rekap.html" class="admin-link">📊 Lihat Rekap</a>
+        </div>
     </div>
 </div>
 
@@ -81,19 +97,24 @@
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyswI_CTPN-G9w6t-au9huoIbdoN73Z1uA3gSPXHMYL_VRqyhrUlbMmafbUE-7S9aod/exec";
     const hargaM = 600;
+    let stokDb = 0;
 
     async function fetchStok() {
         try {
-            const res = await fetch(`${S_URL}/rest/v1/produk?id=eq.1&select=stok`, {
+            const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY&select=stok`, {
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
             });
             const data = await res.json();
-            document.getElementById("stok-angka").innerText = data[0].stok + " M";
+            if (data.length > 0) {
+                stokDb = data[0].stok;
+                document.getElementById("stok-angka").innerText = stokDb + " M";
+            }
         } catch(e) { console.error("Gagal ambil stok"); }
     }
 
     function updateTotal() {
-        document.getElementById("total").innerText = "Rp " + (document.getElementById("jumlah").value * hargaM).toLocaleString();
+        const jml = document.getElementById("jumlah").value;
+        document.getElementById("total").innerText = "Rp " + (jml * hargaM).toLocaleString();
     }
 
     function toggleQris() {
@@ -109,20 +130,30 @@
         const metodenya = document.getElementById("metode").value;
 
         if (!ign || !file) return alert("Lengkapi IGN dan Bukti Transfer!");
+        if (jml > stokDb) return alert("Maaf, stok tidak mencukupi!");
 
         btn.disabled = true; btn.innerText = "Memproses...";
 
         try {
-            // 1. Simpan ke Supabase status PENDING
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
-                body: JSON.stringify({ ign: ign, jumlah: jml, total_bayar: jml * hargaM, status: "PENDING" })
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json", 
+                    "Prefer": "return=representation" 
+                },
+                body: JSON.stringify({ 
+                    ign: ign, 
+                    jumlah: jml, 
+                    total_bayar: jml * hargaM, 
+                    status: "PENDING" 
+                })
             });
+            
             const dataJual = await resJual.json();
             const idPesanan = dataJual[0].id;
 
-            // 2. Kirim ke Telegram
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(",")[1];
@@ -134,19 +165,21 @@
                         type: file.type,
                         id_jual: idPesanan,
                         jumlah_beli: jml,
-                        caption: `🚀 PESANAN BARU\nIGN: ${ign}\nJumlah: ${jml}M\nMetode: ${metodenya}\nTotal: Rp ${(jml*hargaM).toLocaleString()}`
+                        caption: `🚀 PESANAN BARU\n━━━━━━━━━━━━━━\n👤 IGN: ${ign}\n📦 Jumlah: ${jml} M\n💳 Metode: ${metodenya}\n💰 Total: Rp ${(jml*hargaM).toLocaleString()}\n━━━━━━━━━━━━━━\nSilakan konfirmasi jika sudah masuk.`
                     })
                 });
-                alert("Pesanan terkirim! Silakan tunggu konfirmasi admin.");
+                alert("Pesanan terkirim! Admin akan segera memproses.");
                 location.reload();
             };
             reader.readAsDataURL(file);
+            
         } catch (err) {
-            alert("Error: " + err);
+            alert("Error: " + err.message);
             btn.disabled = false;
         }
     }
     fetchStok();
 </script>
 </body>
-</html>
+    </html>
+    
