@@ -14,8 +14,16 @@
         .stock-badge { display: inline-block; background: var(--secondary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; margin-top: 8px; }
         label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #555; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        
         .qris-section { text-align: center; margin-top: 15px; display: none; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fff; }
-        .qris-section img { width: 220px; height: auto; border: 1px solid #ccc; margin-top: 10px; }
+        .qris-section img { 
+            width: 250px; 
+            height: auto; 
+            border: 1px solid #ccc; 
+            margin-top: 10px;
+            image-rendering: -webkit-optimize-contrast; /* Biar QRIS lebih tajam */
+        }
+
         .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 12px; margin-top: 15px; border-radius: 4px; }
         .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; }
         .btn-beli:disabled { background: #ccc; }
@@ -67,8 +75,8 @@
 </div>
 
 <script>
-    // URL Deployment terbaru Ikhsan
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbyCWgchhdTQBiwBpqE86BNivqwGNQ1taRSmEnK323thChU7Xl95LNEH28iaMaMCNaEK7w/exec";
+    // Link Exec Terbaru Ikhsan
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbw2ztI1pJJV2yYthStKYjI3VmEQAfRNUAWqHsmDV1E87XeOz7BAllNoV1UcrCZ7jWWN/exec";
     const hargaM = 600;
     let stokSekarang = 0;
 
@@ -113,9 +121,15 @@
 
             fetch(webAppUrl, {
                 method: "POST",
-                body: JSON.stringify({ action: "upload_bukti", image: base64, type: file.type, caption: caption })
+                body: JSON.stringify({ 
+                    action: "upload_bukti", 
+                    image: base64, 
+                    type: file.type, 
+                    caption: caption,
+                    jumlah_beli: jml // Mengirim data jumlah beli agar stok berkurang
+                })
             }).then(() => {
-                alert("Berhasil! Pesanan terkirim.");
+                alert("Berhasil! Stok akan otomatis berkurang.");
                 location.reload();
             }).catch(() => {
                 alert("Berhasil Terkirim ke Telegram Ikhsan!");
