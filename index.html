@@ -123,7 +123,7 @@
         const list = document.getElementById("product-list");
         list.innerHTML = data.map(p => `
             <div class="item-card" onclick="openModal(${p.id})">
-                <img src="${p.img_url || 'https://via.placeholder.com/150'}" class="item-img">
+                <img src="${p.img_url || 'https://via.placeholder.com/150'}" class="item-img" onerror="this.src='https://via.placeholder.com/150'">
                 <div class="item-info">
                     <div class="item-name">${p.nama_produk}</div>
                     <div class="item-price">Rp ${p.harga.toLocaleString()}</div>
@@ -147,7 +147,7 @@
 
     function openModal(id) {
         selectedProduct = allProducts.find(p => p.id === id);
-        if(selectedProduct.stok <= 0) return alert("Stok Habis!");
+        if(!selectedProduct || selectedProduct.stok <= 0) return alert("Stok Habis!");
         document.getElementById("modalTitle").innerText = "Beli " + selectedProduct.nama_produk;
         document.getElementById("buyQty").value = 1;
         document.getElementById("buyModal").style.display = "flex";
@@ -157,7 +157,7 @@
     function closeModal() { document.getElementById("buyModal").style.display = "none"; }
 
     function updateModalPrice() {
-        const qty = document.getElementById("buyQty").value || 0;
+        const qty = parseInt(document.getElementById("buyQty").value) || 0;
         document.getElementById("modalTotalPrice").innerText = "Rp " + (qty * selectedProduct.harga).toLocaleString();
     }
 
@@ -165,77 +165,102 @@
         document.getElementById("qrisModal").style.display = (document.getElementById("buyMetode").value === "QRIS") ? "block" : "none";
     }
 
-    // FUNGSI PROSES BELI DENGAN BOOKING STOK
     async function prosesBeli() {
         const ign = document.getElementById("buyIgn").value;
         const qty = parseInt(document.getElementById("buyQty").value);
-        const file = document.getElementById("buyBukti").files[0];
+        const fileInput = document.getElementById("buyBukti");
+        const file = fileInput.files[0];
         const metodenya = document.getElementById("buyMetode").value;
 
-        if (!ign || !file || qty < 1) return alert("Lengkapi data!");
+        if (!ign || !file || qty < 1) return alert("Lengkapi data dan lampirkan bukti transfer!");
         
-        // Cek ulang stok di server sebelum memproses (mencegah double order)
-        const checkRes = await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}&select=stok`, {
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-        });
-        const checkData = await checkRes.json();
-        if(checkData[0].stok < qty) return alert("Maaf, stok baru saja habis atau tidak cukup!");
-
         const btn = document.getElementById("btn-submit-order");
-        btn.innerText = "Booking Stok..."; btn.disabled = true;
+        btn.innerText = "Memproses..."; btn.disabled = true;
+
+        let originalStok = 0;
 
         try {
-            // 1. KURANGI STOK DULU (Booking)
-            const stokBaru = checkData[0].stok - qty;
+            // 1. CEK & BOOKING STOK (Update stok dulu)
+            const checkRes = await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}&select=stok`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const checkData = await checkRes.json();
+            originalStok = checkData[0].stok;
+
+            if(originalStok < qty) {
+                alert("Stok tidak cukup!");
+                btn.disabled = false; btn.innerText = "KIRIM PESANAN";
+                return;
+            }
+
+            // Kurangi stok di database
             await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}`, {
                 method: "PATCH",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ stok: stokBaru })
+                body: JSON.stringify({ stok: originalStok - qty })
             });
 
-            // 2. SIMPAN PENJUALAN
+            // 2. SIMPAN DATA PENJUALAN
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json", 
+                    "Prefer": "return=representation" 
+                },
                 body: JSON.stringify({ 
-                    ign: ign, jumlah: qty, total_bayar: qty * selectedProduct.harga, 
-                    status: "PENDING", nama_item: selectedProduct.nama_produk 
+                    ign: ign, 
+                    jumlah: qty, 
+                    total_bayar: qty * selectedProduct.harga, 
+                    status: "PENDING", 
+                    nama_item: selectedProduct.nama_produk 
                 })
             });
+
+            if(!resJual.ok) throw new Error("Gagal simpan data penjualan");
             const dataJual = await resJual.json();
 
             // 3. KIRIM TELEGRAM
             const reader = new FileReader();
             reader.onload = async function(e) {
-                const base64 = e.target.result.split(",")[1];
-                const resTele = await fetch(GAS_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "upload_bukti", image: base64, type: file.type, id_jual: dataJual[0].id,
-                        caption: `🚀 PESANAN BARU\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Jumlah: ${qty}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}`
-                    })
-                });
+                try {
+                    const base64 = e.target.result.split(",")[1];
+                    const resTele = await fetch(GAS_URL, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            action: "upload_bukti",
+                            image: base64,
+                            type: file.type,
+                            id_jual: dataJual[0].id,
+                            caption: `🚀 PESANAN BARU\n━━━━━━━━━━━━━━\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Jumlah: ${qty}\n💳 Metode: ${metodenya}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}\n━━━━━━━━━━━━━━`
+                        })
+                    });
 
-                if(resTele.ok) {
-                    alert("Berhasil! Stok telah dipotong & Pesanan dikirim.");
-                    closeModal();
-                    loadData();
-                } else {
+                    if(resTele.ok) {
+                        alert("Berhasil! Pesanan terkirim dan stok dipotong.");
+                        closeModal();
+                        loadData();
+                    } else {
+                        throw new Error("Gagal kirim ke Telegram");
+                    }
+                } catch (err) {
                     // ROLLBACK STOK jika telegram gagal
                     await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}`, {
                         method: "PATCH",
                         headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ stok: checkData[0].stok })
+                        body: JSON.stringify({ stok: originalStok })
                     });
-                    alert("Gagal kirim bukti. Stok dikembalikan.");
-                    btn.disabled = false;
+                    alert("Gagal kirim bukti ke Telegram. Stok dikembalikan.");
+                    btn.disabled = false; btn.innerText = "KIRIM PESANAN";
                 }
             };
             reader.readAsDataURL(file);
 
         } catch (err) {
-            alert("Terjadi masalah jaringan.");
-            btn.disabled = false;
+            console.error(err);
+            alert("Terjadi kesalahan sistem. Jika stok terpotong, hubungi admin.");
+            btn.disabled = false; btn.innerText = "KIRIM PESANAN";
         }
     }
 
