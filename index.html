@@ -3,30 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SannShop - Jual Money</title>
+    <title>DZKALL SHOP - Jual Money</title>
     <style>
         :root { --primary: #0088cc; --secondary: #2ecc71; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
-        .store-container { max-width: 450px; margin: auto; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        /* KUNCI PENGATURAN BACKGROUND MINECRAFT */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; padding: 10px; 
+            background-image: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png'); /* <-- Tempel link gambar Minecraft di sini */
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed; /* Biar background gak ikut gerak saat di-scroll */
+            background-repeat: no-repeat;
+        }
+
+        .store-container { 
+            max-width: 450px; 
+            margin: 5vh auto; /* Jarak atas/bawah agar konten di tengah */
+            background: rgba(255, 255, 255, 0.95); /* <-- Transparansi container agar background nembus tapi teks jelas */
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            overflow: hidden; 
+        }
+        
         .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; }
         .content { padding: 20px; }
+        
         .product-card { border: 2px solid #eef2f7; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
         .stock-badge { display: inline-block; background: var(--secondary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; margin-top: 8px; }
+        
         label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #555; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         
         .qris-section { text-align: center; margin-top: 15px; display: none; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fff; }
         .qris-section img { 
-            width: 250px; 
-            height: auto; 
-            border: 1px solid #ccc; 
-            margin-top: 10px;
-            image-rendering: -webkit-optimize-contrast; /* Biar QRIS lebih tajam */
+            width: 250px; height: auto; border: 1px solid #ccc; margin-top: 10px;
+            image-rendering: -webkit-optimize-contrast; /* Biar QRIS tajam */
         }
 
         .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 12px; margin-top: 15px; border-radius: 4px; }
+        
         .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; }
         .btn-beli:disabled { background: #ccc; }
+        
         .footer { text-align: center; padding: 15px; font-size: 11px; color: #999; }
     </style>
 </head>
@@ -34,8 +55,8 @@
 
 <div class="store-container">
     <div class="header">
-        <h1>SannShop</h1>
-        <p>Money Donut Aman Terpecaya</p>
+        <h1>DZKALL SHOP</h1>
+        <p>Top Up Aman & Kilat</p>
     </div>
 
     <div class="content">
@@ -59,7 +80,7 @@
 
         <div id="qris-area" class="qris-section">
             <p style="font-size: 12px; margin:0; color: #d35400; font-weight: bold;">⚠️ SCAN & BAYAR SESUAI TOTAL ⚠️</p>
-            <img id="gambar-qris" src="https://i.ibb.co.com/BVhSZBFT/Screenshot-20260316-201430.png" alt="QRIS DZKALL">
+            <img id="gambar-qris" src="LINK_GAMBAR_QRIS_KAMU" alt="QRIS DZKALL">
         </div>
 
         <label>Upload Bukti Transfer</label>
@@ -71,12 +92,12 @@
 
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
     </div>
-    <div class="footer">© 2026 DZKALL SHOP</div>
+    <div class="footer">© 2026 DZKALL SHOP - Ikhsan Project</div>
 </div>
 
 <script>
-    // Link Exec Terbaru Ikhsan
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbw2ztI1pJJV2yYthStKYjI3VmEQAfRNUAWqHsmDV1E87XeOz7BAllNoV1UcrCZ7jWWN/exec";
+    // URL Exec Terbaru Ikhsan
+    const webAppUrl = "URL_EXEC_TERBARU_KAMU";
     const hargaM = 600;
     let stokSekarang = 0;
 
@@ -114,22 +135,13 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             const base64 = e.target.result.split(",")[1];
-            const caption = `🚀 PESANAN BARU - DZKALL SHOP\n` +
-                          `👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n` +
-                          `💳 Via: ${document.getElementById("metode").value}\n` +
-                          `💰 Total: Rp ${(jml * hargaM).toLocaleString()}`;
+            const caption = `🚀 PESANAN BARU - DZKALL SHOP\n👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n💳 Via: ${metode}\n💰 Total: Rp ${(jml * hargaM).toLocaleString()}`;
 
             fetch(webAppUrl, {
                 method: "POST",
-                body: JSON.stringify({ 
-                    action: "upload_bukti", 
-                    image: base64, 
-                    type: file.type, 
-                    caption: caption,
-                    jumlah_beli: jml // Mengirim data jumlah beli agar stok berkurang
-                })
+                body: JSON.stringify({ action: "upload_bukti", image: base64, type: file.type, caption: caption, jumlah_beli: jml })
             }).then(() => {
-                alert("Berhasil! Tunggu 30menit-1jam, jika belum masuk wa +628989294545");
+                alert("Berhasil! Stok akan otomatis berkurang.");
                 location.reload();
             }).catch(() => {
                 alert("Berhasil Terkirim ke Telegram Ikhsan!");
@@ -141,4 +153,5 @@
     loadStok();
 </script>
 </body>
-</html>
+    </html>
+    
