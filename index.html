@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Official Store</title>
+    <title>SannShop - Official Store</title>
     <style>
         :root { --primary: #855e42; --secondary: #2ecc71; }
         body { 
@@ -13,28 +13,31 @@
         }
         .store-container { 
             max-width: 450px; margin: 2vh auto; 
-            background: rgba(255, 255, 255, 0.40); /* OPACITY 40% */
+            background: rgba(255, 255, 255, 0.40); /* Opacity 40% */
             border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); overflow: hidden; 
             backdrop-filter: blur(10px);
         }
         
-        /* HEADER DENGAN BACKGROUND DONUT SMP */
+        /* HEADER DENGAN BACKGROUND BARU */
         .header { 
-            background-image: linear-gradient(rgba(133, 94, 66, 0.8), rgba(133, 94, 66, 0.8)), url('https://i.ibb.co.com/c168ba2d-0743-43eb-8e94-2a1bfabcf79b/1773699134839.png');
+            background-image: linear-gradient(rgba(133, 94, 66, 0.7), rgba(133, 94, 66, 0.7)), url('https://i.ibb.co.com/5gcQT6gk/1773699134839.png');
             background-size: cover;
             background-position: center;
             color: white; 
-            padding: 30px 20px; 
+            padding: 35px 20px; 
             text-align: center; 
         }
         
         .content { padding: 20px; }
         .product-card { border: 2px solid rgba(133,94,66,0.3); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; background: rgba(255,255,255,0.4); }
         .stock-badge { display: inline-block; background: var(--secondary); color: white; padding: 6px 18px; border-radius: 20px; font-weight: bold; margin-top: 10px; }
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #222; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.8); }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #111; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.8); font-size: 14px; }
+        
+        /* QRIS SECTION */
         .qris-section { text-align: center; margin-top: 15px; display: none; padding: 10px; background: white; border-radius: 8px; }
-        .qris-section img { width: 200px; height: auto; border: 1px solid #eee; }
+        .qris-section img { width: 100%; max-width: 250px; height: auto; border: 1px solid #eee; }
+        
         .payment-box { background: rgba(255, 249, 230, 0.8); border-left: 5px solid #f1c40f; padding: 15px; margin-top: 20px; border-radius: 8px; color: #333; }
         .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 18px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-beli:disabled { background: #999; cursor: not-allowed; }
@@ -44,28 +47,30 @@
         .pending-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); font-size: 13px; color: #000; }
         .status-tag { color: #d35400; font-weight: bold; font-size: 10px; text-transform: uppercase; border: 1px solid #d35400; padding: 2px 5px; border-radius: 4px; }
         
-        .footer { text-align: center; padding: 20px; font-size: 11px; color: #222; font-weight: bold; }
+        .footer { text-align: center; padding: 20px; font-size: 11px; color: #000; font-weight: bold; }
         .admin-nav { margin-top: 10px; display: flex; justify-content: center; gap: 10px; }
-        .admin-link { color: #fff; background: var(--primary); text-decoration: none; padding: 5px 10px; border-radius: 5px; font-size: 10px; }
+        .admin-link { color: #fff; background: var(--primary); text-decoration: none; padding: 6px 12px; border-radius: 5px; font-size: 10px; }
     </style>
 </head>
 <body>
 
 <div class="store-container">
     <div class="header">
-        <h1 style="margin:0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">DZKALL SHOP</h1>
-        <p style="margin:5px 0 0; font-size: 0.9em; opacity: 0.9;">Top Up Aman & Real-time</p>
+        <h1 style="margin:0; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); letter-spacing: 1px;">SannShop</h1>
+        <p style="margin:5px 0 0; font-size: 0.9em; opacity: 0.95; font-weight: 500;">Money Donut Aman Terpercaya</p>
     </div>
     <div class="content">
         <div class="product-card">
-            <span style="font-weight:bold; font-size: 1.4em; color: #333;">1M MONEY</span><br>
+            <span style="font-weight:bold; font-size: 1.4em; color: #222;">1M MONEY</span><br>
             <div class="stock-badge">STOK: <span id="stok-angka">Memuat...</span></div>
         </div>
         
         <label>Beli Berapa (M)?</label>
         <input type="number" id="jumlah" value="1" min="1" oninput="updateTotal()">
+        
         <label>In Game Name (IGN)</label>
         <input type="text" id="ign" placeholder="Nickname Game">
+        
         <label>Metode Pembayaran</label>
         <select id="metode" onchange="toggleQris()">
             <option value="DANA">DANA (08989294545)</option>
@@ -73,21 +78,26 @@
             <option value="QRIS">QRIS (Scan Gambar)</option>
         </select>
 
-        <div id="qris-area" class="qris-section"><img src="https://i.ibb.co.com/ZRDgCpXZ/qris.png"></div>
+        <div id="qris-area" class="qris-section">
+            <p style="font-size: 11px; color: #d35400; font-weight: bold; margin-bottom: 10px;">SILAKAN SCAN UNTUK MEMBAYAR</p>
+            <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" alt="QRIS Baru">
+        </div>
 
         <label>Upload Bukti Transfer</label>
         <input type="file" id="bukti" accept="image/*">
+        
         <div class="payment-box">Total Bayar: <strong id="total">Rp 600</strong></div>
+        
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
     </div>
 
     <div class="pending-section">
         <div class="pending-title">⏳ Antrean Proses</div>
-        <div id="pending-list"><p style="font-size: 11px; text-align: center;">Mengecek...</p></div>
+        <div id="pending-list"><p style="font-size: 11px; text-align: center; color: #666;">Mengecek antrean...</p></div>
     </div>
 
     <div class="footer">
-        © 2026 DZKALL SHOP<br>
+        © 2026 SannShop<br>
         <div class="admin-nav">
             <a href="login.html" class="admin-link">🔑 Staff Login</a>
             <a href="rekap.html" class="admin-link">📊 Lihat Rekap</a>
@@ -98,7 +108,6 @@
 <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    // EXEC BARU
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzOIIEuzPnWAZsiq25TYbfVq4ulUl6maPdUV5d7SkKuoX7jZhBEi3A_-QcznjKP5IjxrA/exec";
     const hargaM = 600;
     let stokDb = 0;
@@ -109,28 +118,35 @@
     }
 
     async function fetchStok() {
-        const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY&select=stok`, {
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-        });
-        const data = await res.json();
-        stokDb = data[0].stok;
-        document.getElementById("stok-angka").innerText = stokDb + " M";
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY&select=stok`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            if (data.length > 0) {
+                stokDb = data[0].stok;
+                document.getElementById("stok-angka").innerText = stokDb + " M";
+            }
+        } catch(e) { console.error("Gagal ambil stok"); }
     }
 
     async function fetchPending() {
-        const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, {
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-        });
-        const data = await res.json();
-        let html = data.length === 0 ? '<p style="font-size: 11px; text-align: center;">Kosong</p>' : "";
-        data.forEach(i => {
-            html += `<div class="pending-item"><span><b>${sensorIGN(i.ign)}</b> (${i.jumlah}M)</span><span class="status-tag">Proses</span></div>`;
-        });
-        document.getElementById("pending-list").innerHTML = html;
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            let html = data.length === 0 ? '<p style="font-size: 11px; text-align: center; color: #666;">Tidak ada antrean</p>' : "";
+            data.forEach(i => {
+                html += `<div class="pending-item"><span><b>${sensorIGN(i.ign)}</b> (${i.jumlah}M)</span><span class="status-tag">Proses</span></div>`;
+            });
+            document.getElementById("pending-list").innerHTML = html;
+        } catch(e) { console.error("Gagal ambil antrean"); }
     }
 
     function updateTotal() {
-        document.getElementById("total").innerText = "Rp " + (document.getElementById("jumlah").value * hargaM).toLocaleString();
+        const jml = document.getElementById("jumlah").value || 0;
+        document.getElementById("total").innerText = "Rp " + (jml * hargaM).toLocaleString();
     }
 
     function toggleQris() {
@@ -142,37 +158,47 @@
         const ign = document.getElementById("ign").value;
         const jml = parseInt(document.getElementById("jumlah").value);
         const file = document.getElementById("bukti").files[0];
-        if (!ign || !file) return alert("Lengkapi data!");
+        const metodenya = document.getElementById("metode").value;
+
+        if (!ign || !file) return alert("Harap isi IGN dan lampirkan bukti transfer!");
+        if (jml > stokDb) return alert("Stok tidak cukup!");
+
         btn.disabled = true; btn.innerText = "Mengirim...";
 
-        const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
-            method: "POST",
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
-            body: JSON.stringify({ ign: ign, jumlah: jml, total_bayar: jml * hargaM, status: "PENDING" })
-        });
-        const dataJual = await resJual.json();
-
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const base64 = e.target.result.split(",")[1];
-            await fetch(GAS_URL, {
+        try {
+            const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
-                body: JSON.stringify({
-                    action: "upload_bukti",
-                    image: base64,
-                    type: file.type,
-                    id_jual: dataJual[0].id,
-                    jumlah_beli: jml,
-                    caption: `🚀 PESANAN BARU\nIGN: ${ign}\nJumlah: ${jml}M\nTotal: Rp ${(jml*600).toLocaleString()}`
-                })
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
+                body: JSON.stringify({ ign: ign, jumlah: jml, total_bayar: jml * hargaM, status: "PENDING" })
             });
-            location.reload();
-        };
-        reader.readAsDataURL(file);
+            const dataJual = await resJual.json();
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result.split(",")[1];
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "upload_bukti",
+                        image: base64,
+                        type: file.type,
+                        id_jual: dataJual[0].id,
+                        jumlah_beli: jml,
+                        caption: `🚀 PESANAN BARU\n━━━━━━━━━━━━━━\n👤 IGN: ${ign}\n📦 Jumlah: ${jml}M\n💳 Metode: ${metodenya}\n💰 Total: Rp ${(jml*600).toLocaleString()}\n━━━━━━━━━━━━━━`
+                    })
+                });
+                alert("Pesanan berhasil dikirim!");
+                location.reload();
+            };
+            reader.readAsDataURL(file);
+        } catch (err) {
+            alert("Terjadi kesalahan!");
+            btn.disabled = false;
+        }
     }
+
     fetchStok(); fetchPending();
-    // Auto refresh antrean tiap 30 detik
-    setInterval(fetchPending, 30000);
+    setInterval(fetchPending, 20000); // Auto-refresh antrean tiap 20 detik
 </script>
 </body>
 </html>
