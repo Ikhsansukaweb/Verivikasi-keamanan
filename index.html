@@ -5,40 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DZKALL SHOP - Jual Money</title>
     <style>
-        :root { --primary: #0088cc; --secondary: #2ecc71; --dark: #333; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: var(--dark); }
-        .store-container { max-width: 500px; margin: auto; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
-        
-        .header { background: var(--primary); color: white; padding: 25px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
-        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
-
+        :root { --primary: #0088cc; --secondary: #2ecc71; --danger: #ff4757; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
+        .store-container { max-width: 450px; margin: auto; background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 22px; }
         .content { padding: 20px; }
-        
-        /* Produk Card */
-        .product-card { border: 2px solid #e7f3ff; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; background: #fff; }
-        .item-title { font-size: 1.4em; font-weight: bold; color: var(--primary); margin-bottom: 8px; }
-        .stock-badge { background: #ff4757; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
-
-        /* Form */
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #555; }
-        input, select, textarea { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        input:focus { border-color: var(--primary); outline: none; }
-
-        .payment-info { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 15px; margin-top: 20px; border-radius: 4px; }
-        .total-price { font-size: 1.2em; font-weight: bold; color: #d35400; }
-
-        .upload-box { background: #f8f9fa; border: 2px dashed #cbd5e0; padding: 15px; text-align: center; border-radius: 8px; margin-top: 15px; }
-        
-        #qris-box { text-align: center; margin-top: 15px; padding: 10px; border: 1px solid #eee; border-radius: 8px; }
-        .qris-img { width: 200px; height: 200px; margin: 10px auto; background: #eee; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .qris-img img { width: 100%; height: auto; }
-
-        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 16px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 25px; transition: 0.3s; }
-        .btn-beli:hover { background: #27ae60; transform: translateY(-2px); }
+        .product-card { border: 2px solid #eef2f7; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
+        .item-name { font-size: 1.2em; font-weight: bold; display: block; }
+        .stock-badge { display: inline-block; background: var(--danger); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8em; margin-top: 5px; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #444; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 12px; margin-top: 15px; border-radius: 4px; }
+        .total-price { font-size: 1.2em; font-weight: bold; color: #e67e22; }
+        .upload-section { background: #f8f9fa; border: 2px dashed #cbd5e0; padding: 15px; text-align: center; border-radius: 8px; margin-top: 15px; }
+        .qris-area { text-align: center; margin-top: 15px; display: none; }
+        .qris-area img { width: 180px; border: 1px solid #ddd; padding: 5px; background: white; }
+        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
-
-        .footer { text-align: center; padding: 20px; font-size: 12px; color: #888; }
+        .footer { text-align: center; padding: 15px; font-size: 11px; color: #999; }
     </style>
 </head>
 <body>
@@ -46,143 +31,126 @@
 <div class="store-container">
     <div class="header">
         <h1>DZKALL SHOP</h1>
-        <p>Top Up Aman, Kilat, & Terpercaya</p>
+        <p>Top Up Aman, Kilat & Terpercaya</p>
     </div>
 
     <div class="content">
         <div class="product-card">
-            <div class="item-title">1M MONEY</div>
-            <span class="stock-badge">STOK: <span id="current-stock">Mengecek...</span></span>
+            <span class="item-name">1M MONEY</span>
+            <div class="stock-badge">STOK: <span id="stok-angka">Mengecek...</span></div>
         </div>
 
-        <label>Jumlah Pembelian (M)</label>
-        <input type="number" id="jumlah-beli" value="1" min="1" oninput="hitungTotal()">
+        <label>Mau Beli Berapa (M)?</label>
+        <input type="number" id="jumlah" value="1" min="1" oninput="updateTotal()">
 
         <label>In Game Name (IGN)</label>
-        <input type="text" id="ign" placeholder="Masukkan Nickname Anda">
+        <input type="text" id="ign" placeholder="Masukkan Nickname Game">
 
-        <label>Catatan Pesanan</label>
-        <textarea id="catatan" rows="2" placeholder="Contoh: Trade di lokasi X atau kirim via Mail"></textarea>
+        <label>Catatan</label>
+        <textarea id="catatan" rows="2" placeholder="Contoh: Trade di depan bank"></textarea>
 
         <label>Metode Pembayaran</label>
-        <select id="payment-method" onchange="toggleQris()">
-            <option value="DANA">DANA - 08989294545</option>
-            <option value="GOPAY">GOPAY - 08989294545</option>
-            <option value="QRIS">QRIS (Scan Otomatis)</option>
+        <select id="metode" onchange="cekQris()">
+            <option value="DANA">DANA (08989294545)</option>
+            <option value="GOPAY">GOPAY (08989294545)</option>
+            <option value="QRIS">QRIS (Scan Gambar)</option>
         </select>
 
-        <div id="qris-box" style="display:none;">
-            <p>Silakan Scan & Bayar:</p>
-            <div class="qris-img">
-                <img src="https://via.placeholder.com/200?text=SCAN+QRIS+DISINI" alt="QRIS DZKALL">
-            </div>
+        <div id="qris-display" class="qris-area">
+            <p style="font-size: 12px; color: #666;">Silakan Scan QRIS:</p>
+            <img src="https://via.placeholder.com/180?text=QRIS+DZKALL" alt="QRIS">
         </div>
 
-        <div class="upload-box">
+        <div class="upload-section">
             <label style="margin-top:0">Upload Bukti Transfer</label>
-            <input type="file" id="bukti-tf" accept="image/*">
+            <input type="file" id="bukti" accept="image/*">
         </div>
 
-        <div class="payment-info">
-            Total yang harus dibayar:<br>
-            <span class="total-price" id="total-harga">Rp 600</span>
+        <div class="payment-box">
+            Total Bayar: <span class="total-price" id="total">Rp 600</span>
         </div>
 
-        <button class="btn-beli" id="btn-submit" onclick="prosesBeli()">KONFIRMASI PEMBAYARAN</button>
+        <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
     </div>
-    <div class="footer">
-        &copy; 2026 DZKALL SHOP. All Rights Reserved.
-    </div>
+    <div class="footer">© 2026 DZKALL SHOP</div>
 </div>
 
 <script>
-    // --- KONFIGURASI ---
-    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTe6zSCcUVKqpqNYIaaYRsjBUIZmgRlm_nU9YOMKQ5Vx-coeZp9fyl28DmnCfbjfL9k-kp1iPpeqRsC/pub?gid=0&single=true&output=csv";
-    const urlWebApp = "TEMPEL_URL_WEB_APP_KAMU_DI_SINI"; // GANTI DENGAN URL /exec KAMU
-    const hargaPerM = 600;
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbyySf-GIfGNtsg1ljzPb3c-lk-UkrIzZPg4VYS8mGZ6IW9nvgPRwtNyvVwx77YtQV9CIg/exec";
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTe6zSCcUVKqpqNYIaaYRsjBUIZmgRlm_nU9YOMKQ5Vx-coeZp9fyl28DmnCfbjfL9k-kp1iPpeqRsC/pub?gid=0&single=true&output=csv";
+    const hargaM = 600;
     let stokSekarang = 0;
 
-    // Ambil Stok dari Sheets
-    async function fetchStok() {
+    // FUNGSI BACA STOK (Logika: Cari Nama, Ambil Kanan)
+    async function loadStok() {
         try {
-            const res = await fetch(urlCSV + "?t=" + new Date().getTime());
-            const data = await res.text();
-            const rows = data.split("\n");
-            rows.forEach(row => {
-                const cols = row.split(",");
-                if (cols[4] && cols[4].includes("1M MONEY")) {
-                    stokSekarang = parseInt(cols[5]);
-                    document.getElementById("current-stock").innerText = stokSekarang;
+            const r = await fetch(csvUrl + "?v=" + Date.now());
+            const txt = await r.text();
+            const rows = txt.split(/\r?\n/);
+            let found = false;
+
+            for (let i = 0; i < rows.length; i++) {
+                const cols = rows[i].split(",");
+                for (let j = 0; j < cols.length; j++) {
+                    let cell = cols[j].replace(/"/g, "").trim();
+                    if (cell.toUpperCase() === "1M MONEY") {
+                        let val = cols[j + 1] ? cols[j + 1].replace(/"/g, "").trim() : "0";
+                        stokSekarang = parseInt(val) || 0;
+                        document.getElementById("stok-angka").innerText = stokSekarang;
+                        found = true; break;
+                    }
                 }
-            });
-        } catch (e) { document.getElementById("current-stock").innerText = "Error"; }
+                if (found) break;
+            }
+        } catch (e) { document.getElementById("stok-angka").innerText = "Error"; }
     }
 
-    function hitungTotal() {
-        const jumlah = document.getElementById("jumlah-beli").value;
-        document.getElementById("total-harga").innerText = "Rp " + (jumlah * hargaPerM).toLocaleString();
+    function updateTotal() {
+        const j = document.getElementById("jumlah").value;
+        document.getElementById("total").innerText = "Rp " + (j * hargaM).toLocaleString();
     }
 
-    function toggleQris() {
-        const method = document.getElementById("payment-method").value;
-        document.getElementById("qris-box").style.display = (method === "QRIS") ? "block" : "none";
+    function cekQris() {
+        document.getElementById("qris-display").style.display = (document.getElementById("metode").value === "QRIS") ? "block" : "none";
     }
 
-    // Fungsi Kirim ke Bot Telegram
-    function prosesBeli() {
-        const btn = document.getElementById("btn-submit");
-        const jumlah = document.getElementById("jumlah-beli").value;
+    function kirimPesanan() {
+        const btn = document.getElementById("submit-btn");
         const ign = document.getElementById("ign").value;
-        const payment = document.getElementById("payment-method").value;
-        const fileInput = document.getElementById("bukti-tf");
+        const jml = parseInt(document.getElementById("jumlah").value);
+        const file = document.getElementById("bukti").files[0];
 
-        if (!ign) return alert("Nickname (IGN) wajib diisi!");
-        if (!fileInput.files[0]) return alert("Harap upload foto bukti transfer!");
-        if (jumlah > stokSekarang) return alert("Stok tidak mencukupi!");
+        if (!ign || !file) return alert("Lengkapi IGN dan Bukti Transfer!");
+        if (jml > stokSekarang) return alert("Stok tidak mencukupi!");
 
         btn.disabled = true;
-        btn.innerText = "Mengirim ke Bot...";
+        btn.innerText = "Mengirim...";
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const base64Image = e.target.result.split(",")[1];
-            const caption = `🚀 PESANAN BARU - DZKALL SHOP\n` +
-                          `--------------------------\n` +
-                          `👤 IGN: ${ign}\n` +
-                          `📦 Produk: 1M MONEY\n` +
-                          `🔢 Jumlah: ${jumlah} M\n` +
-                          `💰 Total: Rp ${(jumlah * hargaPerM).toLocaleString()}\n` +
-                          `💳 Via: ${payment}\n` +
-                          `📝 Catatan: ${document.getElementById("catatan").value}\n` +
-                          `--------------------------\n` +
-                          `Mohon segera diproses Bos!`;
+            const base64 = e.target.result.split(",")[1];
+            const caption = `🔥 PESANAN BARU - DZKALL SHOP\n\n👤 IGN: ${ign}\n📦 Produk: 1M MONEY\n🔢 Jumlah: ${jml} M\n💳 Via: ${document.getElementById("metode").value}\n📝 Catatan: ${document.getElementById("catatan").value}`;
 
-            fetch(urlWebApp, {
+            fetch(webAppUrl, {
                 method: "POST",
                 body: JSON.stringify({
                     action: "upload_bukti",
-                    image: base64Image,
-                    type: fileInput.files[0].type,
+                    image: base64,
+                    type: file.type,
                     caption: caption
                 })
-            })
-            .then(res => {
-                alert("Berhasil! Pesanan & Bukti Transfer telah dikirim ke Bot Telegram Ikhsan.");
+            }).then(() => {
+                alert("Berhasil! Pesanan & Bukti Transfer terkirim ke Telegram.");
                 location.reload();
-            })
-            .catch(err => {
-                alert("Gagal mengirim. Pastikan URL Web App benar.");
+            }).catch(() => {
+                alert("Gagal kirim.");
                 btn.disabled = false;
-                btn.innerText = "KONFIRMASI PEMBAYARAN";
             });
         };
-        reader.readAsDataURL(fileInput.files[0]);
+        reader.readAsDataURL(file);
     }
 
-    fetchStok();
-    setInterval(fetchStok, 30000); // Sinkron stok tiap 30 detik
+    loadStok();
 </script>
-
 </body>
-    </html>
-    
+</html>
