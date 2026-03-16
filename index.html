@@ -5,37 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DZKALL SHOP - Jual Money</title>
     <style>
-        :root { --primary: #0088cc; --secondary: #2ecc71; }
+        :root { 
+            --primary: #855e42; /* <-- Perubahan warna biru ke COKLAT KAYU MINECRAFT */
+            --secondary: #2ecc71; 
+            --danger: #ff4757;
+        }
         
-        /* KUNCI PENGATURAN BACKGROUND MINECRAFT */
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; padding: 10px; 
-            background-image: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png'); /* <-- Tempel link gambar Minecraft di sini */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f0f2f5; margin: 0; padding: 15px; 
+            /* LINK BACKGROUND SUDAH DIPERBAIKI KE DIRECT LINK AGAR MUNCUL */
+            background-image: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png'); 
             background-size: cover; 
             background-position: center; 
-            background-attachment: fixed; /* Biar background gak ikut gerak saat di-scroll */
+            background-attachment: fixed;
             background-repeat: no-repeat;
         }
 
         .store-container { 
             max-width: 450px; 
-            margin: 5vh auto; /* Jarak atas/bawah agar konten di tengah */
-            background: rgba(255, 255, 255, 0.95); /* <-- Transparansi container agar background nembus tapi teks jelas */
+            margin: 5vh auto; 
+            /* Perubahan Bagian Putih JADI LEBIH TRANSPARAN (0.85 opacity) */
+            background: rgba(255, 255, 255, 0.85); 
             border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
             overflow: hidden; 
         }
         
         .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 1px; }
         .content { padding: 20px; }
         
-        .product-card { border: 2px solid #eef2f7; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
+        .product-card { border: 2px solid #eef2f7; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; background: rgba(255, 255, 255, 0.5); }
         .stock-badge { display: inline-block; background: var(--secondary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; margin-top: 8px; }
         
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #555; }
-        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #444; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: rgba(255, 255, 255, 0.7); }
         
         .qris-section { text-align: center; margin-top: 15px; display: none; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fff; }
         .qris-section img { 
@@ -44,10 +49,10 @@
         }
 
         .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 12px; margin-top: 15px; border-radius: 4px; }
-        
-        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; }
-        .btn-beli:disabled { background: #ccc; }
-        
+        .total-price { font-size: 1.2em; font-weight: bold; color: #e67e22; }
+
+        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
         .footer { text-align: center; padding: 15px; font-size: 11px; color: #999; }
     </style>
 </head>
@@ -80,14 +85,14 @@
 
         <div id="qris-area" class="qris-section">
             <p style="font-size: 12px; margin:0; color: #d35400; font-weight: bold;">⚠️ SCAN & BAYAR SESUAI TOTAL ⚠️</p>
-            <img id="gambar-qris" src="LINK_GAMBAR_QRIS_KAMU" alt="QRIS DZKALL">
+            <img id="gambar-qris" src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" alt="QRIS DZKALL">
         </div>
 
         <label>Upload Bukti Transfer</label>
         <input type="file" id="bukti" accept="image/*">
         
         <div class="payment-box">
-            Total Bayar: <strong style="color: #e67e22; font-size: 1.2em;" id="total">Rp 600</strong>
+            Total Bayar: <span class="total-price" id="total">Rp 600</span>
         </div>
 
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
@@ -96,18 +101,22 @@
 </div>
 
 <script>
-    // URL Exec Terbaru Ikhsan
-    const webAppUrl = "URL_EXEC_TERBARU_KAMU";
+    // URL Exec Terbaru Ikhsan (GANTI DENGAN URL EXEC KAMU)
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbw2ztI1pJJV2yYthStKYjI3VmEQAfRNUAWqHsmDV1E87XeOz7BAllNoV1UcrCZ7jWWN/exec";
     const hargaM = 600;
     let stokSekarang = 0;
 
+    // Ambil Stok lewat Google Script (Proxy)
     async function loadStok() {
         try {
             const res = await fetch(webAppUrl);
             const data = await res.json();
             stokSekarang = parseInt(data.stok) || 0;
             document.getElementById("stok-angka").innerText = stokSekarang;
-        } catch (e) { document.getElementById("stok-angka").innerText = "Gagal Muat"; }
+        } catch (e) { 
+            document.getElementById("stok-angka").innerText = "Gagal Muat";
+            console.error("Gagal Muat Stok:", e);
+        }
     }
 
     function updateTotal() {
@@ -125,9 +134,10 @@
         const ign = document.getElementById("ign").value;
         const file = document.getElementById("bukti").files[0];
         const jml = document.getElementById("jumlah").value;
+        const metode = document.getElementById("metode").value;
 
         if (!ign || !file) return alert("Harap isi IGN dan upload Bukti!");
-        if (stokSekarang > 0 && parseInt(jml) > stokSekarang) return alert("Stok tidak cukup!");
+        if (stokSekarang > 0 && parseInt(jml) > stokSekarang) return alert("Maaf, stok tidak cukup!");
 
         btn.innerText = "Mengirim...";
         btn.disabled = true;
@@ -139,7 +149,13 @@
 
             fetch(webAppUrl, {
                 method: "POST",
-                body: JSON.stringify({ action: "upload_bukti", image: base64, type: file.type, caption: caption, jumlah_beli: jml })
+                body: JSON.stringify({
+                    action: "upload_bukti",
+                    image: base64,
+                    type: file.type,
+                    caption: caption,
+                    jumlah_beli: jml // Mengirim data jumlah beli agar stok berkurang
+                })
             }).then(() => {
                 alert("Berhasil! Stok akan otomatis berkurang.");
                 location.reload();
@@ -150,8 +166,9 @@
         };
         reader.readAsDataURL(file);
     }
+
+    // Jalankan ambil stok saat awal
     loadStok();
 </script>
 </body>
-    </html>
-    
+</html>
