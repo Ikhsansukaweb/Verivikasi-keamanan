@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN PANEL - DZKALL SHOP</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #2c3e50; color: white; 
+            margin: 0; padding: 20px; display: flex; justify-content: center;
+        }
+        .admin-box { 
+            background: #34495e; padding: 30px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 400px;
+        }
+        h1 { text-align: center; color: #ecf0f1; border-bottom: 2px solid #855e42; padding-bottom: 10px; }
+        .status-card { 
+            background: #27ae60; padding: 15px; border-radius: 10px; 
+            text-align: center; margin: 20px 0; font-size: 1.5em; font-weight: bold;
+        }
+        label { display: block; margin-top: 20px; color: #bdc3c7; }
+        input { 
+            width: 100%; padding: 12px; margin-top: 5px; border: none; 
+            border-radius: 8px; box-sizing: border-box; font-size: 16px;
+        }
+        .btn { 
+            width: 100%; padding: 15px; margin-top: 15px; border: none; 
+            border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-add { background: #e67e22; color: white; }
+        .btn-set { background: #3498db; color: white; }
+        .btn:hover { opacity: 0.8; transform: scale(1.02); }
+        .footer { text-align: center; margin-top: 20px; font-size: 10px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h1>ADMIN DZKALL</h1>
+    
+    <p style="text-align:center; margin:0;">Stok Saat Ini:</p>
+    <div class="status-card" id="display-stok">...</div>
+
+    <label>Tambah Jumlah Stok (M)</label>
+    <input type="number" id="input-tambah" placeholder="Contoh: 100">
+    <button class="btn btn-add" onclick="tambahStok()">➕ TAMBAH STOK</button>
+
+    <hr style="margin-top: 30px; border: 0.5px solid #5d6d7e;">
+
+    <label>Setel Ulang Total Stok (M)</label>
+    <input type="number" id="input-set" placeholder="Ganti total stok jadi...">
+    <button class="btn btn-set" onclick="setStok()">🔄 UPDATE TOTAL</button>
+
+    <div class="footer">Restricted Access - Ikhsan Project</div>
+</div>
+
+<script>
+    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+
+    let stokSekarang = 0;
+
+    // Ambil data stok terbaru
+    async function refreshStok() {
+        const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY&select=stok`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        const data = await res.json();
+        stokSekarang = data[0].stok;
+        document.getElementById("display-stok").innerText = stokSekarang + " M";
+    }
+
+    // Fungsi Tambah Stok (Stok Lama + Input)
+    async function tambahStok() {
+        const tambahan = parseInt(document.getElementById("input-tambah").value);
+        if (isNaN(tambahan)) return alert("Masukkan angka yang benar!");
+
+        if (confirm(`Yakin mau tambah ${tambahan} M ke stok?`)) {
+            await updateDb(stokSekarang + tambahan);
+            document.getElementById("input-tambah").value = "";
+        }
+    }
+
+    // Fungsi Setel Ulang (Ganti angka langsung)
+    async function setStok() {
+        const baru = parseInt(document.getElementById("input-set").value);
+        if (isNaN(baru)) return alert("Masukkan angka yang benar!");
+
+        if (confirm(`Ganti total stok menjadi ${baru} M?`)) {
+            await updateDb(baru);
+            document.getElementById("input-set").value = "";
+        }
+    }
+
+    // Kirim perintah ke Supabase
+    async function updateDb(angkaBaru) {
+        const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY`, {
+            method: "PATCH",
+            headers: { 
+                "apikey": S_KEY, 
+                "Authorization": `Bearer ${S_KEY}`, 
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal"
+            },
+            body: JSON.stringify({ stok: angkaBaru })
+        });
+
+        if (res.ok) {
+            alert("Database Berhasil Diperbarui!");
+            refreshStok();
+        } else {
+            alert("Gagal Update! Cek koneksi atau Policy Supabase.");
+        }
+    }
+
+    refreshStok();
+</script>
+</body>
+</html>
