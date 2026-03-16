@@ -3,72 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stok Otomatis Ikhsan</title>
+    <title>DZKALL SHOP - Jual Money</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #0088cc; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .loading { text-align: center; font-style: italic; color: #888; }
+        :root { --primary: #0088cc; --secondary: #2ecc71; --dark: #333; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: var(--dark); }
+        .store-container { max-width: 500px; margin: auto; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        .header { background: var(--primary); color: white; padding: 25px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+
+        .content { padding: 20px; }
+        
+        /* Produk Card */
+        .product-card { border: 2px solid #e7f3ff; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; background: #fff; }
+        .item-title { font-size: 1.4em; font-weight: bold; color: var(--primary); margin-bottom: 8px; }
+        .stock-badge { background: #ff4757; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+
+        /* Form */
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        input:focus { border-color: var(--primary); outline: none; }
+
+        .payment-info { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 15px; margin-top: 20px; border-radius: 4px; }
+        .total-price { font-size: 1.2em; font-weight: bold; color: #d35400; }
+
+        .upload-box { background: #f8f9fa; border: 2px dashed #cbd5e0; padding: 15px; text-align: center; border-radius: 8px; margin-top: 15px; }
+        
+        #qris-box { text-align: center; margin-top: 15px; padding: 10px; border: 1px solid #eee; border-radius: 8px; }
+        .qris-img { width: 200px; height: 200px; margin: 10px auto; background: #eee; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .qris-img img { width: 100%; height: auto; }
+
+        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 16px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 25px; transition: 0.3s; }
+        .btn-beli:hover { background: #27ae60; transform: translateY(-2px); }
+        .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
+
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #888; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Daftar Stok Real-Time</h2>
-    <div id="tabel-container">
-        <p class="loading">Sedang mengambil data dari Sheets...</p>
+<div class="store-container">
+    <div class="header">
+        <h1>DZKALL SHOP</h1>
+        <p>Top Up Aman, Kilat, & Terpercaya</p>
+    </div>
+
+    <div class="content">
+        <div class="product-card">
+            <div class="item-title">1M MONEY</div>
+            <span class="stock-badge">STOK: <span id="current-stock">Mengecek...</span></span>
+        </div>
+
+        <label>Jumlah Pembelian (M)</label>
+        <input type="number" id="jumlah-beli" value="1" min="1" oninput="hitungTotal()">
+
+        <label>In Game Name (IGN)</label>
+        <input type="text" id="ign" placeholder="Masukkan Nickname Anda">
+
+        <label>Catatan Pesanan</label>
+        <textarea id="catatan" rows="2" placeholder="Contoh: Trade di lokasi X atau kirim via Mail"></textarea>
+
+        <label>Metode Pembayaran</label>
+        <select id="payment-method" onchange="toggleQris()">
+            <option value="DANA">DANA - 08989294545</option>
+            <option value="GOPAY">GOPAY - 08989294545</option>
+            <option value="QRIS">QRIS (Scan Otomatis)</option>
+        </select>
+
+        <div id="qris-box" style="display:none;">
+            <p>Silakan Scan & Bayar:</p>
+            <div class="qris-img">
+                <img src="https://via.placeholder.com/200?text=SCAN+QRIS+DISINI" alt="QRIS DZKALL">
+            </div>
+        </div>
+
+        <div class="upload-box">
+            <label style="margin-top:0">Upload Bukti Transfer</label>
+            <input type="file" id="bukti-tf" accept="image/*">
+        </div>
+
+        <div class="payment-info">
+            Total yang harus dibayar:<br>
+            <span class="total-price" id="total-harga">Rp 600</span>
+        </div>
+
+        <button class="btn-beli" id="btn-submit" onclick="prosesBeli()">KONFIRMASI PEMBAYARAN</button>
+    </div>
+    <div class="footer">
+        &copy; 2026 DZKALL SHOP. All Rights Reserved.
     </div>
 </div>
 
 <script>
-    // Link CSV baru kamu
+    // --- KONFIGURASI ---
     const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTe6zSCcUVKqpqNYIaaYRsjBUIZmgRlm_nU9YOMKQ5Vx-coeZp9fyl28DmnCfbjfL9k-kp1iPpeqRsC/pub?gid=0&single=true&output=csv";
+    const urlWebApp = "TEMPEL_URL_WEB_APP_KAMU_DI_SINI"; // GANTI DENGAN URL /exec KAMU
+    const hargaPerM = 600;
+    let stokSekarang = 0;
 
-    async function updateTabel() {
+    // Ambil Stok dari Sheets
+    async function fetchStok() {
         try {
-            // Tambahkan timestamp agar data tidak terkena cache (selalu baru)
-            const response = await fetch(urlCSV + "&cache=" + new Date().getTime());
-            const data = await response.text();
-            
-            // Pisahkan per baris
+            const res = await fetch(urlCSV + "?t=" + new Date().getTime());
+            const data = await res.text();
             const rows = data.split("\n");
-            
-            let html = "<table><tr><th>Produk</th><th>Stok</th></tr>";
-            
-            rows.forEach((row, index) => {
-                // Pisahkan per kolom (koma)
+            rows.forEach(row => {
                 const cols = row.split(",");
-                
-                // Cek jika kolom E (index 4) dan F (index 5) ada isinya
-                if (cols.length >= 6) {
-                    const namaItem = cols[4].replace(/"/g, "").trim(); // Kolom E
-                    const stokItem = cols[5].replace(/"/g, "").trim(); // Kolom F
-                    
-                    // Jangan tampilkan jika barisnya kosong
-                    if (namaItem !== "") {
-                        html += `<tr><td>${namaItem}</td><td><strong>${stokItem}</strong></td></tr>`;
-                    }
+                if (cols[4] && cols[4].includes("1M MONEY")) {
+                    stokSekarang = parseInt(cols[5]);
+                    document.getElementById("current-stock").innerText = stokSekarang;
                 }
             });
-
-            html += "</table>";
-            document.getElementById("tabel-container").innerHTML = html;
-        } catch (error) {
-            document.getElementById("tabel-container").innerHTML = "<p style='color:red'>Gagal memuat data stok.</p>";
-            console.error("Error:", error);
-        }
+        } catch (e) { document.getElementById("current-stock").innerText = "Error"; }
     }
 
-    // Jalankan fungsi saat web dibuka
-    updateTabel();
+    function hitungTotal() {
+        const jumlah = document.getElementById("jumlah-beli").value;
+        document.getElementById("total-harga").innerText = "Rp " + (jumlah * hargaPerM).toLocaleString();
+    }
 
-    // Otomatis refresh setiap 10 detik agar web sinkron dengan Bot Telegram
-    setInterval(updateTabel, 10000);
+    function toggleQris() {
+        const method = document.getElementById("payment-method").value;
+        document.getElementById("qris-box").style.display = (method === "QRIS") ? "block" : "none";
+    }
+
+    // Fungsi Kirim ke Bot Telegram
+    function prosesBeli() {
+        const btn = document.getElementById("btn-submit");
+        const jumlah = document.getElementById("jumlah-beli").value;
+        const ign = document.getElementById("ign").value;
+        const payment = document.getElementById("payment-method").value;
+        const fileInput = document.getElementById("bukti-tf");
+
+        if (!ign) return alert("Nickname (IGN) wajib diisi!");
+        if (!fileInput.files[0]) return alert("Harap upload foto bukti transfer!");
+        if (jumlah > stokSekarang) return alert("Stok tidak mencukupi!");
+
+        btn.disabled = true;
+        btn.innerText = "Mengirim ke Bot...";
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result.split(",")[1];
+            const caption = `🚀 PESANAN BARU - DZKALL SHOP\n` +
+                          `--------------------------\n` +
+                          `👤 IGN: ${ign}\n` +
+                          `📦 Produk: 1M MONEY\n` +
+                          `🔢 Jumlah: ${jumlah} M\n` +
+                          `💰 Total: Rp ${(jumlah * hargaPerM).toLocaleString()}\n` +
+                          `💳 Via: ${payment}\n` +
+                          `📝 Catatan: ${document.getElementById("catatan").value}\n` +
+                          `--------------------------\n` +
+                          `Mohon segera diproses Bos!`;
+
+            fetch(urlWebApp, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "upload_bukti",
+                    image: base64Image,
+                    type: fileInput.files[0].type,
+                    caption: caption
+                })
+            })
+            .then(res => {
+                alert("Berhasil! Pesanan & Bukti Transfer telah dikirim ke Bot Telegram Ikhsan.");
+                location.reload();
+            })
+            .catch(err => {
+                alert("Gagal mengirim. Pastikan URL Web App benar.");
+                btn.disabled = false;
+                btn.innerText = "KONFIRMASI PEMBAYARAN";
+            });
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+
+    fetchStok();
+    setInterval(fetchStok, 30000); // Sinkron stok tiap 30 detik
 </script>
 
 </body>
-</html>
+    </html>
+    
