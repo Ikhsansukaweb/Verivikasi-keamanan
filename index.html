@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Jual Money</title>
+    <title>SannShop - Jual Money</title>
     <style>
         :root { 
             --primary: #855e42; /* <-- Perubahan warna biru ke COKLAT KAYU MINECRAFT */
@@ -60,8 +60,8 @@
 
 <div class="store-container">
     <div class="header">
-        <h1>DZKALL SHOP</h1>
-        <p>Top Up Aman & Kilat</p>
+        <h1>SannShop</h1>
+        <p>Jual Money Aman Terpercaya</p>
     </div>
 
     <div class="content">
@@ -97,7 +97,7 @@
 
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
     </div>
-    <div class="footer">© 2026 DZKALL SHOP - Ikhsan Project</div>
+    <div class="footer">© 2026 Sannshop - Ikhsan Project</div>
 </div>
 
 <script>
@@ -145,7 +145,7 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             const base64 = e.target.result.split(",")[1];
-            const caption = `🚀 PESANAN BARU - DZKALL SHOP\n👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n💳 Via: ${metode}\n💰 Total: Rp ${(jml * hargaM).toLocaleString()}`;
+            const caption = `🚀 PESANAN BARU -  SannShop\n👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n💳 Via: ${metode}\n💰 Total: Rp ${(jml * hargaM).toLocaleString()}`;
 
             fetch(webAppUrl, {
                 method: "POST",
