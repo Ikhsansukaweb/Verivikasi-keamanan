@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REKAP PENJUALAN - DZKALL SHOP</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; display: none; } /* Tersembunyi sebelum login */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: #34495e; padding: 20px; border-radius: 12px; text-align: center; border-bottom: 4px solid #855e42; }
+        .stat-card h3 { margin: 0; font-size: 14px; color: #bdc3c7; text-transform: uppercase; }
+        .stat-card p { margin: 10px 0 0; font-size: 24px; font-weight: bold; color: #2ecc71; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; color: #333; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #855e42; color: white; font-size: 14px; }
+        tr:hover { background: #f9f9f9; }
+
+        /* Style Login */
+        #login-screen { text-align: center; margin-top: 100px; }
+        input[type="password"] { padding: 12px; border-radius: 8px; border: none; width: 200px; text-align: center; }
+        button { padding: 12px 20px; border-radius: 8px; border: none; background: #e67e22; color: white; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h2>🔑 Access Restricted</h2>
+        <input type="password" id="pass-rekap" placeholder="Password Admin">
+        <button onclick="cekAkses()">BUKA REKAP</button>
+    </div>
+
+    <div class="container" id="rekap-content">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>📊 Laporan Penjualan</h2>
+            <button onclick="location.reload()" style="background: #3498db; padding: 5px 15px;">Refresh</button>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <h3>Total Pemasukan</h3>
+                <p id="total-duit">Rp 0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Terjual</h3>
+                <p id="total-m">0 M</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>IGN</th>
+                    <th>Jumlah</th>
+                    <th>Total Bayar</th>
+                </tr>
+            </thead>
+            <tbody id="list-rekap">
+                </tbody>
+        </table>
+    </div>
+
+<script>
+    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+
+    function cekAkses() {
+        const pass = document.getElementById("pass-rekap").value;
+        if (pass === "ikhsanganteng") {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("rekap-content").style.display = "block";
+            loadData();
+        } else {
+            alert("Password Salah!");
+        }
+    }
+
+    async function loadData() {
+        try {
+            // Mengambil hanya pesanan yang sudah status SUCCESS
+            const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.SUCCESS&order=created_at.desc`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            
+            let totalDuit = 0;
+            let totalM = 0;
+            let html = "";
+
+            data.forEach(item => {
+                const tgl = new Date(item.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+                totalDuit += item.total_bayar;
+                totalM += item.jumlah;
+
+                html += `
+                    <tr>
+                        <td style="font-size: 12px;">${tgl}</td>
+                        <td style="font-weight: bold;">${item.ign}</td>
+                        <td>${item.jumlah} M</td>
+                        <td style="color: #27ae60; font-weight: bold;">Rp ${item.total_bayar.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("list-rekap").innerHTML = html;
+            document.getElementById("total-duit").innerText = "Rp " + totalDuit.toLocaleString();
+            document.getElementById("total-m").innerText = totalM + " M";
+
+        } catch (e) {
+            alert("Gagal memuat data database!");
+        }
+    }
+</script>
+</body>
+  </html>
+  
