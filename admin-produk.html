@@ -2,173 +2,137 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Produk - DZKALL SHOP</title>
+    <title>Admin Panel - DZKALL SHOP</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f4f4; color: #333; }
-        .box { background: white; padding: 20px; border-radius: 10px; max-width: 800px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .form-group { background: #fff9f5; border: 1px solid #855e42; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        h3 { margin-top: 0; color: #855e42; }
-        input { width: 100%; padding: 10px; margin: 5px 0 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        .box { background: white; padding: 20px; border-radius: 10px; max-width: 900px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h3 { color: #855e42; border-bottom: 2px solid #855e42; padding-bottom: 10px; }
+        input { width: 100%; padding: 10px; margin: 5px 0 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         .btn-save { width: 100%; padding: 12px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-cancel { width: 100%; padding: 8px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 5px; display: none; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background: #855e42; color: white; }
-        .edit-btn { background: #f1c40f; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
         .del-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; background: #eee; }
+        .restore-btn { background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <div class="form-group" id="form-container">
-        <h3 id="form-title">➕ Tambah Item Baru</h3>
-        <input type="hidden" id="p_id">
-        <label>Nama Produk:</label>
-        <input type="text" id="p_nama" placeholder="Contoh: Diamond Sword">
-        <label>Harga (Rp):</label>
-        <input type="number" id="p_harga" placeholder="Harga per unit">
-        <label>Jumlah Stok:</label>
-        <input type="number" id="p_stok" placeholder="Stok saat ini">
-        <label>Link Gambar (URL):</label>
-        <input type="text" id="p_img" placeholder="https://link-gambar.com/item.png">
-        
-        <button class="btn-save" id="btn-main" onclick="simpanProduk()">SIMPAN KE DATABASE</button>
-        <button class="btn-cancel" id="btn-batal" onclick="resetForm()">BATAL EDIT</button>
-    </div>
+    <h3>⚙️ Kelola Produk</h3>
+    <input type="hidden" id="p_id">
+    <input type="text" id="p_nama" placeholder="Nama Produk">
+    <input type="number" id="p_harga" placeholder="Harga">
+    <input type="number" id="p_stok" placeholder="Stok">
+    <input type="text" id="p_img" placeholder="URL Gambar">
+    <button class="btn-save" onclick="simpanProduk()">SIMPAN PRODUK</button>
 
-    <h3>📦 Daftar Item Toko</h3>
     <table id="tabel-produk">
-        <thead>
-            <tr>
-                <th>Gambar</th>
-                <th>Produk</th>
-                <th>Harga</th>
-                <th>Stok</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
-        </tbody>
+        <thead><tr><th>Gambar</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div class="box">
+    <h3>📑 Pesanan Masuk (Antrean)</h3>
+    <table id="tabel-pesanan">
+        <thead><tr><th>IGN</th><th>Item</th><th>Qty</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody></tbody>
     </table>
 </div>
 
 <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    let isEditMode = false;
 
-    // 1. Ambil Data
-    async function loadTable() {
-        try {
-            const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { 
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
-            });
-            const data = await res.json();
-            const tbody = document.querySelector("#tabel-produk tbody");
-            tbody.innerHTML = data.map(p => `
-                <tr>
-                    <td><img src="${p.img_url}" class="img-preview" onerror="this.src='https://via.placeholder.com/40'"></td>
-                    <td><b>${p.nama_produk}</b></td>
-                    <td>Rp ${p.harga.toLocaleString()}</td>
-                    <td>${p.stok}</td>
-                    <td>
-                        <button class="edit-btn" onclick="isiFormEdit(${JSON.stringify(p).replace(/"/g, '&quot;')})">Edit</button>
-                        <button class="del-btn" onclick="hapusProduk(${p.id})">Hapus</button>
-                    </td>
-                </tr>
-            `).join("");
-        } catch (e) { alert("Gagal mengambil data database!"); }
+    async function loadSemua() {
+        loadProduk();
+        loadPesanan();
     }
 
-    // 2. Fungsi Simpan (Insert atau Update)
+    async function loadProduk() {
+        const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+        const data = await res.json();
+        document.querySelector("#tabel-produk tbody").innerHTML = data.map(p => `
+            <tr>
+                <td><img src="${p.img_url}" class="img-preview"></td>
+                <td><b>${p.nama_produk}</b></td>
+                <td>Rp ${p.harga}</td>
+                <td>${p.stok}</td>
+                <td><button class="del-btn" onclick="hapusProduk(${p.id})">Hapus</button></td>
+            </tr>
+        `).join("");
+    }
+
+    async function loadPesanan() {
+        const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+        const data = await res.json();
+        document.querySelector("#tabel-pesanan tbody").innerHTML = data.map(i => `
+            <tr>
+                <td>${i.ign}</td>
+                <td>${i.nama_item}</td>
+                <td>${i.jumlah}</td>
+                <td><span style="color:orange">${i.status}</span></td>
+                <td>
+                    <button class="restore-btn" onclick="batalkanPesanan(${i.id}, '${i.nama_item}', ${i.jumlah})">Batalkan & Balikin Stok</button>
+                </td>
+            </tr>
+        `).join("");
+    }
+
+    async function batalkanPesanan(idJual, namaItem, qty) {
+        if(!confirm(`Batalkan pesanan ${namaItem}? Stok akan otomatis bertambah +${qty}`)) return;
+
+        try {
+            // 1. Ambil stok sekarang
+            const resProd = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.${namaItem}`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+            const dataProd = await resProd.json();
+            
+            if(dataProd.length > 0) {
+                const stokBaru = dataProd[0].stok + qty;
+                // 2. Update stok produk (Kembalikan)
+                await fetch(`${S_URL}/rest/v1/produk?id=eq.${dataProd[0].id}`, {
+                    method: "PATCH",
+                    headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ stok: stokBaru })
+                });
+            }
+
+            // 3. Ubah status pesanan jadi BATAL (biar hilang dari antrean)
+            await fetch(`${S_URL}/rest/v1/penjualan?id=eq.${idJual}`, {
+                method: "PATCH",
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "BATAL" })
+            });
+
+            alert("Pesanan dibatalkan & Stok dikembalikan!");
+            loadSemua();
+        } catch(e) { alert("Error saat membatalkan!"); }
+    }
+
     async function simpanProduk() {
-        const id = document.getElementById("p_id").value;
         const obj = {
             nama_produk: document.getElementById("p_nama").value,
             harga: parseInt(document.getElementById("p_harga").value),
             stok: parseInt(document.getElementById("p_stok").value),
             img_url: document.getElementById("p_img").value
         };
-
-        if (!obj.nama_produk || !obj.harga) return alert("Nama dan Harga wajib diisi!");
-
-        const btn = document.getElementById("btn-main");
-        btn.innerText = "Memproses...";
-        btn.disabled = true;
-
-        let url = `${S_URL}/rest/v1/produk`;
-        let method = "POST";
-        let headers = { 
-            "apikey": S_KEY, 
-            "Authorization": `Bearer ${S_KEY}`, 
-            "Content-Type": "application/json",
-            "Prefer": "return=minimal" 
-        };
-
-        // Jika ID ada, berarti sedang Mode EDIT
-        if (isEditMode) {
-            url = `${S_URL}/rest/v1/produk?id=eq.${id}`;
-            method = "PATCH";
-        }
-
-        try {
-            const res = await fetch(url, { method: method, headers: headers, body: JSON.stringify(obj) });
-            if (res.ok) {
-                alert(isEditMode ? "Item berhasil diupdate!" : "Item berhasil ditambah!");
-                resetForm();
-                loadTable();
-            } else {
-                const err = await res.json();
-                alert("Database Error: " + err.message);
-            }
-        } catch (e) { alert("Terjadi kesalahan jaringan!"); }
-        
-        btn.disabled = false;
-        btn.innerText = "SIMPAN KE DATABASE";
-    }
-
-    // 3. Fungsi Isi Form saat klik Edit
-    function isiFormEdit(item) {
-        isEditMode = true;
-        document.getElementById("form-title").innerText = "📝 Edit Item: " + item.nama_produk;
-        document.getElementById("p_id").value = item.id;
-        document.getElementById("p_nama").value = item.nama_produk;
-        document.getElementById("p_harga").value = item.harga;
-        document.getElementById("p_stok").value = item.stok;
-        document.getElementById("p_img").value = item.img_url;
-        
-        document.getElementById("btn-main").innerText = "UPDATE DATA";
-        document.getElementById("btn-batal").style.display = "block";
-        window.scrollTo(0,0);
-    }
-
-    // 4. Reset Form
-    function resetForm() {
-        isEditMode = false;
-        document.getElementById("form-title").innerText = "➕ Tambah Item Baru";
-        document.getElementById("p_id").value = "";
-        document.getElementById("p_nama").value = "";
-        document.getElementById("p_harga").value = "";
-        document.getElementById("p_stok").value = "";
-        document.getElementById("p_img").value = "";
-        document.getElementById("btn-main").innerText = "SIMPAN KE DATABASE";
-        document.getElementById("btn-batal").style.display = "none";
-    }
-
-    // 5. Hapus
-    async function hapusProduk(id) {
-        if(!confirm("Yakin ingin menghapus item ini?")) return;
-        await fetch(`${S_URL}/rest/v1/produk?id=eq.${id}`, {
-            method: "DELETE",
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        await fetch(`${S_URL}/rest/v1/produk`, {
+            method: "POST",
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify(obj)
         });
-        loadTable();
+        location.reload();
     }
 
-    loadTable();
+    async function hapusProduk(id) {
+        if(!confirm("Hapus produk?")) return;
+        await fetch(`${S_URL}/rest/v1/produk?id=eq.${id}`, { method: "DELETE", headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+        loadProduk();
+    }
+
+    loadSemua();
 </script>
 </body>
 </html>
