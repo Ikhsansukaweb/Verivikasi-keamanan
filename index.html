@@ -28,20 +28,9 @@
         .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 15px; margin-top: 20px; border-radius: 8px; }
         .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 18px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
-        
-        /* Style Footer & Tombol Admin/Rekap */
         .footer { text-align: center; padding: 20px; font-size: 11px; color: #666; }
-        .admin-nav { margin-top: 10px; display: flex; justify-content: center; gap: 15px; }
-        .admin-link { 
-            color: var(--primary); 
-            text-decoration: none; 
-            opacity: 0.6; 
-            font-weight: bold;
-            padding: 5px 10px;
-            border: 1px solid rgba(133, 94, 66, 0.3);
-            border-radius: 5px;
-        }
-        .admin-link:hover { opacity: 1; background: rgba(133, 94, 66, 0.1); }
+        .admin-nav { margin-top: 10px; display: flex; justify-content: center; gap: 10px; }
+        .admin-link { color: var(--primary); text-decoration: none; opacity: 0.6; font-weight: bold; padding: 5px; border: 1px solid #855e42; border-radius: 5px; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -95,7 +84,8 @@
 <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyswI_CTPN-G9w6t-au9huoIbdoN73Z1uA3gSPXHMYL_VRqyhrUlbMmafbUE-7S9aod/exec";
+    // UPDATE EXEC TERBARU KAMU
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwrR9XcCWZBxc-mkqv6rdeyhSKSPqzIWzS1cjXxK1nJImQy4U4oihZcuCcf3PKnm3mOfA/exec";
     const hargaM = 600;
     let stokDb = 0;
 
@@ -135,6 +125,7 @@
         btn.disabled = true; btn.innerText = "Memproses...";
 
         try {
+            // STEP 1: Masuk ke Penjualan status PENDING (Tidak potong stok produk)
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
                 headers: { 
@@ -143,17 +134,13 @@
                     "Content-Type": "application/json", 
                     "Prefer": "return=representation" 
                 },
-                body: JSON.stringify({ 
-                    ign: ign, 
-                    jumlah: jml, 
-                    total_bayar: jml * hargaM, 
-                    status: "PENDING" 
-                })
+                body: JSON.stringify({ ign: ign, jumlah: jml, total_bayar: jml * hargaM, status: "PENDING" })
             });
             
             const dataJual = await resJual.json();
             const idPesanan = dataJual[0].id;
 
+            // STEP 2: Kirim data ke Telegram
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(",")[1];
@@ -165,14 +152,13 @@
                         type: file.type,
                         id_jual: idPesanan,
                         jumlah_beli: jml,
-                        caption: `🚀 PESANAN BARU\n━━━━━━━━━━━━━━\n👤 IGN: ${ign}\n📦 Jumlah: ${jml} M\n💳 Metode: ${metodenya}\n💰 Total: Rp ${(jml*hargaM).toLocaleString()}\n━━━━━━━━━━━━━━\nSilakan konfirmasi jika sudah masuk.`
+                        caption: `🚀 PESANAN BARU\nIGN: ${ign}\nJumlah: ${jml}M\nMetode: ${metodenya}\nTotal: Rp ${(jml*hargaM).toLocaleString()}`
                     })
                 });
-                alert("Pesanan terkirim! Admin akan segera memproses.");
+                alert("Pesanan terkirim! Silakan tunggu konfirmasi admin.");
                 location.reload();
             };
             reader.readAsDataURL(file);
-            
         } catch (err) {
             alert("Error: " + err.message);
             btn.disabled = false;
@@ -181,5 +167,4 @@
     fetchStok();
 </script>
 </body>
-    </html>
-    
+</html>
