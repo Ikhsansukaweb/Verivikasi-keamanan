@@ -12,8 +12,8 @@
             background-size: cover; background-position: center; background-attachment: fixed;
         }
         .store-container { 
-            max-width: 450px; margin: 5vh auto; 
-            background: rgba(255, 255, 255, 0.85); 
+            max-width: 450px; margin: 2vh auto; 
+            background: rgba(255, 255, 255, 0.97); /* UPDATE OPACITY 97% */
             border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); overflow: hidden; 
             backdrop-filter: blur(5px);
         }
@@ -28,6 +28,13 @@
         .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 15px; margin-top: 20px; border-radius: 8px; }
         .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 18px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* TAMPILAN ANTREAN / PENDING */
+        .pending-section { background: #fdfdfd; margin: 15px; border-radius: 10px; padding: 15px; border: 1px solid #eee; }
+        .pending-title { font-weight: bold; color: #d35400; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+        .pending-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 13px; color: #333; }
+        .status-tag { color: #f39c12; font-weight: bold; font-size: 10px; text-transform: uppercase; border: 1px solid #f39c12; padding: 2px 5px; border-radius: 4px; }
+        
         .footer { text-align: center; padding: 20px; font-size: 11px; color: #666; }
         .admin-nav { margin-top: 10px; display: flex; justify-content: center; gap: 10px; }
         .admin-link { color: var(--primary); text-decoration: none; opacity: 0.6; font-weight: bold; padding: 5px; border: 1px solid #855e42; border-radius: 5px; font-size: 10px; }
@@ -48,10 +55,8 @@
         
         <label>Beli Berapa (M)?</label>
         <input type="number" id="jumlah" value="1" min="1" oninput="updateTotal()">
-        
         <label>In Game Name (IGN)</label>
         <input type="text" id="ign" placeholder="Nickname Game">
-        
         <label>Metode Pembayaran</label>
         <select id="metode" onchange="toggleQris()">
             <option value="DANA">DANA (08989294545)</option>
@@ -61,15 +66,20 @@
 
         <div id="qris-area" class="qris-section">
             <p style="font-size: 10px; color: red; font-weight: bold;">SCAN QRIS DI BAWAH INI</p>
-            <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" alt="QRIS">
+            <img src="https://i.ibb.co.com/ZRDgCpXZ/qris.png" alt="QRIS">
         </div>
 
         <label>Upload Bukti Transfer</label>
         <input type="file" id="bukti" accept="image/*">
-        
         <div class="payment-box">Total Bayar: <strong style="color: #e67e22; font-size: 1.3em;" id="total">Rp 600</strong></div>
-        
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
+    </div>
+
+    <div class="pending-section">
+        <div class="pending-title">⏳ Antrean Proses (Pending)</div>
+        <div id="pending-list">
+            <p style="font-size: 11px; color: #999; text-align: center;">Mengecek antrean...</p>
+        </div>
     </div>
 
     <div class="footer">
@@ -84,10 +94,14 @@
 <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    // UPDATE EXEC TERBARU KAMU
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwrR9XcCWZBxc-mkqv6rdeyhSKSPqzIWzS1cjXxK1nJImQy4U4oihZcuCcf3PKnm3mOfA/exec";
     const hargaM = 600;
     let stokDb = 0;
+
+    function sensorIGN(name) {
+        if (name.length <= 2) return name;
+        return name[0] + "*".repeat(name.length - 2) + name.slice(-1);
+    }
 
     async function fetchStok() {
         try {
@@ -100,6 +114,28 @@
                 document.getElementById("stok-angka").innerText = stokDb + " M";
             }
         } catch(e) { console.error("Gagal ambil stok"); }
+    }
+
+    async function fetchPending() {
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            let html = "";
+            if (data.length === 0) {
+                html = '<p style="font-size: 11px; color: #999; text-align: center;">Tidak ada antrean aktif</p>';
+            } else {
+                data.forEach(item => {
+                    html += `
+                        <div class="pending-item">
+                            <span><b>${sensorIGN(item.ign)}</b> (${item.jumlah}M)</span>
+                            <span class="status-tag">Proses Admin</span>
+                        </div>`;
+                });
+            }
+            document.getElementById("pending-list").innerHTML = html;
+        } catch(e) { console.error("Gagal ambil antrean"); }
     }
 
     function updateTotal() {
@@ -125,22 +161,15 @@
         btn.disabled = true; btn.innerText = "Memproses...";
 
         try {
-            // STEP 1: Masuk ke Penjualan status PENDING (Tidak potong stok produk)
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
-                headers: { 
-                    "apikey": S_KEY, 
-                    "Authorization": `Bearer ${S_KEY}`, 
-                    "Content-Type": "application/json", 
-                    "Prefer": "return=representation" 
-                },
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
                 body: JSON.stringify({ ign: ign, jumlah: jml, total_bayar: jml * hargaM, status: "PENDING" })
             });
             
             const dataJual = await resJual.json();
             const idPesanan = dataJual[0].id;
 
-            // STEP 2: Kirim data ke Telegram
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(",")[1];
@@ -155,7 +184,7 @@
                         caption: `🚀 PESANAN BARU\nIGN: ${ign}\nJumlah: ${jml}M\nMetode: ${metodenya}\nTotal: Rp ${(jml*hargaM).toLocaleString()}`
                     })
                 });
-                alert("Pesanan terkirim! Silakan tunggu konfirmasi admin.");
+                alert("Pesanan terkirim! Admin akan segera memproses.");
                 location.reload();
             };
             reader.readAsDataURL(file);
@@ -164,7 +193,10 @@
             btn.disabled = false;
         }
     }
+
     fetchStok();
+    fetchPending();
 </script>
 </body>
-</html>
+    </html>
+    
