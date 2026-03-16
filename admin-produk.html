@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Produk - DZKALL SHOP</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .box { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 5px 0 15px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #855e42; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
+        .del-btn { background: red; padding: 5px; font-size: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>➕ Tambah / Edit Item</h3>
+    <input type="text" id="p_nama" placeholder="Nama Produk (Contoh: Armor Netrite)">
+    <input type="number" id="p_harga" placeholder="Harga per 1 biji">
+    <input type="number" id="p_stok" placeholder="Jumlah Stok">
+    <input type="text" id="p_img" placeholder="Link Gambar (URL)">
+    <button onclick="simpanProduk()">SIMPAN KE DATABASE</button>
+
+    <h3>📦 Daftar Item Saat Ini</h3>
+    <table id="tabel-produk">
+        <thead><tr><th>Produk</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+
+    async function loadTable() {
+        const res = await fetch(`${S_URL}/rest/v1/produk`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+        const data = await res.json();
+        const tbody = document.querySelector("#tabel-produk tbody");
+        tbody.innerHTML = data.map(p => `
+            <tr>
+                <td>${p.nama_produk}</td>
+                <td>${p.harga}</td>
+                <td>${p.stok}</td>
+                <td><button class="del-btn" onclick="hapusProduk(${p.id})">Hapus</button></td>
+            </tr>
+        `).join("");
+    }
+
+    async function simpanProduk() {
+        const obj = {
+            nama_produk: document.getElementById("p_nama").value,
+            harga: parseInt(document.getElementById("p_harga").value),
+            stok: parseInt(document.getElementById("p_stok").value),
+            img_url: document.getElementById("p_img").value
+        };
+        await fetch(`${S_URL}/rest/v1/produk`, {
+            method: "POST",
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify(obj)
+        });
+        location.reload();
+    }
+
+    async function hapusProduk(id) {
+        if(!confirm("Hapus item ini?")) return;
+        await fetch(`${S_URL}/rest/v1/produk?id=eq.${id}`, {
+            method: "DELETE",
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        location.reload();
+    }
+    loadTable();
+</script>
+</body>
+</html>
