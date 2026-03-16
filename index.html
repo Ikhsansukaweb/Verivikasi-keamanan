@@ -3,56 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SannShop - Jual Money</title>
+    <title>DZKALL SHOP - Supabase Edition</title>
     <style>
-        :root { 
-            --primary: #855e42; /* <-- Perubahan warna biru ke COKLAT KAYU MINECRAFT */
-            --secondary: #2ecc71; 
-            --danger: #ff4757;
-        }
-        
+        :root { --primary: #855e42; --secondary: #2ecc71; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #f0f2f5; margin: 0; padding: 15px; 
-            /* LINK BACKGROUND SUDAH DIPERBAIKI KE DIRECT LINK AGAR MUNCUL */
+            font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; 
             background-image: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png'); 
-            background-size: cover; 
-            background-position: center; 
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+            background-size: cover; background-position: center; background-attachment: fixed;
         }
-
         .store-container { 
-            max-width: 450px; 
-            margin: 5vh auto; 
-            /* Perubahan Bagian Putih JADI LEBIH TRANSPARAN (0.85 opacity) */
+            max-width: 450px; margin: 5vh auto; 
             background: rgba(255, 255, 255, 0.85); 
-            border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            overflow: hidden; 
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow: hidden; 
         }
-        
         .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 1px; }
         .content { padding: 20px; }
-        
         .product-card { border: 2px solid #eef2f7; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; background: rgba(255, 255, 255, 0.5); }
         .stock-badge { display: inline-block; background: var(--secondary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; margin-top: 8px; }
-        
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #444; }
-        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: rgba(255, 255, 255, 0.7); }
-        
+        label { display: block; margin-top: 15px; font-weight: bold; color: #444; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; background: rgba(255, 255, 255, 0.7); }
         .qris-section { text-align: center; margin-top: 15px; display: none; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fff; }
-        .qris-section img { 
-            width: 250px; height: auto; border: 1px solid #ccc; margin-top: 10px;
-            image-rendering: -webkit-optimize-contrast; /* Biar QRIS tajam */
-        }
-
+        .qris-section img { width: 250px; height: auto; image-rendering: -webkit-optimize-contrast; }
         .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 12px; margin-top: 15px; border-radius: 4px; }
-        .total-price { font-size: 1.2em; font-weight: bold; color: #e67e22; }
-
-        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-        .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+        .btn-beli:disabled { background: #ccc; }
         .footer { text-align: center; padding: 15px; font-size: 11px; color: #999; }
     </style>
 </head>
@@ -60,115 +34,98 @@
 
 <div class="store-container">
     <div class="header">
-        <h1>SannShop</h1>
-        <p>Jual Money Aman Terpercaya</p>
+        <h1>DZKALL SHOP</h1>
+        <p>Database by Supabase ⚡</p>
     </div>
-
     <div class="content">
         <div class="product-card">
             <span style="font-weight:bold; font-size: 1.3em;">1M MONEY</span><br>
-            <div class="stock-badge">STOK: <span id="stok-angka">Mengecek...</span></div>
+            <div class="stock-badge">STOK: <span id="stok-angka">Memuat...</span></div>
         </div>
-
         <label>Beli Berapa (M)?</label>
         <input type="number" id="jumlah" value="1" min="1" oninput="updateTotal()">
-
         <label>In Game Name (IGN)</label>
         <input type="text" id="ign" placeholder="Nickname Game">
-
         <label>Metode Pembayaran</label>
         <select id="metode" onchange="toggleQris()">
             <option value="DANA">DANA (08989294545)</option>
-            <option value="GOPAY">GOPAY (08989294545)</option>
             <option value="QRIS">QRIS (Scan Gambar)</option>
         </select>
-
         <div id="qris-area" class="qris-section">
-            <p style="font-size: 12px; margin:0; color: #d35400; font-weight: bold;">⚠️ SCAN & BAYAR SESUAI TOTAL ⚠️</p>
-            <img id="gambar-qris" src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" alt="QRIS DZKALL">
+            <img id="gambar-qris" src="https://i.ibb.co.com/ZRDgCpXZ/qris.png" alt="QRIS">
         </div>
-
         <label>Upload Bukti Transfer</label>
         <input type="file" id="bukti" accept="image/*">
-        
-        <div class="payment-box">
-            Total Bayar: <span class="total-price" id="total">Rp 600</span>
-        </div>
-
+        <div class="payment-box">Total: <strong id="total">Rp 600</strong></div>
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
     </div>
-    <div class="footer">© 2026 Sannshop - Ikhsan Project</div>
+    <div class="footer">© 2026 DZKALL SHOP</div>
 </div>
 
 <script>
-    // URL Exec Terbaru Ikhsan (GANTI DENGAN URL EXEC KAMU)
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbw2ztI1pJJV2yYthStKYjI3VmEQAfRNUAWqHsmDV1E87XeOz7BAllNoV1UcrCZ7jWWN/exec";
-    const hargaM = 600;
-    let stokSekarang = 0;
+    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbw2ztI1pJJV2yYthStKYjI3VmEQAfRNUAWqHsmDV1E87XeOz7BAllNoV1UcrCZ7jWWN/exec";
 
-    // Ambil Stok lewat Google Script (Proxy)
-    async function loadStok() {
-        try {
-            const res = await fetch(webAppUrl);
-            const data = await res.json();
-            stokSekarang = parseInt(data.stok) || 0;
-            document.getElementById("stok-angka").innerText = stokSekarang;
-        } catch (e) { 
-            document.getElementById("stok-angka").innerText = "Gagal Muat";
-            console.error("Gagal Muat Stok:", e);
-        }
+    let stokDb = 0;
+
+    async function fetchStok() {
+        const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY&select=stok`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        const data = await res.json();
+        stokDb = data[0].stok;
+        document.getElementById("stok-angka").innerText = stokDb;
     }
 
     function updateTotal() {
-        const j = document.getElementById("jumlah").value;
-        document.getElementById("total").innerText = "Rp " + (j * hargaM).toLocaleString();
+        document.getElementById("total").innerText = "Rp " + (document.getElementById("jumlah").value * 600).toLocaleString();
     }
 
     function toggleQris() {
-        const m = document.getElementById("metode").value;
-        document.getElementById("qris-area").style.display = (m === "QRIS") ? "block" : "none";
+        document.getElementById("qris-area").style.display = (document.getElementById("metode").value === "QRIS") ? "block" : "none";
     }
 
-    function kirimPesanan() {
+    async function kirimPesanan() {
         const btn = document.getElementById("submit-btn");
         const ign = document.getElementById("ign").value;
+        const jml = parseInt(document.getElementById("jumlah").value);
         const file = document.getElementById("bukti").files[0];
-        const jml = document.getElementById("jumlah").value;
-        const metode = document.getElementById("metode").value;
 
-        if (!ign || !file) return alert("Harap isi IGN dan upload Bukti!");
-        if (stokSekarang > 0 && parseInt(jml) > stokSekarang) return alert("Maaf, stok tidak cukup!");
+        if (!ign || !file) return alert("Isi IGN dan Bukti!");
+        if (jml > stokDb) return alert("Stok tidak cukup!");
 
-        btn.innerText = "Mengirim...";
-        btn.disabled = true;
+        btn.disabled = true; btn.innerText = "Memproses...";
 
+        // 1. Update Stok di Supabase
+        const updateRes = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY`, {
+            method: "PATCH",
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ stok: stokDb - jml })
+        });
+
+        // 2. Kirim Notif ke Telegram via GAS
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             const base64 = e.target.result.split(",")[1];
-            const caption = `🚀 PESANAN BARU -  SannShop\n👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n💳 Via: ${metode}\n💰 Total: Rp ${(jml * hargaM).toLocaleString()}`;
-
-            fetch(webAppUrl, {
+            await fetch(GAS_URL, {
                 method: "POST",
                 body: JSON.stringify({
                     action: "upload_bukti",
                     image: base64,
                     type: file.type,
-                    caption: caption,
-                    jumlah_beli: jml // Mengirim data jumlah beli agar stok berkurang
+                    ign: ign,
+                    jumlah_beli: jml,
+                    caption: `🚀 PESANAN BARU (SUPABASE)\n👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n💰 Total: Rp ${(jml*600).toLocaleString()}`
                 })
-            }).then(() => {
-                alert("Berhasil! Stok akan otomatis berkurang.");
-                location.reload();
-            }).catch(() => {
-                alert("Berhasil Terkirim ke Telegram Ikhsan!");
-                location.reload();
             });
+            alert("Pesanan Berhasil! Stok Terpotong Otomatis.");
+            location.reload();
         };
         reader.readAsDataURL(file);
     }
-
-    // Jalankan ambil stok saat awal
-    loadStok();
+    fetchStok();
 </script>
 </body>
-</html>
+    </html>
+    
