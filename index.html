@@ -3,109 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IKHSAN STORE</title>
+    <title>Stok Otomatis Ikhsan</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f7f9; padding: 15px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1877f2; }
-        .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .item-card { border: 2px solid #eee; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; }
-        .item-card.active { border-color: #1877f2; background: #e7f3ff; }
-        .harga { color: #1877f2; font-weight: bold; display: block; }
-        .stok { font-size: 12px; color: #666; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #0088cc; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .loading { text-align: center; font-style: italic; color: #888; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🎮 IKHSAN STORE</h2>
-    
-    <label><b>Pilih Item:</b></label>
-    <div id="loading">Memuat stok...</div>
-    <div class="item-grid" id="menu-item"></div>
-    <input type="hidden" id="selected_item">
-
-    <input type="text" id="game_id" placeholder="ID Game">
-    <input type="text" id="nickname" placeholder="Nickname">
-    
-    <select id="metode">
-        <option value="">-- Pilih Pembayaran --</option>
-        <option value="DANA">DANA</option>
-        <option value="QRIS">QRIS</option>
-    </select>
-
-    <label><b>Upload Bukti Transfer:</b></label>
-    <input type="file" id="bukti" accept="image/*">
-
-    <button class="btn" onclick="kirim()">Konfirmasi Pembayaran</button>
+    <h2>Daftar Stok Real-Time</h2>
+    <div id="tabel-container">
+        <p class="loading">Sedang mengambil data dari Sheets...</p>
+    </div>
 </div>
 
 <script>
-    // Link CSV kamu
-    const CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhFwi5JuW2MdHgK8X5QZgjXQr4TaG6rzuLUwHRWK-6wzGbrzSwg0wFMhJknCaM6EJW8cqI9-e7H0A8/pub?gid=0&single=true&output=csv';
+    // Link CSV baru kamu
+    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTe6zSCcUVKqpqNYIaaYRsjBUIZmgRlm_nU9YOMKQ5Vx-coeZp9fyl28DmnCfbjfL9k-kp1iPpeqRsC/pub?gid=0&single=true&output=csv";
 
-    async function loadStok() {
+    async function updateTabel() {
         try {
-            const res = await fetch(CSV);
-            const data = await res.text();
-            const rows = data.split('\n').filter(r => r.trim() !== '');
-            let html = '';
-
-            rows.forEach(row => {
-                const col = row.split(',');
-                // Membaca Kolom E (index 4), F (index 5), dan G (index 6)
-                if (col.length >= 7) { 
-                    const nama = col[4].trim();
-                    const harga = col[5].trim();
-                    const stok = col[6].trim();
+            // Tambahkan timestamp agar data tidak terkena cache (selalu baru)
+            const response = await fetch(urlCSV + "&cache=" + new Date().getTime());
+            const data = await response.text();
+            
+            // Pisahkan per baris
+            const rows = data.split("\n");
+            
+            let html = "<table><tr><th>Produk</th><th>Stok</th></tr>";
+            
+            rows.forEach((row, index) => {
+                // Pisahkan per kolom (koma)
+                const cols = row.split(",");
+                
+                // Cek jika kolom E (index 4) dan F (index 5) ada isinya
+                if (cols.length >= 6) {
+                    const namaItem = cols[4].replace(/"/g, "").trim(); // Kolom E
+                    const stokItem = cols[5].replace(/"/g, "").trim(); // Kolom F
                     
-                    if(nama !== "") {
-                        html += `
-                        <div class="item-card" onclick="pilih(this, '${nama}', '${harga}')">
-                            <b>${nama}</b>
-                            <span class="harga">${harga}</span>
-                            <span class="stok">Stok: ${stok}</span>
-                        </div>`;
+                    // Jangan tampilkan jika barisnya kosong
+                    if (namaItem !== "") {
+                        html += `<tr><td>${namaItem}</td><td><strong>${stokItem}</strong></td></tr>`;
                     }
                 }
             });
-            document.getElementById('menu-item').innerHTML = html;
-            document.getElementById('loading').style.display = 'none';
-        } catch (e) {
-            document.getElementById('loading').innerText = 'Gagal memuat data.';
+
+            html += "</table>";
+            document.getElementById("tabel-container").innerHTML = html;
+        } catch (error) {
+            document.getElementById("tabel-container").innerHTML = "<p style='color:red'>Gagal memuat data stok.</p>";
+            console.error("Error:", error);
         }
     }
 
-    function pilih(el, nama, harga) {
-        document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('selected_item').value = nama + " (" + harga + ")";
-    }
+    // Jalankan fungsi saat web dibuka
+    updateTabel();
 
-    async function kirim() {
-        const item = document.getElementById('selected_item').value;
-        const id = document.getElementById('game_id').value;
-        const file = document.getElementById('bukti').files[0];
-
-        if(!item || !id || !file) return alert("Lengkapi data dan upload bukti!");
-
-        const token = '8733750993:AAGe696DEkdJzlDJK1o6MLnhLWh2PWIBYqg';
-        const chatId = '8460192289';
-        const teks = `🛒 PESANAN BARU\nItem: ${item}\nID: ${id}\nMetode: ${document.getElementById('metode').value}`;
-
-        const fd = new FormData();
-        fd.append("chat_id", chatId);
-        fd.append("photo", file);
-        fd.append("caption", teks);
-
-        await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: "POST", body: fd });
-        alert("Pesanan dikirim!");
-        location.reload();
-    }
-
-    loadStok();
+    // Otomatis refresh setiap 10 detik agar web sinkron dengan Bot Telegram
+    setInterval(updateTabel, 10000);
 </script>
+
 </body>
 </html>
