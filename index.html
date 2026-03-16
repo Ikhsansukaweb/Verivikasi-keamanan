@@ -3,199 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IKHSAN STORE - Top Up Game Murah</title>
+    <title>IKHSAN STORE</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; margin: 0; padding: 15px; color: #333; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1877f2; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .section { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: #555; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
-        
-        /* Grid Item Otomatis */
-        .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 5px; }
-        .item-card { border: 2px solid #eee; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; transition: 0.3s; background: #fff; position: relative; }
-        .item-card:hover { border-color: #1877f2; background: #f0f7ff; }
-        .item-card.active { border-color: #1877f2; background: #e7f3ff; font-weight: bold; }
-        .item-card.active::after { content: '✔'; position: absolute; top: 5px; right: 8px; color: #1877f2; font-size: 12px; }
-        
-        .harga-text { color: #1877f2; font-weight: bold; display: block; margin: 4px 0; }
-        .stok-label { font-size: 11px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
-
-        /* Payment Area */
-        .payment-info { display: none; text-align: center; background: #fffbe6; padding: 15px; border-radius: 10px; border: 1px solid #ffe58f; margin-top: 10px; animation: fadeIn 0.3s; }
-        .qris-img { width: 100%; max-width: 220px; margin: 10px auto; border: 3px solid #333; display: block; border-radius: 5px; }
-        
-        .btn-kirim { width: 100%; padding: 16px; background: #28a745; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        .btn-kirim:hover { background: #218838; }
-        
-        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; font-weight: bold; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { font-family: sans-serif; background-color: #f4f7f9; padding: 15px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1877f2; }
+        .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .item-card { border: 2px solid #eee; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; }
+        .item-card.active { border-color: #1877f2; background: #e7f3ff; }
+        .harga { color: #1877f2; font-weight: bold; display: block; }
+        .stok { font-size: 12px; color: #666; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="loading-overlay">
-    <div style="margin-bottom: 10px;">⏳ Memproses Pesanan...</div>
-</div>
-
 <div class="container">
     <h2>🎮 IKHSAN STORE</h2>
     
-    <div class="section">
-        <label>Informasi Akun Game</label>
-        <input type="text" id="game_id" placeholder="Masukkan ID Game (Contoh: 12345678)">
-        <input type="text" id="nickname" placeholder="Masukkan Nickname">
-    </div>
+    <label><b>Pilih Item:</b></label>
+    <div id="loading">Memuat stok...</div>
+    <div class="item-grid" id="menu-item"></div>
+    <input type="hidden" id="selected_item">
 
-    <div class="section">
-        <label>Pilih Nominal Top Up (Stok Real-time)</label>
-        <div id="status-stok" style="font-size: 12px; color: #888; margin-bottom: 10px;">Memuat item dari database...</div>
-        <div class="item-grid" id="menu-item">
-            </div>
-        <input type="hidden" id="selected_item_val">
-    </div>
+    <input type="text" id="game_id" placeholder="ID Game">
+    <input type="text" id="nickname" placeholder="Nickname">
+    
+    <select id="metode">
+        <option value="">-- Pilih Pembayaran --</option>
+        <option value="DANA">DANA</option>
+        <option value="QRIS">QRIS</option>
+    </select>
 
-    <div class="section">
-        <label>Metode Pembayaran</label>
-        <select id="metode" onchange="updatePaymentView()">
-            <option value="">-- Pilih Pembayaran --</option>
-            <option value="DANA">DANA (0812-3456-7890)</option>
-            <option value="QRIS">QRIS (All Payment)</option>
-        </select>
+    <label><b>Upload Bukti Transfer:</b></label>
+    <input type="file" id="bukti" accept="image/*">
 
-        <div id="qris_area" class="payment-info">
-            <p style="margin: 0; font-weight: bold;">Scan QRIS di Bawah Ini:</p>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" class="qris-img" alt="QRIS">
-            <p style="margin: 0; font-size: 13px;">A/N IKHSAN STORE</p>
-        </div>
-
-        <div id="dana_area" class="payment-info">
-            <p style="margin: 0;">Transfer ke DANA:</p>
-            <h3 style="color:#1877f2; margin: 10px 0;">0812-3456-7890</h3>
-            <p style="margin: 0; font-size: 13px;">A/N IKHSAN</p>
-        </div>
-    </div>
-
-    <div class="section">
-        <label>Catatan Tambahan</label>
-        <textarea id="pesan" rows="2" placeholder="Contoh: Proses cepat ya min..."></textarea>
-    </div>
-
-    <div class="section">
-        <label>Upload Bukti Pembayaran (Wajib)</label>
-        <input type="file" id="bukti_file" accept="image/*">
-    </div>
-
-    <button class="btn-kirim" onclick="prosesPesanan()">Konfirmasi Pembayaran</button>
+    <button class="btn" onclick="kirim()">Konfirmasi Pembayaran</button>
 </div>
 
 <script>
-    // --- KONFIGURASI ---
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhFwi5JuW2MdHgK8X5QZgjXQr4TaG6rzuLUwHRWK-6wzGbrzSwg0wFMhJknCaM6EJW8cqI9-e7H0A8/pub?gid=0&single=true&output=csv';
-    const TELE_TOKEN = '8733750993:AAGe696DEkdJzlDJK1o6MLnhLWh2PWIBYqg';
-    const TELE_CHAT_ID = '8460192289';
+    // Link CSV kamu
+    const CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhFwi5JuW2MdHgK8X5QZgjXQr4TaG6rzuLUwHRWK-6wzGbrzSwg0wFMhJknCaM6EJW8cqI9-e7H0A8/pub?gid=0&single=true&output=csv';
 
-    // 1. Fungsi Ambil Data dari Google Sheets
-    async function initStore() {
+    async function loadStok() {
         try {
-            const response = await fetch(CSV_URL, { cache: "no-store" });
-            const data = await response.text();
-            const baris = data.split('\n').filter(r => r.trim() !== '').slice(1);
-            
-            let htmlContent = '';
-            baris.forEach(item => {
-                const kolom = item.split(',');
-                if (kolom.length >= 3) {
-                    const nama = kolom[0].trim();
-                    const harga = kolom[1].trim();
-                    const stok = kolom[2].trim();
-                    
-                    // Cek warna stok
-                    let warnaStok = '#28a745'; 
-                    let latarStok = '#eafff0';
-                    if (stok.toLowerCase().includes('0') && stok.length < 5) {
-                        warnaStok = '#dc3545'; latarStok = '#fff1f0';
-                    }
+            const res = await fetch(CSV);
+            const data = await res.text();
+            const rows = data.split('\n').filter(r => r.trim() !== '');
+            let html = '';
 
-                    htmlContent += `
-                        <div class="item-card" onclick="pilihItem(this, '${nama}', '${harga}')">
-                            <span style="font-size:14px">${nama}</span>
-                            <span class="harga-text">Rp ${harga}</span>
-                            <span class="stok-label" style="color:${warnaStok}; background:${latarStok}">${stok}</span>
+            rows.forEach(row => {
+                const col = row.split(',');
+                // Membaca Kolom E (index 4), F (index 5), dan G (index 6)
+                if (col.length >= 7) { 
+                    const nama = col[4].trim();
+                    const harga = col[5].trim();
+                    const stok = col[6].trim();
+                    
+                    if(nama !== "") {
+                        html += `
+                        <div class="item-card" onclick="pilih(this, '${nama}', '${harga}')">
+                            <b>${nama}</b>
+                            <span class="harga">${harga}</span>
+                            <span class="stok">Stok: ${stok}</span>
                         </div>`;
+                    }
                 }
             });
-            document.getElementById('menu-item').innerHTML = htmlContent;
-            document.getElementById('status-stok').style.display = 'none';
-        } catch (err) {
-            document.getElementById('status-stok').innerText = 'Gagal memuat data. Periksa koneksi/Link CSV.';
-        }
-    }
-
-    function pilihItem(element, nama, harga) {
-        document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
-        element.classList.add('active');
-        document.getElementById('selected_item_val').value = nama + " - Rp " + harga;
-    }
-
-    function updatePaymentView() {
-        const val = document.getElementById('metode').value;
-        document.getElementById('qris_area').style.display = (val === 'QRIS') ? 'block' : 'none';
-        document.getElementById('dana_area').style.display = (val === 'DANA') ? 'block' : 'none';
-    }
-
-    // 2. Fungsi Kirim Data ke Telegram
-    async function prosesPesanan() {
-        const idGame = document.getElementById('game_id').value;
-        const item = document.getElementById('selected_item_val').value;
-        const bukti = document.getElementById('bukti_file').files[0];
-        const metode = document.getElementById('metode').value;
-
-        if (!item) return alert("Silakan pilih item dulu!");
-        if (!idGame) return alert("ID Game tidak boleh kosong!");
-        if (!metode) return alert("Pilih metode pembayaran!");
-        if (!bukti) return alert("Wajib upload bukti pembayaran!");
-
-        document.getElementById('loading-overlay').style.display = 'flex';
-
-        const caption = `🛒 *PESANAN BARU MASUK*\n\n` +
-                        `🎮 *ID Game:* ${idGame}\n` +
-                        `👤 *Nick:* ${document.getElementById('nickname').value || '-'}\n` +
-                        `💎 *Item:* ${item}\n` +
-                        `💳 *Metode:* ${metode}\n` +
-                        `📝 *Pesan:* ${document.getElementById('pesan').value || '-'}\n\n` +
-                        `✅ _Segera proses lewat dashboard Admin!_`;
-
-        const formData = new FormData();
-        formData.append("chat_id", TELE_CHAT_ID);
-        formData.append("photo", bukti);
-        formData.append("caption", caption);
-        formData.append("parse_mode", "Markdown");
-
-        try {
-            const res = await fetch(`https://api.telegram.org/bot${TELE_TOKEN}/sendPhoto`, {
-                method: "POST",
-                body: formData
-            });
-            
-            if (res.ok) {
-                alert("Berhasil! Pesanan Anda telah dikirim ke Admin.");
-                location.reload();
-            } else {
-                alert("Gagal mengirim bukti. Cek ukuran file!");
-            }
+            document.getElementById('menu-item').innerHTML = html;
+            document.getElementById('loading').style.display = 'none';
         } catch (e) {
-            alert("Terjadi kesalahan jaringan.");
-        } finally {
-            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('loading').innerText = 'Gagal memuat data.';
         }
     }
 
-    // Jalankan ambil data saat pertama buka
-    initStore();
-</script>
+    function pilih(el, nama, harga) {
+        document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('selected_item').value = nama + " (" + harga + ")";
+    }
 
+    async function kirim() {
+        const item = document.getElementById('selected_item').value;
+        const id = document.getElementById('game_id').value;
+        const file = document.getElementById('bukti').files[0];
+
+        if(!item || !id || !file) return alert("Lengkapi data dan upload bukti!");
+
+        const token = '8733750993:AAGe696DEkdJzlDJK1o6MLnhLWh2PWIBYqg';
+        const chatId = '8460192289';
+        const teks = `🛒 PESANAN BARU\nItem: ${item}\nID: ${id}\nMetode: ${document.getElementById('metode').value}`;
+
+        const fd = new FormData();
+        fd.append("chat_id", chatId);
+        fd.append("photo", file);
+        fd.append("caption", teks);
+
+        await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: "POST", body: fd });
+        alert("Pesanan dikirim!");
+        location.reload();
+    }
+
+    loadStok();
+</script>
 </body>
 </html>
