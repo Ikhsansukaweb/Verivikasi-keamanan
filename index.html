@@ -10,40 +10,52 @@
             font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0;
             background: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png') fixed center/cover;
         }
-        .navbar { background: rgba(133, 94, 66, 0.9); padding: 15px; text-align: center; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .navbar { 
+            background: rgba(133, 94, 66, 0.9); padding: 15px; text-align: center; color: white; 
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5); 
+        }
         
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
         
         /* SEARCH & FILTER */
-        .filter-box { background: rgba(255,255,255,0.4); border-radius: 10px; padding: 15px; margin-bottom: 20px; backdrop-filter: blur(10px); display: flex; gap: 10px; }
-        .filter-box input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        .filter-box { 
+            background: rgba(255,255,255,0.4); border-radius: 10px; padding: 15px; 
+            margin-bottom: 20px; backdrop-filter: blur(10px); display: flex; gap: 10px; 
+        }
+        .filter-box input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ddd; outline: none; }
 
-        /* GRID SYSTEM */
+        /* GRID SYSTEM ALA TIKTOK */
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .item-card { 
             background: rgba(255,255,255,0.4); border-radius: 12px; overflow: hidden; 
             backdrop-filter: blur(10px); border: 2px solid rgba(133,94,66,0.3);
             transition: 0.3s; cursor: pointer; display: flex; flex-direction: column;
         }
-        .item-card:hover { transform: translateY(-5px); border-color: var(--secondary); }
+        .item-card:hover { transform: translateY(-5px); border-color: var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .item-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #eee; }
         .item-info { padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .item-name { font-weight: bold; font-size: 14px; color: #333; margin-bottom: 5px; }
-        .item-price { color: #e67e22; font-weight: bold; font-size: 13px; }
+        .item-name { font-weight: bold; font-size: 14px; color: #111; margin-bottom: 5px; }
+        .item-price { color: #d35400; font-weight: bold; font-size: 13px; }
         .item-stock { font-size: 10px; background: var(--secondary); color: white; padding: 2px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }
 
         /* MODAL PEMBELIAN */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: rgba(255,255,255,0.97); width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; animation: zoomIn 0.3s; }
+        @keyframes zoomIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         .modal-header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; }
         .modal-body { padding: 20px; max-height: 80vh; overflow-y: auto; }
 
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9em; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .btn-beli:disabled { background: #ccc; cursor: not-allowed; }
         
-        /* FOOTER & PENDING */
-        .pending-section { background: rgba(255,255,255,0.4); border-radius: 10px; padding: 15px; margin-top: 30px; }
-        .footer { text-align: center; padding: 30px; color: #222; font-weight: bold; font-size: 12px; }
+        /* PENDING LIST */
+        .pending-section { background: rgba(255,255,255,0.4); border-radius: 10px; padding: 15px; margin-top: 30px; backdrop-filter: blur(5px); }
+        .pending-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); font-size: 13px; }
+        .status-tag { color: #d35400; font-weight: bold; font-size: 10px; border: 1px solid #d35400; padding: 2px 5px; border-radius: 4px; }
+
+        .footer { text-align: center; padding: 30px; color: #000; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -82,22 +94,22 @@
                 <option value="QRIS">QRIS (Scan Gambar)</option>
             </select>
             <div id="qrisModal" style="display:none; text-align: center;">
-                <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" style="width: 200px; margin: 10px 0;">
+                <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" style="width: 200px; margin: 10px 0; border: 1px solid #eee;">
             </div>
-            <label>Upload Bukti:</label>
+            <label>Upload Bukti Transfer:</label>
             <input type="file" id="buyBukti" accept="image/*">
-            <div style="background: #fff9e6; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                Total: <b id="modalTotalPrice">Rp 0</b>
+            <div style="background: #fff9e6; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 5px solid #f1c40f;">
+                Total Bayar: <b id="modalTotalPrice">Rp 0</b>
             </div>
-            <button class="btn-beli" onclick="prosesBeli()">KIRIM PESANAN</button>
-            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:red; margin-top:10px; cursor:pointer;">Batal</button>
+            <button class="btn-beli" id="btn-submit-order" onclick="prosesBeli()">KIRIM PESANAN</button>
+            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:red; margin-top:10px; cursor:pointer; font-weight:bold;">Batal</button>
         </div>
     </div>
 </div>
 
 <div class="footer">
     © 2026 DZKALL SHOP<br>
-    <a href="admin-produk.html" style="color:var(--primary); text-decoration:none;">⚙️ Kelola Produk</a>
+    <a href="admin-produk.html" style="color:var(--primary); text-decoration:none; display:inline-block; margin-top:10px;">⚙️ Kelola Produk</a>
 </div>
 
 <script>
@@ -108,18 +120,28 @@
     let allProducts = [];
     let selectedProduct = null;
 
+    // 1. Load Data Produk & Antrean
     async function loadData() {
-        const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
-        allProducts = await res.json();
-        renderProducts(allProducts);
-        loadPending();
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { 
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
+            });
+            allProducts = await res.json();
+            renderProducts(allProducts);
+            fetchPending();
+        } catch(e) { console.error("Gagal load produk"); }
     }
 
+    // 2. Tampilkan Produk di Grid
     function renderProducts(data) {
         const list = document.getElementById("product-list");
+        if(data.length === 0) {
+            list.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Belum ada produk.</p>';
+            return;
+        }
         list.innerHTML = data.map(p => `
             <div class="item-card" onclick="openModal(${p.id})">
-                <img src="${p.img_url || 'https://via.placeholder.com/150?text=Minecraft'}" class="item-img">
+                <img src="${p.img_url || 'https://via.placeholder.com/150?text=Item'}" class="item-img" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
                 <div class="item-info">
                     <div class="item-name">${p.nama_produk}</div>
                     <div class="item-price">Rp ${p.harga.toLocaleString()}</div>
@@ -129,9 +151,32 @@
         `).join("");
     }
 
+    // 3. Load Daftar Antrean PENDING
+    async function fetchPending() {
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            const list = document.getElementById("pending-list");
+            let html = data.length === 0 ? '<p style="font-size: 11px; text-align: center; color: #666;">Tidak ada antrean</p>' : "";
+            data.forEach(i => {
+                const sensorIgn = i.ign.length > 2 ? i.ign[0] + "***" + i.ign.slice(-1) : i.ign;
+                html += `
+                    <div class="pending-item">
+                        <span><b>${sensorIgn}</b> (${i.jumlah} unit)</span>
+                        <span class="status-tag">Proses</span>
+                    </div>`;
+            });
+            list.innerHTML = html;
+        } catch(e) { console.error("Gagal load antrean"); }
+    }
+
+    // 4. Modal Logic
     function openModal(id) {
         selectedProduct = allProducts.find(p => p.id === id);
         document.getElementById("modalTitle").innerText = "Beli " + selectedProduct.nama_produk;
+        document.getElementById("buyQty").value = 1;
         document.getElementById("buyModal").style.display = "flex";
         updateModalPrice();
     }
@@ -139,7 +184,7 @@
     function closeModal() { document.getElementById("buyModal").style.display = "none"; }
 
     function updateModalPrice() {
-        const qty = document.getElementById("buyQty").value;
+        const qty = document.getElementById("buyQty").value || 0;
         document.getElementById("modalTotalPrice").innerText = "Rp " + (qty * selectedProduct.harga).toLocaleString();
     }
 
@@ -147,22 +192,65 @@
         document.getElementById("qrisModal").style.display = (document.getElementById("buyMetode").value === "QRIS") ? "block" : "none";
     }
 
+    // 5. PROSES BELI (FIXED: GAS & SUPABASE)
     async function prosesBeli() {
-        // Logika pengiriman pesanan sama seperti sebelumnya, tapi menggunakan 'selectedProduct'
         const ign = document.getElementById("buyIgn").value;
         const qty = parseInt(document.getElementById("buyQty").value);
         const file = document.getElementById("buyBukti").files[0];
+        const metodenya = document.getElementById("buyMetode").value;
 
-        if (!ign || !file) return alert("Lengkapi data!");
-        if (qty > selectedProduct.stok) return alert("Stok kurang!");
+        if (!ign || !file || qty < 1) return alert("Lengkapi data dan lampirkan bukti transfer!");
+        if (qty > selectedProduct.stok) return alert("Stok tidak mencukupi!");
 
-        const btn = document.querySelector(".btn-beli");
+        const btn = document.getElementById("btn-submit-order");
         btn.innerText = "Mengirim..."; btn.disabled = true;
 
-        // Insert ke Supabase & Kirim ke GAS (Gunakan logika yang sudah ada sebelumnya)
-        // ... (Kode pengiriman disingkat demi ruang, gunakan logika fetch post penjualan kamu)
-        alert("Pesanan dikirim! Silakan tunggu konfirmasi.");
-        location.reload();
+        try {
+            // Step 1: Simpan Data Penjualan ke Supabase
+            const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
+                method: "POST",
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json", 
+                    "Prefer": "return=representation" 
+                },
+                body: JSON.stringify({ 
+                    ign: ign, 
+                    jumlah: qty, 
+                    total_bayar: qty * selectedProduct.harga, 
+                    status: "PENDING"
+                })
+            });
+            const dataJual = await resJual.json();
+
+            // Step 2: Kirim Foto ke Telegram via GAS
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result.split(",")[1];
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "upload_bukti",
+                        image: base64,
+                        type: file.type,
+                        id_jual: dataJual[0].id,
+                        jumlah_beli: qty,
+                        caption: `🚀 PESANAN BARU\n━━━━━━━━━━━━━━\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Jumlah: ${qty}\n💳 Metode: ${metodenya}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}\n━━━━━━━━━━━━━━`
+                    })
+                });
+                
+                alert("Pesanan terkirim! Admin akan segera memproses.");
+                closeModal();
+                loadData(); // Refresh UI
+            };
+            reader.readAsDataURL(file);
+
+        } catch (err) {
+            alert("Kesalahan koneksi database!");
+            btn.disabled = false;
+            btn.innerText = "KIRIM PESANAN";
+        }
     }
 
     function filterItems() {
@@ -171,7 +259,9 @@
         renderProducts(filtered);
     }
 
+    // Inisialisasi
     loadData();
+    setInterval(fetchPending, 20000); // Refresh antrean tiap 20 detik
 </script>
 </body>
 </html>
