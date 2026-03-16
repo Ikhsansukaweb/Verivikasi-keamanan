@@ -3,31 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Supabase Edition</title>
+    <title>DZKALL SHOP - Minecraft Edition</title>
     <style>
-        :root { --primary: #855e42; --secondary: #2ecc71; }
+        :root { 
+            --primary: #855e42; /* Coklat Kayu Minecraft */
+            --secondary: #2ecc71; 
+        }
+        
         body { 
-            font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 10px; 
+            /* Background Gambar Minecraft */
             background-image: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png'); 
-            background-size: cover; background-position: center; background-attachment: fixed;
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
+
         .store-container { 
-            max-width: 450px; margin: 5vh auto; 
+            max-width: 450px; 
+            margin: 5vh auto; 
+            /* Putih Transparan 85% */
             background: rgba(255, 255, 255, 0.85); 
-            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow: hidden; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3); 
+            overflow: hidden; 
+            backdrop-filter: blur(5px); /* Efek blur halus di belakang putih */
         }
-        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        
+        .header { background: var(--primary); color: white; padding: 25px; text-align: center; }
+        .header h1 { margin: 0; font-size: 26px; text-transform: uppercase; letter-spacing: 2px; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+
         .content { padding: 20px; }
-        .product-card { border: 2px solid #eef2f7; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; background: rgba(255, 255, 255, 0.5); }
-        .stock-badge { display: inline-block; background: var(--secondary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; margin-top: 8px; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: #444; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; background: rgba(255, 255, 255, 0.7); }
-        .qris-section { text-align: center; margin-top: 15px; display: none; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fff; }
-        .qris-section img { width: 250px; height: auto; image-rendering: -webkit-optimize-contrast; }
-        .payment-box { background: #fff9e6; border-left: 5px solid #f1c40f; padding: 12px; margin-top: 15px; border-radius: 4px; }
-        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; }
-        .btn-beli:disabled { background: #ccc; }
-        .footer { text-align: center; padding: 15px; font-size: 11px; color: #999; }
+        
+        .product-card { 
+            border: 2px solid rgba(133, 94, 66, 0.2); 
+            border-radius: 12px; padding: 15px; text-align: center; 
+            margin-bottom: 20px; background: rgba(255, 255, 255, 0.5); 
+        }
+        
+        .stock-badge { 
+            display: inline-block; background: var(--secondary); color: white; 
+            padding: 6px 18px; border-radius: 20px; font-size: 0.9em; 
+            font-weight: bold; margin-top: 10px; 
+        }
+        
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; color: #444; }
+        
+        input, select { 
+            width: 100%; padding: 12px; margin-top: 5px; 
+            border: 1px solid #ddd; border-radius: 8px; 
+            box-sizing: border-box; font-size: 14px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .qris-section { 
+            text-align: center; margin-top: 15px; display: none; 
+            padding: 10px; border-radius: 8px; background: #fff; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .qris-section img { 
+            width: 250px; height: auto; margin-top: 10px;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .payment-box { 
+            background: #fff9e6; border-left: 5px solid #f1c40f; 
+            padding: 15px; margin-top: 20px; border-radius: 8px; 
+        }
+        
+        .btn-beli { 
+            background: var(--secondary); color: white; border: none; 
+            width: 100%; padding: 18px; font-size: 1.1em; font-weight: bold; 
+            border-radius: 8px; cursor: pointer; margin-top: 20px; 
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+        .btn-beli:hover { background: #27ae60; transform: translateY(-2px); }
+        .btn-beli:disabled { background: #ccc; transform: none; box-shadow: none; }
+        
+        .footer { text-align: center; padding: 20px; font-size: 11px; color: #666; }
+        .admin-link { color: var(--primary); text-decoration: none; opacity: 0.5; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -35,95 +92,146 @@
 <div class="store-container">
     <div class="header">
         <h1>DZKALL SHOP</h1>
-        <p>Database by Supabase ⚡</p>
+        <p>Top Up Aman, Kilat, & Real-time</p>
     </div>
+
     <div class="content">
         <div class="product-card">
-            <span style="font-weight:bold; font-size: 1.3em;">1M MONEY</span><br>
+            <span style="font-weight:bold; font-size: 1.4em; color: #333;">1M MONEY</span><br>
             <div class="stock-badge">STOK: <span id="stok-angka">Memuat...</span></div>
         </div>
+
         <label>Beli Berapa (M)?</label>
         <input type="number" id="jumlah" value="1" min="1" oninput="updateTotal()">
+
         <label>In Game Name (IGN)</label>
-        <input type="text" id="ign" placeholder="Nickname Game">
+        <input type="text" id="ign" placeholder="Contoh: Ikhsan_Ganteng">
+
         <label>Metode Pembayaran</label>
         <select id="metode" onchange="toggleQris()">
             <option value="DANA">DANA (08989294545)</option>
+            <option value="GOPAY">GOPAY (08989294545)</option>
             <option value="QRIS">QRIS (Scan Gambar)</option>
         </select>
+
         <div id="qris-area" class="qris-section">
-            <img id="gambar-qris" src="https://i.ibb.co.com/ZRDgCpXZ/qris.png" alt="QRIS">
+            <p style="font-size: 12px; margin:0; color: #d35400; font-weight: bold;">⚠️ SCAN & BAYAR SESUAI TOTAL ⚠️</p>
+            <img id="gambar-qris" src="https://i.ibb.co.com/ZRDgCpXZ/qris.png" alt="QRIS DZKALL">
         </div>
+
         <label>Upload Bukti Transfer</label>
         <input type="file" id="bukti" accept="image/*">
-        <div class="payment-box">Total: <strong id="total">Rp 600</strong></div>
+        
+        <div class="payment-box">
+            Total Bayar: <strong style="color: #e67e22; font-size: 1.3em;" id="total">Rp 600</strong>
+        </div>
+
         <button class="btn-beli" id="submit-btn" onclick="kirimPesanan()">KONFIRMASI PEMBAYARAN</button>
     </div>
-    <div class="footer">© 2026 DZKALL SHOP</div>
+
+    <div class="footer">
+        © 2026 DZKALL SHOP - Ikhsan Project<br><br>
+        <a href="login.html" class="admin-link">Staff Login</a>
+    </div>
 </div>
 
 <script>
+    // KONFIGURASI SUPABASE KAMU
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+    
+    // URL APPS SCRIPT TELEGRAM (GAS)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbw2ztI1pJJV2yYthStKYjI3VmEQAfRNUAWqHsmDV1E87XeOz7BAllNoV1UcrCZ7jWWN/exec";
-
+    
+    const hargaPerM = 600;
     let stokDb = 0;
 
+    // 1. Ambil Stok dari Supabase
     async function fetchStok() {
-        const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY&select=stok`, {
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-        });
-        const data = await res.json();
-        stokDb = data[0].stok;
-        document.getElementById("stok-angka").innerText = stokDb;
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY&select=stok`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            if(data.length > 0) {
+                stokDb = data[0].stok;
+                document.getElementById("stok-angka").innerText = stokDb + " M";
+            }
+        } catch (e) {
+            document.getElementById("stok-angka").innerText = "Error";
+        }
     }
 
+    // 2. Update Total Harga
     function updateTotal() {
-        document.getElementById("total").innerText = "Rp " + (document.getElementById("jumlah").value * 600).toLocaleString();
+        const jml = document.getElementById("jumlah").value;
+        document.getElementById("total").innerText = "Rp " + (jml * hargaPerM).toLocaleString();
     }
 
+    // 3. Munculkan QRIS
     function toggleQris() {
-        document.getElementById("qris-area").style.display = (document.getElementById("metode").value === "QRIS") ? "block" : "none";
+        const m = document.getElementById("metode").value;
+        document.getElementById("qris-area").style.display = (m === "QRIS") ? "block" : "none";
     }
 
+    // 4. Proses Kirim & Potong Stok
     async function kirimPesanan() {
         const btn = document.getElementById("submit-btn");
         const ign = document.getElementById("ign").value;
         const jml = parseInt(document.getElementById("jumlah").value);
         const file = document.getElementById("bukti").files[0];
+        const metode = document.getElementById("metode").value;
 
-        if (!ign || !file) return alert("Isi IGN dan Bukti!");
-        if (jml > stokDb) return alert("Stok tidak cukup!");
+        if (!ign || !file) return alert("Harap isi IGN dan lampirkan Bukti Transfer!");
+        if (jml > stokDb) return alert("Maaf, stok saat ini tidak mencukupi!");
 
-        btn.disabled = true; btn.innerText = "Memproses...";
+        btn.disabled = true;
+        btn.innerText = "Sedang Memproses...";
 
-        // 1. Update Stok di Supabase
-        const updateRes = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY`, {
-            method: "PATCH",
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ stok: stokDb - jml })
-        });
-
-        // 2. Kirim Notif ke Telegram via GAS
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const base64 = e.target.result.split(",")[1];
-            await fetch(GAS_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "upload_bukti",
-                    image: base64,
-                    type: file.type,
-                    ign: ign,
-                    jumlah_beli: jml,
-                    caption: `🚀 PESANAN BARU (SUPABASE)\n👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n💰 Total: Rp ${(jml*600).toLocaleString()}`
-                })
+        try {
+            // A. POTONG STOK DI SUPABASE
+            const updateRes = await fetch(`${S_URL}/rest/v1/produk?nama_produk=eq.1M%20MONEY`, {
+                method: "PATCH",
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
+                body: JSON.stringify({ stok: stokDb - jml })
             });
-            alert("Pesanan Berhasil! Stok Terpotong Otomatis.");
-            location.reload();
-        };
-        reader.readAsDataURL(file);
+
+            // B. KIRIM DATA KE TELEGRAM
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result.split(",")[1];
+                const caption = `🚀 PESANAN BARU (SUPABASE)\n\n👤 IGN: ${ign}\n🔢 Jumlah: ${jml} M\n💳 Via: ${metode}\n💰 Total: Rp ${(jml*hargaPerM).toLocaleString()}\n\n✅ Stok otomatis terpotong!`;
+
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "upload_bukti",
+                        image: base64,
+                        type: file.type,
+                        ign: ign,
+                        jumlah_beli: jml,
+                        caption: caption
+                    })
+                });
+
+                alert("Pesanan berhasil dikirim! Silakan tunggu konfirmasi di dalam game.");
+                location.reload();
+            };
+            reader.readAsDataURL(file);
+
+        } catch (err) {
+            alert("Terjadi kesalahan. Silakan coba lagi.");
+            btn.disabled = false;
+            btn.innerText = "KONFIRMASI PEMBAYARAN";
+        }
     }
+
+    // Jalankan ambil stok saat buka web
     fetchStok();
 </script>
 </body>
