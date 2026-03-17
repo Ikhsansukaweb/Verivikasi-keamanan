@@ -3,126 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SannShop - Store & Social</title>
+    <title>SannShop - Private Chat System</title>
     <style>
         :root { --primary: #2ecc71; --bg: #121212; --card: #1e1e1e; --text: #ffffff; --accent: #ff9800; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .container { max-width: 800px; margin: auto; }
-        
-        /* Box Auth & Info */
+        .container { max-width: 600px; margin: auto; }
         .box { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #222; color: white; box-sizing: border-box; }
         
-        /* Grid Shop */
-        .grid-produk { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
-        .card { background: var(--card); border-radius: 15px; padding: 12px; text-align: center; border: 1px solid #333; position: relative; }
-        .card img { width: 100%; border-radius: 10px; height: 130px; object-fit: cover; }
+        /* Chat Private Style */
+        .chat-container { background: var(--card); border-radius: 15px; border: 1px solid #333; height: 400px; display: flex; flex-direction: column; }
+        #chatDisplay { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         
-        /* Live Chat */
-        .chat-container { background: var(--card); border-radius: 15px; border: 1px solid #333; height: 350px; display: flex; flex-direction: column; }
-        #chatDisplay { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { background: #2a2a2a; padding: 8px 12px; border-radius: 10px; width: fit-content; max-width: 85%; border-left: 3px solid var(--accent); }
-        .msg b { color: var(--accent); font-size: 12px; display: block; }
+        /* Bubble Chat */
+        .bubble { padding: 10px 14px; border-radius: 15px; max-width: 75%; font-size: 14px; position: relative; }
+        .me { background: var(--primary); align-self: flex-end; color: white; border-bottom-right-radius: 2px; }
+        .admin { background: #333; align-self: flex-start; border-bottom-left-radius: 2px; border-left: 3px solid var(--accent); }
+        .time { font-size: 9px; opacity: 0.7; display: block; margin-top: 5px; text-align: right; }
 
-        /* Buttons */
-        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-green { background: var(--primary); color: white; }
-        .btn-orange { background: var(--accent); color: white; }
-        
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
-        .modal-content { background: white; color: #333; margin: 10% auto; padding: 20px; width: 90%; max-width: 400px; border-radius: 15px; }
-        
+        input, .btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #222; color: white; box-sizing: border-box; }
+        .btn-green { background: var(--primary); border: none; font-weight: bold; cursor: pointer; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="text-align:center; color:var(--accent); margin-bottom:5px;">SANN SHOP</h1>
-    <p style="text-align:center; font-size:12px; margin-bottom:20px;">⚡ DonutSmp Official Store & Community ⚡</p>
+    <h2 style="text-align:center; color:var(--accent);">SANN PRIVATE CHAT</h2>
 
     <div id="authSection" class="box">
-        <h3 style="margin-top:0">Login Pelanggan</h3>
         <input type="text" id="userInp" placeholder="Username">
         <input type="password" id="passInp" placeholder="Password">
-        <div style="display: flex; gap: 10px; margin-top: 5px;">
-            <button onclick="handleAuth('login')" class="btn btn-green">Login</button>
-            <button onclick="handleAuth('daftar')" class="btn btn-orange">Daftar</button>
-        </div>
+        <button onclick="handleAuth('login')" class="btn-green btn" style="margin-top:10px;">Login / Masuk Chat</button>
+        <p style="font-size:11px; text-align:center;">Belum punya akun? <a href="#" onclick="handleAuth('daftar')" style="color:var(--accent)">Daftar Disini</a></p>
     </div>
 
-    <div id="userInfo" class="box hidden" style="display:flex; justify-content: space-between; align-items: center;">
-        <span>Halo, <b id="namaUser" style="color:var(--accent)"></b>!</span>
-        <button onclick="logout()" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Logout</button>
-    </div>
-
-    <h2>🛒 Item Shop</h2>
-    <div id="displayProduk" class="grid-produk">Memuat produk...</div>
-
-    <h2 style="margin-top:40px;">💬 Live Chat</h2>
-    <div class="chat-container">
-        <div id="chatDisplay">Memuat chat...</div>
-        <div style="display:flex; padding:10px; gap:5px; border-top:1px solid #333;">
-            <input type="text" id="msgInp" placeholder="Ketik pesan..." style="margin:0;">
-            <button onclick="kirimPesan()" class="btn-green" style="width:80px; border-radius:8px; border:none; cursor:pointer;">Kirim</button>
-        </div>
-    </div>
-
-    <h2 style="margin-top:40px;">⭐ Testimoni</h2>
-    <div id="displayUlasan">Belum ada ulasan...</div>
-</div>
-
-<div id="modalBeli" class="modal">
-    <div class="modal-content">
-        <h3 id="judulItem" style="margin-top:0">Form Pembelian</h3>
-        <p id="infoHarga" style="color:var(--accent); font-weight:bold;"></p>
-        
-        <input type="text" id="pembeliIGN" placeholder="Masukkan IGN / Nickname">
-        <input type="number" id="pembeliWA" placeholder="Nomor WhatsApp">
-        <input type="number" id="pembeliQty" value="1" min="1" oninput="hitungTotal()">
-        
-        <div style="background:#f9f9f9; padding:10px; border-radius:10px; margin:10px 0; border:1px solid #eee;">
-            <small>Total Bayar:</small>
-            <div id="totalBayar" style="font-size:20px; font-weight:bold; color:var(--primary)">Rp 0</div>
-            <p style="font-size:11px; margin-top:5px;">Transfer ke <b>DANA: 08989294545</b></p>
+    <div id="chatSection" class="hidden">
+        <div class="box" style="display:flex; justify-content: space-between; align-items: center; padding:10px;">
+            <span>Chatting as: <b id="namaUser" style="color:var(--accent)"></b></span>
+            <button onclick="logout()" style="background:red; color:white; border:none; padding:5px; border-radius:5px; font-size:10px;">Logout</button>
         </div>
 
-        <label style="font-size:12px;">Upload Bukti Transfer:</label>
-        <input type="file" id="buktiTf" accept="image/*">
-
-        <button onclick="prosesCheckout()" class="btn btn-green" id="btnSubmit">KIRIM PESANAN</button>
-        <button onclick="tutupModal()" style="background:none; border:none; color:red; width:100%; margin-top:10px; cursor:pointer;">Batal</button>
+        <div class="chat-container">
+            <div id="chatDisplay">Memuat pesan private...</div>
+            <div style="display:flex; padding:10px; gap:5px; border-top:1px solid #333;">
+                <input type="text" id="msgInp" placeholder="Hubungi Admin..." style="margin:0;">
+                <button onclick="kirimPesan()" class="btn-green" style="width:70px; border:none; cursor:pointer;">Kirim</button>
+            </div>
+        </div>
+        <p style="font-size:10px; color:#888; text-align:center; margin-top:10px;">⚠️ Pesan ini hanya bisa dilihat oleh kamu dan Admin.</p>
     </div>
 </div>
 
 <script>
 const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
 const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxcOkW3Sawjvq6txaA6BlKGA8VSPvJbESE9Zml0_5iLGAbrZM5Raj0nzIC-gL5KdBGiog/exec";
 
 let userAktif = localStorage.getItem("sann_user");
-let produkSkrg = null;
 
-// --- FUNGSI LOGIN & DAFTAR ---
 if(userAktif) {
     document.getElementById('authSection').classList.add('hidden');
-    document.getElementById('userInfo').classList.remove('hidden');
+    document.getElementById('chatSection').classList.remove('hidden');
     document.getElementById('namaUser').innerText = userAktif;
+    muatChatPrivate();
+    setInterval(muatChatPrivate, 3000);
 }
 
 async function handleAuth(mode) {
     const user = document.getElementById('userInp').value;
     const pass = document.getElementById('passInp').value;
-    if(!user || !pass) return alert("Lengkapi data!");
+    if(!user || !pass) return alert("Isi data!");
 
     if(mode === 'daftar') {
-        const res = await fetch(`${S_URL}/users_web`, {
+        await fetch(`${S_URL}/users_web`, {
             method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({ username: user, password: pass })
         });
-        if(res.ok) alert("Daftar berhasil! Silakan Login.");
-        else alert("Username sudah ada!");
+        alert("Berhasil daftar! Silakan Login.");
     } else {
         const res = await fetch(`${S_URL}/users_web?username=eq.${user}&password=eq.${pass}`, {
             headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
@@ -131,69 +87,24 @@ async function handleAuth(mode) {
         if(data.length > 0) {
             localStorage.setItem("sann_user", user);
             location.reload();
-        } else alert("Username/Password salah!");
+        } else alert("Gagal Login!");
     }
 }
-function logout() { localStorage.removeItem("sann_user"); location.reload(); }
 
-// --- FUNGSI SHOP ---
-async function muatProduk() {
-    const res = await fetch(`${S_URL}/produk?select=*&order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
-    const data = await res.json();
-    let html = "";
-    data.forEach(p => {
-        html += `<div class="card">
-            <img src="${p.img_url}">
-            <h4 style="margin:10px 0 5px 0;">${p.nama_produk}</h4>
-            <b style="color:var(--accent)">Rp ${Number(p.harga).toLocaleString()}</b><br>
-            <button onclick='bukaModal(${JSON.stringify(p)})' class="btn-green" style="margin-top:10px; border:none; padding:8px; border-radius:5px; width:100%; cursor:pointer;">BELI</button>
-        </div>`;
+async function muatChatPrivate() {
+    // Ambil pesan dimana pengirim = user ATAU penerima = user
+    const res = await fetch(`${S_URL}/pesan_chat?or=(pengirim.eq.${userAktif},penerima.eq.${userAktif})&order=created_at.desc&limit=20`, {
+        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
     });
-    document.getElementById('displayProduk').innerHTML = html;
-}
-
-function bukaModal(p) {
-    produkSkrg = p;
-    document.getElementById('modalBeli').style.display = 'block';
-    document.getElementById('judulItem').innerText = p.nama_produk;
-    document.getElementById('infoHarga').innerText = "Harga: Rp " + p.harga.toLocaleString();
-    hitungTotal();
-}
-function tutupModal() { document.getElementById('modalBeli').style.display = 'none'; }
-function hitungTotal() {
-    const qty = document.getElementById('pembeliQty').value;
-    document.getElementById('totalBayar').innerText = "Rp " + (qty * produkSkrg.harga).toLocaleString();
-}
-
-async function prosesCheckout() {
-    const ign = document.getElementById('pembeliIGN').value;
-    const wa = document.getElementById('pembeliWA').value;
-    const file = document.getElementById('buktiTf').files[0];
-    if(!ign || !wa || !file) return alert("Isi semua data!");
-
-    document.getElementById('btnSubmit').innerText = "Mengirim...";
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async function() {
-        const imgBase64 = reader.result.split(',')[1];
-        const res = await fetch(`${S_URL}/penjualan`, {
-            method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
-            body: JSON.stringify({ ign: ign, wa_pembeli: wa, nama_item: produkSkrg.nama_produk, qty: document.getElementById('pembeliQty').value, total_bayar: (document.getElementById('pembeliQty').value * produkSkrg.harga), status: "PENDING" })
-        });
-        const jual = await res.json();
-        await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "upload_bukti", id_jual: jual[0].id, ign: ign, wa_pembeli: wa, nama_item: produkSkrg.nama_produk, qty: jual[0].qty, total_bayar: jual[0].total_bayar, image: imgBase64 }) });
-        alert("Pesanan dikirim! Tunggu konfirmasi di WA.");
-        location.reload();
-    }
-}
-
-// --- FUNGSI LIVE CHAT ---
-async function muatChat() {
-    const res = await fetch(`${S_URL}/pesan_chat?select=*&order=created_at.desc&limit=15`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
     const data = await res.json();
     let html = "";
     data.reverse().forEach(m => {
-        html += `<div class="msg"><b>${m.username}</b>${m.isi_pesan}</div>`;
+        const isMe = m.pengirim === userAktif;
+        const tipe = isMe ? "me" : "admin";
+        html += `<div class="bubble ${tipe}">
+            ${m.isi_pesan}
+            <span class="time">${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>`;
     });
     document.getElementById('chatDisplay').innerHTML = html;
     const cd = document.getElementById('chatDisplay');
@@ -201,22 +112,18 @@ async function muatChat() {
 }
 
 async function kirimPesan() {
-    if(!userAktif) return alert("Login dulu buat chat!");
     const msg = document.getElementById('msgInp').value;
     if(!msg) return;
+
     await fetch(`${S_URL}/pesan_chat`, {
         method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ username: userAktif, isi_pesan: msg })
+        body: JSON.stringify({ pengirim: userAktif, penerima: 'admin', isi_pesan: msg })
     });
     document.getElementById('msgInp').value = "";
-    muatChat();
+    muatChatPrivate();
 }
 
-// Inisialisasi
-muatProduk();
-muatChat();
-setInterval(muatChat, 4000); // Update chat tiap 4 detik
+function logout() { localStorage.removeItem("sann_user"); location.reload(); }
 </script>
 </body>
-                </html>
-        
+</html>
