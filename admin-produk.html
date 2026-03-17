@@ -1,105 +1,166 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin SannShop</title>
+  <title>Admin SannShop - Control Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; background: #121212; color: white; padding: 20px; }
-    .login-container { max-width: 300px; margin: 100px auto; text-align: center; background: #1e1e1e; padding: 20px; border-radius: 10px; }
-    .admin-content { display: none; } /* Tersembunyi sebelum login */
-    input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: none; }
-    button { width: 100%; padding: 100%; padding: 10px; background: #ff9800; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e1e1e; }
-    th, td { border: 1px solid #333; padding: 10px; text-align: left; }
-    th { background: #333; }
-    .omset-box { margin-top: 30px; padding: 20px; background: #2e7d32; border-radius: 10px; }
-    h2 { color: #ff9800; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; padding: 15px; margin: 0; }
+    .login-container { max-width: 350px; margin: 100px auto; text-align: center; background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .admin-content { display: none; max-width: 900px; margin: auto; }
+    
+    input, select { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; border-radius: 8px; border: 1px solid #333; background: #252525; color: white; }
+    button { width: 100%; padding: 12px; background: #ff9800; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+    button:hover { background: #e68a00; }
+    .btn-delete { background: #f44336; width: auto; padding: 5px 10px; font-size: 12px; }
+    .btn-edit { background: #2196f3; width: auto; padding: 5px 10px; font-size: 12px; margin-right: 5px; }
+    
+    .card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+    th, td { border: 1px solid #333; padding: 12px; text-align: left; }
+    th { background: #252525; color: #ff9800; }
+    
+    .omset-box { background: #1b5e20; border-left: 5px solid #4caf50; }
+    .img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
+    h2 { margin-top: 0; color: #ff9800; border-bottom: 1px solid #333; padding-bottom: 10px; }
   </style>
 </head>
 <body>
 
   <div id="loginBox" class="login-container">
-    <h2>Admin Login</h2>
-    <input type="password" id="passInput" placeholder="Masukkan Password">
-    <button onclick="cekLogin()">Masuk</button>
+    <h2>🔒 Admin SannShop</h2>
+    <input type="password" id="passInput" placeholder="Masukkan Password Admin">
+    <button onclick="cekLogin()">UNLOCK PANEL</button>
   </div>
 
   <div id="adminContent" class="admin-content">
-    <h1>🚀 Panel Admin SannShop</h1>
-    
-    <h3>Daftar Produk & Stok</h3>
-    <div id="tabelProduk">Loading data...</div>
+    <h1>🚀 SannShop Control Panel</h1>
 
-    <hr>
+    <div class="card">
+      <h2>➕ Tambah Produk Baru</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <input type="text" id="newNama" placeholder="Nama Produk (Contoh: Skelly)">
+        <input type="number" id="newHarga" placeholder="Harga (Contoh: 2000)">
+        <input type="number" id="newStok" placeholder="Jumlah Stok">
+        <input type="text" id="newImg" placeholder="URL Gambar (Direct Link)">
+      </div>
+      <button onclick="tambahProduk()" style="margin-top: 10px; background: #4caf50;">SIMPAN PRODUK</button>
+    </div>
 
-    <div class="omset-box">
-      <h2>💰 Total Omset Penjualan</h2>
-      <div id="displayOmset">Menghitung pemasukan...</div>
-      <table id="tabelRiwayat">
-        <thead>
-          <tr>
-            <th>Hari/Tanggal</th>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Total Bayar</th>
-          </tr>
-        </thead>
-        <tbody id="listOmset"></tbody>
-      </table>
+    <div class="card">
+      <h2>📦 Stok Barang Saat Ini</h2>
+      <div id="tabelProduk" style="overflow-x: auto;">Loading data...</div>
+    </div>
+
+    <div class="card omset-box">
+      <h2>💰 Laporan Omset (Pesanan Sukses)</h2>
+      <div id="displayTotal" style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">Rp 0</div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Hari, Tanggal</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="listOmset"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    const PASS_BENAR = "admin123"; // GANTI PASSWORD KAMU DI SINI
+    const PASS_BENAR = "admin123"; // Ganti sesukamu
 
     function cekLogin() {
-      const input = document.getElementById('passInput').value;
-      if(input === PASS_BENAR) {
+      if(document.getElementById('passInput').value === PASS_BENAR) {
         document.getElementById('loginBox').style.display = 'none';
         document.getElementById('adminContent').style.display = 'block';
-        muatData();
-      } else {
-        alert("Password Salah San!");
+        muatSemuaData();
+      } else { alert("Password Salah!"); }
+    }
+
+    async function muatSemuaData() {
+      muatProduk();
+      muatOmset();
+    }
+
+    // --- FUNGSI PRODUK ---
+    async function muatProduk() {
+      const res = await fetch(`${S_URL}/produk?select=*&order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+      const data = await res.json();
+      let html = "<table><tr><th>Foto</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr>";
+      data.forEach(p => {
+        html += `<tr>
+          <td><img src="${p.img_url}" class="img-preview"></td>
+          <td>${p.nama_produk}</td>
+          <td>Rp ${Number(p.harga).toLocaleString()}</td>
+          <td><b>${p.stok}</b></td>
+          <td>
+            <button class="btn-edit" onclick="editProduk(${p.id}, ${p.stok}, ${p.harga})">Edit</button>
+            <button class="btn-delete" onclick="hapusProduk(${p.id})">Hapus</button>
+          </td>
+        </tr>`;
+      });
+      document.getElementById('tabelProduk').innerHTML = html + "</table>";
+    }
+
+    async function tambahProduk() {
+      const payload = {
+        nama_produk: document.getElementById('newNama').value,
+        harga: parseInt(document.getElementById('newHarga').value),
+        stok: parseInt(document.getElementById('newStok').value),
+        img_url: document.getElementById('newImg').value
+      };
+      await fetch(`${S_URL}/produk`, {
+        method: 'POST',
+        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
+        body: JSON.stringify(payload)
+      });
+      location.reload();
+    }
+
+    async function editProduk(id, stokLama, hargaLama) {
+      const stokBaru = prompt("Masukkan Stok Baru:", stokLama);
+      const hargaBaru = prompt("Masukkan Harga Baru:", hargaLama);
+      if (stokBaru !== null && hargaBaru !== null) {
+        await fetch(`${S_URL}/produk?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ stok: parseInt(stokBaru), harga: parseInt(hargaBaru) })
+        });
+        muatProduk();
       }
     }
 
-    async function muatData() {
-      // 1. Ambil Data Produk
-      const resProd = await fetch(`${S_URL}/produk`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
-      const produk = await resProd.json();
-      
-      let htmlProd = "<table><tr><th>Item</th><th>Stok</th><th>Harga</th></tr>";
-      produk.forEach(p => {
-        htmlProd += `<tr><td>${p.nama_produk}</td><td>${p.stok}</td><td>Rp ${p.harga}</td></tr>`;
-      });
-      document.getElementById('tabelProduk').innerHTML = htmlProd + "</table>";
+    async function hapusProduk(id) {
+      if(confirm("Hapus produk ini?")) {
+        await fetch(`${S_URL}/produk?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        muatProduk();
+      }
+    }
 
-      // 2. Ambil Data Penjualan (Hanya yang SUCCESS)
-      const resJual = await fetch(`${S_URL}/penjualan?status=eq.SUCCESS&select=*`, { 
+    // --- FUNGSI OMSET ---
+    async function muatOmset() {
+      const res = await fetch(`${S_URL}/penjualan?status=eq.SUCCESS&select=*`, { 
         headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
       });
-      const penjualan = await resJual.json();
-
-      let totalPemasukan = 0;
-      let htmlJual = "";
-      
-      penjualan.forEach(j => {
-        totalPemasukan += parseInt(j.total_bayar || 0);
-        // Format tanggal biar enak dibaca
-        let tgl = new Date(j.created_at).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        
-        htmlJual += `<tr>
-          <td>${tgl}</td>
-          <td>${j.nama_item}</td>
-          <td>${j.qty}</td>
-          <td>Rp ${Number(j.total_bayar).toLocaleString()}</td>
-        </tr>`;
+      const data = await res.json();
+      let total = 0;
+      let html = "";
+      data.forEach(j => {
+        total += Number(j.total_bayar);
+        let tgl = new Date(j.created_at).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+        html += `<tr><td>${tgl}</td><td>${j.nama_item}</td><td>${j.qty}</td><td>Rp ${Number(j.total_bayar).toLocaleString()}</td></tr>`;
       });
-
-      document.getElementById('displayOmset').innerHTML = `<h3>Total Pemasukan Bersih: Rp ${totalPemasukan.toLocaleString()}</h3>`;
-      document.getElementById('listOmset').innerHTML = htmlJual;
+      document.getElementById('displayTotal').innerText = "Total: Rp " + total.toLocaleString();
+      document.getElementById('listOmset').innerHTML = html;
     }
   </script>
 </body>
