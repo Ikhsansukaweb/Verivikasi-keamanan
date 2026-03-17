@@ -220,6 +220,90 @@
 
     fetchData();
     setInterval(fetchAntrean, 15000);
+
+    // Contoh fungsi saat admin klik 'Terima'
+async function terimaPesanan(idPesanan, idProduk, qtyDibeli) {
+    // 1. Ambil stok saat ini dari tabel produk
+    const resProd = await fetch(`${S_URL}/produk?id=eq.${idProduk}&select=stok`, {
+        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+    });
+    const dataProd = await resProd.json();
+    const stokSekarang = dataProd[0].stok;
+
+    // 2. Hitung stok baru
+    const stokBaru = stokSekarang - qtyDibeli;
+
+    if (stokBaru < 0) {
+        alert("Stok tidak mencukupi!");
+        return;
+    }
+
+    // 3. Update stok di tabel produk
+    await fetch(`${S_URL}/produk?id=eq.${idProduk}`, {
+        method: 'PATCH',
+        headers: { 
+            "apikey": S_KEY, 
+            "Authorization": `Bearer ${S_KEY}`, 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ stok: stokBaru })
+    });
+
+    // 4. Update status penjualan menjadi SUCCESS
+    await fetch(`${S_URL}/penjualan?id=eq.${idPesanan}`, {
+        method: 'PATCH',
+        headers: { 
+            "apikey": S_KEY, 
+            "Authorization": `Bearer ${S_KEY}`, 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ status: 'SUCCESS' })
+    });
+
+    alert("Pesanan diterima dan stok telah dikurangi!");
+    location.reload();
+    }
+    async function kurangiStokOtomatis(namaBarang, jumlahBeli) {
+    try {
+        // 1. Ambil data stok terbaru dari database berdasarkan nama produk
+        const res = await fetch(`${S_URL}/produk?nama_produk=eq.${namaBarang}`, {
+            headers: { 
+                "apikey": S_KEY, 
+                "Authorization": `Bearer ${S_KEY}` 
+            }
+        });
+        const data = await res.json();
+
+        if (data.length > 0) {
+            const produkId = data[0].id;
+            const stokSekarang = data[0].stok;
+            const stokBaru = stokSekarang - jumlahBeli;
+
+            if (stokBaru < 0) {
+                alert("Maaf, stok tidak mencukupi!");
+                return false; // Gagal karena stok habis
+            }
+
+            // 2. Update stok ke tabel produk
+            await fetch(`${S_URL}/produk?id=eq.${produkId}`, {
+                method: 'PATCH',
+                headers: {
+                    "apikey": S_KEY,
+                    "Authorization": `Bearer ${S_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ stok: stokBaru })
+            });
+            
+            console.log(`Stok ${namaBarang} berhasil dikurangi. Sisa: ${stokBaru}`);
+            return true;
+        }
+    } catch (error) {
+        console.error("Gagal update stok:", error);
+        return false;
+    }
+        }
+        
 </script>
 </body>
     </html>
