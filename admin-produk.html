@@ -8,12 +8,15 @@
     .login-container { max-width: 350px; margin: 100px auto; text-align: center; background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
     .admin-content { display: none; max-width: 900px; margin: auto; }
     
-    input, select { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; border-radius: 8px; border: 1px solid #333; background: #252525; color: white; }
-    button { width: 100%; padding: 12px; background: #ff9800; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+    input { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; border-radius: 8px; border: 1px solid #333; background: #252525; color: white; }
+    button { padding: 12px; background: #ff9800; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s; }
     button:hover { background: #e68a00; }
-    .btn-delete { background: #f44336; width: auto; padding: 5px 10px; font-size: 12px; }
-    .btn-edit { background: #2196f3; width: auto; padding: 5px 10px; font-size: 12px; margin-right: 5px; }
     
+    .btn-full { width: 100%; }
+    .btn-delete { background: #f44336; font-size: 12px; }
+    .btn-edit { background: #2196f3; font-size: 12px; margin-right: 5px; }
+    .btn-reset { background: #d32f2f; margin-left: 10px; padding: 5px 15px; }
+
     .card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
     th, td { border: 1px solid #333; padding: 12px; text-align: left; }
@@ -21,7 +24,8 @@
     
     .omset-box { background: #1b5e20; border-left: 5px solid #4caf50; }
     .img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
-    h2 { margin-top: 0; color: #ff9800; border-bottom: 1px solid #333; padding-bottom: 10px; }
+    .flex-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+    h2 { margin: 0; color: #ff9800; }
   </style>
 </head>
 <body>
@@ -29,7 +33,7 @@
   <div id="loginBox" class="login-container">
     <h2>🔒 Admin SannShop</h2>
     <input type="password" id="passInput" placeholder="Masukkan Password Admin">
-    <button onclick="cekLogin()">UNLOCK PANEL</button>
+    <button onclick="cekLogin()" class="btn-full">UNLOCK PANEL</button>
   </div>
 
   <div id="adminContent" class="admin-content">
@@ -38,21 +42,24 @@
     <div class="card">
       <h2>➕ Tambah Produk Baru</h2>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <input type="text" id="newNama" placeholder="Nama Produk (Contoh: Skelly)">
-        <input type="number" id="newHarga" placeholder="Harga (Contoh: 2000)">
+        <input type="text" id="newNama" placeholder="Nama Produk">
+        <input type="number" id="newHarga" placeholder="Harga">
         <input type="number" id="newStok" placeholder="Jumlah Stok">
-        <input type="text" id="newImg" placeholder="URL Gambar (Direct Link)">
+        <input type="text" id="newImg" placeholder="URL Gambar">
       </div>
-      <button onclick="tambahProduk()" style="margin-top: 10px; background: #4caf50;">SIMPAN PRODUK</button>
+      <button onclick="tambahProduk()" class="btn-full" style="margin-top: 10px; background: #4caf50;">SIMPAN PRODUK</button>
     </div>
 
     <div class="card">
-      <h2>📦 Stok Barang Saat Ini</h2>
-      <div id="tabelProduk" style="overflow-x: auto;">Loading data...</div>
+      <h2>📦 Stok Barang</h2>
+      <div id="tabelProduk" style="overflow-x: auto;">Loading...</div>
     </div>
 
     <div class="card omset-box">
-      <h2>💰 Laporan Omset (Pesanan Sukses)</h2>
+      <div class="flex-header">
+        <h2>💰 Laporan Omset</h2>
+        <button onclick="hapusRiwayat()" class="btn-reset">Hapus Semua Riwayat</button>
+      </div>
       <div id="displayTotal" style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">Rp 0</div>
       <div style="overflow-x: auto;">
         <table>
@@ -73,7 +80,7 @@
   <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    const PASS_BENAR = "admin123"; // Ganti sesukamu
+    const PASS_BENAR = "admin123";
 
     function cekLogin() {
       if(document.getElementById('passInput').value === PASS_BENAR) {
@@ -88,7 +95,7 @@
       muatOmset();
     }
 
-    // --- FUNGSI PRODUK ---
+    // --- MANAJEMEN PRODUK ---
     async function muatProduk() {
       const res = await fetch(`${S_URL}/produk?select=*&order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
       const data = await res.json();
@@ -117,15 +124,15 @@
       };
       await fetch(`${S_URL}/produk`, {
         method: 'POST',
-        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
+        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
       location.reload();
     }
 
     async function editProduk(id, stokLama, hargaLama) {
-      const stokBaru = prompt("Masukkan Stok Baru:", stokLama);
-      const hargaBaru = prompt("Masukkan Harga Baru:", hargaLama);
+      const stokBaru = prompt("Stok Baru:", stokLama);
+      const hargaBaru = prompt("Harga Baru:", hargaLama);
       if (stokBaru !== null && hargaBaru !== null) {
         await fetch(`${S_URL}/produk?id=eq.${id}`, {
           method: 'PATCH',
@@ -137,7 +144,7 @@
     }
 
     async function hapusProduk(id) {
-      if(confirm("Hapus produk ini?")) {
+      if(confirm("Hapus produk?")) {
         await fetch(`${S_URL}/produk?id=eq.${id}`, {
           method: 'DELETE',
           headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
@@ -146,11 +153,9 @@
       }
     }
 
-    // --- FUNGSI OMSET ---
+    // --- MANAJEMEN OMSET ---
     async function muatOmset() {
-      const res = await fetch(`${S_URL}/penjualan?status=eq.SUCCESS&select=*`, { 
-        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
-      });
+      const res = await fetch(`${S_URL}/penjualan?status=eq.SUCCESS&select=*`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
       const data = await res.json();
       let total = 0;
       let html = "";
@@ -161,6 +166,17 @@
       });
       document.getElementById('displayTotal').innerText = "Total: Rp " + total.toLocaleString();
       document.getElementById('listOmset').innerHTML = html;
+    }
+
+    async function hapusRiwayat() {
+      if(confirm("Hapus semua riwayat transaksi (SUCCESS & CANCELLED)?")) {
+        // Hapus Success
+        await fetch(`${S_URL}/penjualan?status=eq.SUCCESS`, { method: 'DELETE', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+        // Hapus Cancelled
+        await fetch(`${S_URL}/penjualan?status=eq.CANCELLED`, { method: 'DELETE', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+        alert("Riwayat dibersihkan!");
+        muatOmset();
+      }
     }
   </script>
 </body>
