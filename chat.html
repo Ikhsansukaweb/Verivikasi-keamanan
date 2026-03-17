@@ -6,9 +6,9 @@
     <style>
         body { background: #121212; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* LOGIN STYLING */
-        #loginOverlay { position: fixed; inset: 0; background: #121212; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        /* AUTH STYLING */
+        #authOverlay { position: fixed; inset: 0; background: #121212; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         
         /* CHAT STYLING */
         #chatInterface { display: none; flex-direction: column; height: 100%; }
@@ -17,24 +17,36 @@
         .me { background: #ff9800; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .admin { background: #252525; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #333; }
         
-        /* INPUT AREA */
+        /* INPUT & BUTTONS */
         .input-area { padding: 15px; background: #1e1e1e; display: flex; gap: 8px; border-top: 1px solid #333; }
-        input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #252525; color: white; outline: none; }
+        input { width: 100%; padding: 12px; margin: 5px 0; box-sizing: border-box; border-radius: 8px; border: 1px solid #333; background: #252525; color: white; outline: none; }
         input:focus { border-color: #ff9800; }
-        button { background: #ff9800; border: none; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        button { background: #ff9800; border: none; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
         
         .header { padding: 15px; background: #1e1e1e; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .toggle-link { color: #ff9800; cursor: pointer; font-size: 13px; text-decoration: underline; margin-top: 15px; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <div id="loginOverlay">
-        <div class="login-card">
-            <h2 style="color: #ff9800; margin-top: 0;">💬 Masuk Chat</h2>
-            <p style="font-size: 12px; color: #aaa;">Gunakan Username Akun Kamu</p>
-            <input type="text" id="userInp" placeholder="Username">
-            <input type="password" id="passInp" placeholder="Password">
-            <button onclick="prosesLogin()" style="width: 100%; margin-top: 10px;">MASUK</button>
+    <div id="authOverlay">
+        <div class="auth-card">
+            <div id="loginForm">
+                <h2 style="color: #ff9800; margin-top: 0;">💬 Masuk Chat</h2>
+                <input type="text" id="userInp" placeholder="Username">
+                <input type="password" id="passInp" placeholder="Password">
+                <button onclick="prosesLogin()" style="width: 100%; margin-top: 10px;">MASUK</button>
+                <span class="toggle-link" onclick="toggleAuth()">Belum punya akun? Daftar</span>
+            </div>
+
+            <div id="registerForm" style="display: none;">
+                <h2 style="color: #4caf50; margin-top: 0;">📝 Buat Akun</h2>
+                <input type="text" id="regUser" placeholder="Username Baru">
+                <input type="password" id="regPass" placeholder="Password Baru">
+                <button onclick="prosesDaftar()" style="width: 100%; margin-top: 10px; background: #4caf50;">DAFTAR SEKARANG</button>
+                <span class="toggle-link" onclick="toggleAuth()">Sudah punya akun? Login</span>
+            </div>
             <br><br>
             <a href="index.html" style="color: #aaa; font-size: 12px; text-decoration: none;">← Kembali ke Toko</a>
         </div>
@@ -48,9 +60,7 @@
             </div>
             <button onclick="logout()" style="background: transparent; color: #f44336; font-size: 12px; padding: 5px;">Logout</button>
         </div>
-        
         <div id="chatBox"></div>
-
         <div class="input-area">
             <input type="text" id="msgInp" placeholder="Tulis pesan ke admin..." onkeypress="if(event.key === 'Enter') kirim()">
             <button onclick="kirim()">Kirim</button>
@@ -63,22 +73,59 @@
         
         let userAktif = localStorage.getItem("chat_user");
 
-        // Cek jika sudah login sebelumnya
-        if(userAktif) {
-            bukaChat();
+        if(userAktif) bukaChat();
+
+        function toggleAuth() {
+            const lForm = document.getElementById('loginForm');
+            const rForm = document.getElementById('registerForm');
+            if(lForm.style.display === 'none') {
+                lForm.style.display = 'block';
+                rForm.style.display = 'none';
+            } else {
+                lForm.style.display = 'none';
+                rForm.style.display = 'block';
+            }
+        }
+
+        async function prosesDaftar() {
+            const user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+
+            if(!user || !pass) return alert("Isi semua data!");
+            if(user.toLowerCase() === "admin") return alert("Nama 'admin' dilarang!");
+
+            // Cek apakah username sudah ada
+            const cek = await fetch(`${S_URL}/users?username=eq.${user}&select=*`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const dataCek = await cek.json();
+
+            if(dataCek.length > 0) return alert("Username sudah dipakai!");
+
+            // Simpan ke Database
+            const res = await fetch(`${S_URL}/users`, {
+                method: 'POST',
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+
+            if(res.ok) {
+                alert("Akun berhasil dibuat! Silakan login.");
+                toggleAuth();
+            } else {
+                alert("Gagal daftar, coba lagi.");
+            }
         }
 
         async function prosesLogin() {
-            const user = document.getElementById('userInp').value;
-            const pass = document.getElementById('passInp').value;
+            const user = document.getElementById('userInp').value.trim();
+            const pass = document.getElementById('passInp').value.trim();
 
-            // PROTEKSI: Admin dilarang login di sini
             if(user.toLowerCase() === "admin" || pass === "admin123") {
-                alert("Akses Ditolak! Akun Admin hanya untuk Panel Kontrol.");
+                alert("Akses Ditolak! Gunakan Akun Admin untuk Panel.");
                 return;
             }
 
-            // Cek ke Database (Tabel Users)
             const res = await fetch(`${S_URL}/users?username=eq.${user}&password=eq.${pass}&select=*`, {
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
             });
@@ -89,16 +136,16 @@
                 userAktif = user;
                 bukaChat();
             } else {
-                alert("Username atau Password salah!");
+                alert("Username/Password salah!");
             }
         }
 
         function bukaChat() {
-            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('chatInterface').style.display = 'flex';
-            document.getElementById('displayUser').innerText = "Chat: " + userAktif;
+            document.getElementById('displayUser').innerText = "User: " + userAktif;
             muatChat();
-            setInterval(muatChat, 3000); // Auto refresh chat
+            setInterval(muatChat, 3000);
         }
 
         async function muatChat() {
@@ -119,13 +166,11 @@
         async function kirim() {
             const msg = document.getElementById('msgInp').value;
             if(!msg) return;
-
             await fetch(`${S_URL}/pesan_chat`, {
                 method: 'POST',
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ pengirim: userAktif, penerima: 'admin', isi_pesan: msg })
             });
-
             document.getElementById('msgInp').value = "";
             muatChat();
         }
