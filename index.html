@@ -46,22 +46,80 @@
 </head>
 <body>
     
-<div class="floating-container">
-    
-    <a href="admin-produk.html" class="btn-float bg-admin-panel" title="Panel Admin">
+<style>
+    /* Wadah utama semua tombol di pojok kanan bawah */
+    .sann-floating-group {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column-reverse; /* Mengurutkan dari bawah ke atas */
+        gap: 12px;
+        z-index: 99999; /* Pastikan paling depan */
+    }
+
+    /* Styling dasar semua tombol */
+    .btn-sann {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-sann:hover {
+        transform: scale(1.1) translateY(-5px);
+    }
+
+    /* Ukuran Icon di dalam tombol */
+    .btn-sann img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+    /* Warna Tombol */
+    .bg-panel-admin { background-color: #374151; border: 1px solid #4b5563; }
+    .bg-chat-admin  { background-color: #ff9800; }
+    .bg-wa-cs      { background-color: #25d366; }
+
+    /* Label kecil saat di-hover (Opsional) */
+    .btn-sann:after {
+        content: attr(data-title);
+        position: absolute;
+        right: 70px;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s;
+    }
+    .btn-sann:hover:after { opacity: 1; }
+</style>
+
+<div class="sann-floating-group">
+    <a href="admin-produk.html" class="btn-sann bg-panel-admin" data-title="Panel Admin">
         <img src="https://cdn-icons-png.flaticon.com/512/3938/3938408.png" alt="Admin">
     </a>
 
-    <a href="admin.html" class="btn-float bg-chat-admin" title="Chat Admin">
+    <a href="admin.html" class="btn-sann bg-chat-admin" data-title="Chat Manager">
         <img src="https://cdn-icons-png.flaticon.com/512/4233/4233830.png" alt="Chat">
     </a>
 
-    <a href="https://wa.me/6281234567890" class="btn-float bg-wa" target="_blank" title="WhatsApp CS">
+    <a href="https://wa.me/6281234567890" target="_blank" class="btn-sann bg-wa-cs" data-title="WhatsApp CS">
         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA">
     </a>
-
 </div>
-    
+ 
 <div class="header">
     <h1>SANNSHOP</h1>
     <p>⚡ DonutSmp Shop Aman Terpercaya ⚡</p>
