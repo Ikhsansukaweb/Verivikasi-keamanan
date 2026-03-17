@@ -59,12 +59,6 @@
 
     <div id="product-grid" class="grid"></div>
 </div>
-<a href="https://wa.me/628989294545?text=Halo%20Admin%20SannShop,%20saya%20mau%20tanya..." 
-   target="_blank" 
-   class="btn-cs-wa">
-   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA">
-   <span>Customer Service</span>
-</a>
     
 <a href="admin-produk.html" class="admin-float">⚙️ Panel Admin</a>
 
@@ -173,45 +167,7 @@
 
         const btn = document.getElementById("btn-submit");
         btn.innerText = "Mengirim..."; btn.disabled = true;
-.btn-cs-wa {
-    position: fixed;
-    top: 15px; /* Menyesuaikan posisi lingkaran hijau di screenshot */
-    left: 15px;
-    background-color: #25d366;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 12px;
-    z-index: 10000; /* Supaya selalu di depan */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    transition: 0.3s;
-}
 
-.btn-cs-wa:hover {
-    transform: scale(1.05);
-    background-color: #20ba5a;
-}
-
-.btn-cs-wa img {
-    width: 20px;
-    height: 20px;
-}
-
-/* Sembunyikan tulisan di HP layar kecil agar tidak menutupi logo SANNSHOP */
-@media (max-width: 400px) {
-    .btn-cs-wa span {
-        display: none;
-    }
-    .btn-cs-wa {
-        padding: 10px;
-    }
-    }
-    
         try {
             // 1. Potong Stok
             await fetch(`${S_URL}/rest/v1/produk?id=eq.${activeItem.id}`, {
