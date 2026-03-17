@@ -3,47 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - DZKALL SHOP Blue</title>
+    <title>Admin Panel - DZKALL SHOP</title>
     <style>
-        :root { --blue-dark: #2c3e50; --blue-light: #3498db; --bg: #f0f3f6; }
+        :root { --dark: #2c3e50; --blue: #3498db; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: auto; }
-        .header { background: var(--blue-dark); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
-        .form-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .grid-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        .btn { padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
-        .btn-save { background: var(--blue-light); color: white; }
+        .header { background: var(--dark); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
+        .form-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-save { background: var(--blue); color: white; margin-top: 10px; }
         .btn-save:hover { background: #2980b9; }
-        table { width: 100%; margin-top: 30px; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
-        th { background: var(--blue-dark); color: white; padding: 15px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        th { background: var(--dark); color: white; padding: 15px; text-align: left; }
         td { padding: 12px 15px; border-bottom: 1px solid #eee; }
         .img-table { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
-        .btn-edit { background: #f1c40f; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .badge-stok { padding: 4px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        .stok-aman { background: #e8f5e9; color: #2e7d32; }
+        .stok-habis { background: #ffebee; color: #c62828; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2 style="margin:0">⚙️ ADMIN PANEL BLUE</h2>
-        <small>DZKALL SHOP - Fix API Connection</small>
+        <h2 style="margin:0">⚙️ KELOLA PRODUK DZKALL</h2>
+        <small>Supabase & Telegram Integration Fix</small>
     </div>
 
     <div class="form-box">
-        <h4 id="form-title" style="margin-top:0; color: var(--blue-dark);">➕ Tambah/Edit Produk</h4>
+        <h4 style="margin-top:0">➕ Tambah / Edit Produk</h4>
         <input type="hidden" id="p_id">
-        <div class="grid-input">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <input type="text" id="p_nama" placeholder="Nama Produk">
-            <input type="number" id="p_harga" placeholder="Harga (Angka)">
-            <input type="number" id="p_stok" placeholder="Stok">
+            <input type="number" id="p_harga" placeholder="Harga (Contoh: 2000)">
+            <input type="number" id="p_stok" placeholder="Jumlah Stok">
             <input type="text" id="p_img" placeholder="Link Gambar (URL)">
         </div>
-        <button class="btn btn-save" id="btn-save" onclick="simpanProduk()">SIMPAN PERUBAHAN</button>
-        <button class="btn" style="background:#95a5a6; color:white; display:none;" id="btn-cancel" onclick="resetForm()">BATAL</button>
+        <button class="btn btn-save" onclick="simpanProduk()">SIMPAN PERUBAHAN</button>
+        <button class="btn" style="background:#95a5a6; color:white; margin-top:5px; display:none;" id="btn-batal" onclick="resetForm()">BATAL EDIT</button>
     </div>
 
-    <table id="tabel-produk">
+    <table>
         <thead>
             <tr>
                 <th>Foto</th>
@@ -60,31 +61,40 @@
 </div>
 
 <script>
-    // KEY TERBARU YANG SUDAH DIBERSIHKAN
+    // API CONFIGURATION
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
-    const S_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
 
     async function loadProduk() {
         try {
             const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, {
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
             });
-            if (!res.ok) throw new Error("API Key Invalid");
             const data = await res.json();
             const list = document.getElementById("list-produk");
+            
+            if (data.length === 0) {
+                list.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada produk.</td></tr>`;
+                return;
+            }
+
             list.innerHTML = data.map(p => `
                 <tr>
                     <td><img src="${p.img_url}" class="img-table" onerror="this.src='https://via.placeholder.com/50'"></td>
                     <td><b>${p.nama_produk}</b></td>
                     <td>Rp ${p.harga.toLocaleString()}</td>
-                    <td>${p.stok}</td>
                     <td>
-                        <button class="btn-edit" onclick='isiForm(${JSON.stringify(p)})'>Edit</button>
+                        <span class="badge-stok ${p.stok > 0 ? 'stok-aman' : 'stok-habis'}">
+                            ${p.stok}
+                        </span>
+                    </td>
+                    <td>
+                        <button style="cursor:pointer" onclick='isiForm(${JSON.stringify(p)})'>Edit</button>
                     </td>
                 </tr>
             `).join("");
         } catch (e) {
-            document.getElementById("list-produk").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Gagal: ${e.message}. Cek S_KEY kamu!</td></tr>`;
+            document.getElementById("list-produk").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Gagal: API Key Invalid!</td></tr>`;
         }
     }
 
@@ -94,8 +104,8 @@
         document.getElementById("p_harga").value = p.harga;
         document.getElementById("p_stok").value = p.stok;
         document.getElementById("p_img").value = p.img_url;
-        document.getElementById("btn-save").innerText = "UPDATE PRODUK";
-        document.getElementById("btn-cancel").style.display = "block";
+        document.getElementById("btn-batal").style.display = "block";
+        window.scrollTo(0,0);
     }
 
     function resetForm() {
@@ -104,8 +114,7 @@
         document.getElementById("p_harga").value = "";
         document.getElementById("p_stok").value = "";
         document.getElementById("p_img").value = "";
-        document.getElementById("btn-save").innerText = "SIMPAN PERUBAHAN";
-        document.getElementById("btn-cancel").style.display = "none";
+        document.getElementById("btn-batal").style.display = "none";
     }
 
     async function simpanProduk() {
@@ -117,7 +126,7 @@
             img_url: document.getElementById("p_img").value
         };
 
-        if(!payload.nama_produk || isNaN(payload.harga)) return alert("Data tidak lengkap!");
+        if(!payload.nama_produk || isNaN(payload.harga)) return alert("Lengkapi data produk!");
 
         const method = id ? "PATCH" : "POST";
         const url = id ? `${S_URL}/rest/v1/produk?id=eq.${id}` : `${S_URL}/rest/v1/produk`;
@@ -134,7 +143,7 @@
         });
 
         if(res.ok) {
-            alert("Berhasil!");
+            alert("Data Berhasil Disimpan!");
             resetForm();
             loadProduk();
         } else {
@@ -146,4 +155,5 @@
     loadProduk();
 </script>
 </body>
-</html>
+    </html>
+    
