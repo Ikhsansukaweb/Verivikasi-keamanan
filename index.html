@@ -15,7 +15,114 @@
 <body>
     <h2 style="color:#ff9800">🛒 SannShop Items</h2>
     <div id="displayProduk" class="grid">Memuat produk...</div>
+<div id="modalBeli" style="display:none; position:fixed; z-index:999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.9); overflow-y:auto;">
+    <div style="background:white; color:#333; margin:10% auto; padding:20px; width:90%; max-width:400px; border-radius:15px;">
+        <h3 id="judulItem" style="margin-top:0">Form Pembelian</h3>
+        <p id="infoHarga" style="color:#ff9800; font-weight:bold;"></p>
+        
+        <div style="text-align:center; background:#f0f0f0; padding:10px; border-radius:10px; margin-bottom:15px;">
+            <p style="font-size:12px; margin-bottom:5px;">Scan QRIS di bawah untuk bayar:</p>
+            <img src="URL_FOTO_QRIS_KAMU" style="width:200px; border-radius:10px; border:2px solid #ddd;">
+            <p style="font-size:14px; font-weight:bold; margin-top:5px;">Total: <span id="totalBayar"></span></p>
+        </div>
 
+        <input type="text" id="pembeliIGN" placeholder="Masukkan IGN / Nickname Game" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:8px;">
+        <input type="number" id="pembeliWA" placeholder="Nomor WhatsApp" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:8px;">
+        
+        <label style="font-size:12px; display:block; margin-top:10px;">Upload Bukti Transfer (Screenshot):</label>
+        <input type="file" id="buktiTf" accept="image/*" style="width:100%; margin:5px 0;">
+
+        <button onclick="prosesCheckout()" id="btnSubmit" style="width:100%; padding:12px; background:#2ecc71; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:15px;">KIRIM PESANAN</button>
+        <button onclick="tutupModal()" style="width:100%; background:none; border:none; color:red; margin-top:10px; cursor:pointer;">Batal</button>
+    </div>
+</div>
+
+<script>
+// CONFIG (PASTIKAN SAMA DENGAN FILE LAIN)
+const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
+const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxcOkW3Sawjvq6txaA6BlKGA8VSPvJbESE9Zml0_5iLGAbrZM5Raj0nzIC-gL5KdBGiog/exec";
+const userAktif = localStorage.getItem("sann_user");
+
+let produkSkrg = null;
+
+async function muatProduk() {
+    const res = await fetch(`${S_URL}/produk?select=*&order=id.asc`, { headers: { "apikey": S_KEY } });
+    const data = await res.json();
+    let html = "";
+    data.forEach(p => {
+        html += `<div class="card">
+            <img src="${p.img_url || 'https://via.placeholder.com/150'}">
+            <h4>${p.nama_produk}</h4>
+            <p style="color:#2ecc71">Rp ${Number(p.harga).toLocaleString()}</p>
+            <button onclick='bukaModal(${JSON.stringify(p)})' class="btn-beli">BELI</button>
+        </div>`;
+    });
+    document.getElementById('displayProduk').innerHTML = html;
+}
+
+function bukaModal(p) {
+    produkSkrg = p;
+    document.getElementById('modalBeli').style.display = 'block';
+    document.getElementById('judulItem').innerText = p.nama_produk;
+    document.getElementById('infoHarga').innerText = "Harga Satuan: Rp " + p.harga.toLocaleString();
+    document.getElementById('totalBayar').innerText = "Rp " + p.harga.toLocaleString();
+}
+
+function tutupModal() { document.getElementById('modalBeli').style.display = 'none'; }
+
+async function prosesCheckout() {
+    const ign = document.getElementById('pembeliIGN').value;
+    const wa = document.getElementById('pembeliWA').value;
+    const file = document.getElementById('buktiTf').files[0];
+    
+    if(!ign || !wa || !file) return alert("Lengkapi data dan lampirkan bukti transfer!");
+
+    document.getElementById('btnSubmit').innerText = "Sedang Mengirim...";
+    document.getElementById('btnSubmit').disabled = true;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async function() {
+        const imgBase64 = reader.result.split(',')[1];
+        
+        // 1. Simpan ke database Supabase biar ada history-nya
+        const res = await fetch(`${S_URL}/penjualan`, {
+            method: 'POST',
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
+            body: JSON.stringify({ 
+                ign: ign, 
+                wa_pembeli: wa, 
+                nama_item: produkSkrg.nama_produk, 
+                total_bayar: produkSkrg.harga, 
+                status: "PENDING",
+                username_web: userAktif // Ini username dari akun web kamu
+            })
+        });
+        const hasil = await res.json();
+
+        // 2. Kirim ke Telegram via Google Apps Script (GAS)
+        await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                action: "upload_bukti", 
+                id_jual: hasil[0].id, 
+                ign: ign, 
+                wa_pembeli: wa, 
+                nama_item: produkSkrg.nama_produk, 
+                total_bayar: hasil[0].total_bayar, 
+                username_web: userAktif, // Username pengirim dikirim ke Tele
+                image: imgBase64 
+            })
+        });
+
+        alert("Pesanan berhasil dikirim! Silakan tunggu konfirmasi Admin.");
+        location.reload();
+    }
+}
+muatProduk();
+</script>
+    
     <a href="chat.html" class="btn-chat">💬 Chat Admin</a>
 
     <script>
