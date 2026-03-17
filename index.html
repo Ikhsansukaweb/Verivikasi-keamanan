@@ -9,27 +9,23 @@
         :root { --primary: #2c3e50; --accent: #e67e22; --success: #27ae60; --bg: #f8f9fa; }
         body { font-family: 'Poppins', sans-serif; margin: 0; background: #ececec url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png') fixed center/cover; color: #333; }
         
-        /* 1. LAYAR LOGIN */
+        /* LAYAR LOGIN */
         #loginPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 10000; display: flex; justify-content: center; align-items: center; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
         .btn-login { width: 100%; padding: 12px; background: var(--success); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; }
 
-        /* 2. CUSTOMER SERVICE (Kiri Atas) */
-        .cs-container { position: fixed; top: 15px; left: 15px; z-index: 999; }
-        .btn-cs-wa { background: #25d366; color: white; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; text-decoration: none; font-weight: bold; font-size: 11px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn-cs-wa img { width: 18px !important; height: 18px !important; display: block; }
-
-        /* 3. HEADER & KONTEN */
+        /* Header */
         .header { background: rgba(44, 62, 80, 0.95); color: white; padding: 25px 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
         .header p { margin: 5px 0 0; font-size: 13px; opacity: 0.8; }
+
         .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
 
         /* Antrean Section */
         .antrean-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 25px; border-left: 6px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .antrean-header { font-weight: bold; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .antrean-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 13px; }
+        .antrean-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
         .status-badge { color: #f39c12; font-weight: bold; animation: blink 1.5s infinite; }
 
         /* Product Grid */
@@ -48,11 +44,15 @@
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
         .btn-pay { background: var(--success); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
 
-        /* Float Buttons (Kanan Bawah) */
-        .float-group { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 99; }
-        .btn-float { padding: 12px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center; }
-        .btn-admin { background: var(--primary); color: white; }
-        .btn-chat-pribadi { background: var(--accent); color: white; }
+        /* FLOAT GROUP KANAN BAWAH */
+        .float-group { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 9999; align-items: flex-end; }
+        
+        .btn-chat-pribadi { background: var(--accent); color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
+        
+        .btn-wa-logo { background: #25d366; width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; }
+        .btn-wa-logo img { width: 32px !important; height: 32px !important; display: block; }
+        
+        .admin-link { background: var(--primary); color: white; padding: 8px 15px; border-radius: 50px; text-decoration: none; font-size: 12px; opacity: 0.8; }
 
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
@@ -65,15 +65,7 @@
         <input type="text" id="userLogin" placeholder="Username">
         <input type="password" id="passLogin" placeholder="Password">
         <button onclick="cekLogin()" class="btn-login">MASUK / DAFTAR</button>
-        <p style="font-size:10px; color:#999; margin-top:10px;">Gunakan akun bebas untuk pembeli</p>
     </div>
-</div>
-
-<div class="cs-container">
-    <a href="https://wa.me/628989294545?text=Halo%20Admin%20SannShop" target="_blank" class="btn-cs-wa">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA">
-        <span>Customer Service</span>
-    </a>
 </div>
 
 <div class="header">
@@ -90,8 +82,11 @@
 </div>
 
 <div class="float-group">
-    <a href="chat.html" class="btn-float btn-chat-pribadi">💬 Chat Admin</a>
-    <a href="admin-produk.html" class="btn-float btn-admin">⚙️ Panel Admin</a>
+    <a href="admin-produk.html" class="admin-link">⚙️ Panel Admin</a>
+    <a href="chat.html" class="btn-chat-pribadi" id="chatBtn" style="display:none;">💬 Chat Admin</a>
+    <a href="https://wa.me/628989294545?text=Halo%20Admin%20SannShop" target="_blank" class="btn-wa-logo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA">
+    </a>
 </div>
 
 <div id="orderModal" class="modal">
@@ -107,7 +102,7 @@
             <option value="QRIS">QRIS All Payment</option>
         </select>
         <div id="qris-area" style="display:none; text-align:center; margin: 15px 0;">
-            <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" style="width:180px; border: 2px solid #ddd; border-radius:10px;">
+            <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" style="width:200px; border: 2px solid #ddd; border-radius:10px;">
             <p style="font-size:11px; color:#666;">Scan QRIS di atas untuk membayar</p>
         </div>
         <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0;">
@@ -131,19 +126,19 @@
     let userAktif = localStorage.getItem("sann_user");
 
     // LOGIKA LOGIN
-    if(userAktif) document.getElementById('loginPage').style.display = 'none';
+    if(userAktif) {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('chatBtn').style.display = 'flex';
+    }
 
     async function cekLogin() {
         const u = document.getElementById('userLogin').value;
         const p = document.getElementById('passLogin').value;
         if(!u || !p) return alert("Isi data!");
-
         if(u === "admin" && p === "admin123") {
             localStorage.setItem("sann_user", "admin");
             location.reload(); return;
         }
-
-        // Cek/Daftar User Otomatis ke Supabase
         const res = await fetch(`${S_URL}/rest/v1/users_web?username=eq.${u}`, { headers: {"apikey": S_KEY} });
         const data = await res.json();
         if(data.length === 0) {
@@ -152,7 +147,6 @@
                 body: JSON.stringify({username:u, password:p})
             });
         } else if(data[0].password !== p) { return alert("Password salah!"); }
-
         localStorage.setItem("sann_user", u);
         location.reload();
     }
@@ -187,7 +181,7 @@
         const data = await res.json();
         const list = document.getElementById("antrean-list");
         if(data.length === 0) { list.innerHTML = "<div style='color:#999'>Belum ada antrean saat ini.</div>"; return; }
-        list.innerHTML = data.map(a => `<div class="antrean-item"><span>👤 <b>${sensorIGN(a.ign)}</b> beli ${a.nama_item}</span><span class="status-badge">Sedang Diproses</span></div>`).join("");
+        list.innerHTML = data.map(a => `<div class="antrean-item"><span>👤 <b>${sensorIGN(a.ign)}</b> beli ${a.nama_item} (${a.jumlah})</span><span class="status-badge">Sedang Diproses</span></div>`).join("");
     }
 
     function openOrder(id) {
@@ -207,35 +201,27 @@
         const ign = document.getElementById("m-ign").value;
         const qty = parseInt(document.getElementById("m-qty").value);
         const file = document.getElementById("m-bukti").files[0];
-        if(!ign || !file) return alert("Lengkapi data!");
-
+        if(!ign || !file) return alert("Lengkapi IGN dan Bukti!");
         const btn = document.getElementById("btn-submit");
         btn.innerText = "Mengirim..."; btn.disabled = true;
-
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const base64 = e.target.result.split(",")[1];
-            
-            // 1. Simpan DB
+        try {
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
-                body: JSON.stringify({ ign, nama_item: activeItem.nama_produk, jumlah: qty, total_bayar: qty * activeItem.harga, status: "PENDING", username_web: userAktif })
+                body: JSON.stringify({ ign, nama_item: activeItem.nama_produk, jumlah: qty, total_bayar: qty * activeItem.harga, status: "PENDING" })
             });
             const dataJual = await resJual.json();
-
-            // 2. Kirim Telegram
-            await fetch(GAS_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "upload_bukti", image: base64, id_jual: dataJual[0].id,
-                    caption: `🔔 *PESANAN BARU SANN SHOP*\n👤 User: ${userAktif}\n🎮 IGN: ${ign}\n📦 Item: ${activeItem.nama_produk}\n💰 Total: Rp ${(qty * activeItem.harga).toLocaleString()}`
-                })
-            });
-            alert("Berhasil! Tunggu konfirmasi admin.");
-            location.reload();
-        };
-        reader.readAsDataURL(file);
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result.split(",")[1];
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "upload_bukti", image: base64, id_jual: dataJual[0].id, caption: `👤 IGN: ${ign}\n📦 Item: ${activeItem.nama_produk}\n🔢 Qty: ${qty}` })
+                });
+                alert("Berhasil!"); location.reload();
+            };
+            reader.readAsDataURL(file);
+        } catch (err) { alert("Gagal!"); btn.disabled = false; }
     }
 
     fetchData();
