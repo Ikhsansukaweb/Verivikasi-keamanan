@@ -73,6 +73,7 @@
         
         let userAktif = localStorage.getItem("chat_user");
 
+        // Langsung buka chat jika sudah login
         if(userAktif) bukaChat();
 
         function toggleAuth() {
@@ -94,18 +95,23 @@
             if(!user || !pass) return alert("Isi semua data!");
             if(user.toLowerCase() === "admin") return alert("Nama 'admin' dilarang!");
 
-            // Cek apakah username sudah ada
-            const cek = await fetch(`${S_URL}/users?username=eq.${user}&select=*`, {
+            // Cek ke tabel users_web (SESUAI DATABASE KAMU)
+            const cek = await fetch(`${S_URL}/users_web?username=eq.${user}&select=*`, {
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
             });
             const dataCek = await cek.json();
 
             if(dataCek.length > 0) return alert("Username sudah dipakai!");
 
-            // Simpan ke Database
-            const res = await fetch(`${S_URL}/users`, {
+            // Simpan ke tabel users_web
+            const res = await fetch(`${S_URL}/users_web`, {
                 method: 'POST',
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
                 body: JSON.stringify({ username: user, password: pass })
             });
 
@@ -121,12 +127,14 @@
             const user = document.getElementById('userInp').value.trim();
             const pass = document.getElementById('passInp').value.trim();
 
+            // Proteksi Admin
             if(user.toLowerCase() === "admin" || pass === "admin123") {
                 alert("Akses Ditolak! Gunakan Akun Admin untuk Panel.");
                 return;
             }
 
-            const res = await fetch(`${S_URL}/users?username=eq.${user}&password=eq.${pass}&select=*`, {
+            // Cek ke tabel users_web
+            const res = await fetch(`${S_URL}/users_web?username=eq.${user}&password=eq.${pass}&select=*`, {
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
             });
             const data = await res.json();
@@ -136,7 +144,7 @@
                 userAktif = user;
                 bukaChat();
             } else {
-                alert("Username/Password salah!");
+                alert("Username atau Password salah!");
             }
         }
 
@@ -145,7 +153,7 @@
             document.getElementById('chatInterface').style.display = 'flex';
             document.getElementById('displayUser').innerText = "User: " + userAktif;
             muatChat();
-            setInterval(muatChat, 3000);
+            setInterval(muatChat, 3000); // Sinkronisasi chat tiap 3 detik
         }
 
         async function muatChat() {
@@ -166,11 +174,13 @@
         async function kirim() {
             const msg = document.getElementById('msgInp').value;
             if(!msg) return;
+
             await fetch(`${S_URL}/pesan_chat`, {
                 method: 'POST',
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ pengirim: userAktif, penerima: 'admin', isi_pesan: msg })
             });
+
             document.getElementById('msgInp').value = "";
             muatChat();
         }
@@ -181,5 +191,5 @@
         }
     </script>
 </body>
-    </html>
-    
+                </html>
+                
