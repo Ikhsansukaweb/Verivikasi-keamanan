@@ -31,7 +31,41 @@
         .card-body b { display: block; font-size: 15px; margin-bottom: 5px; }
         .price { color: var(--accent); font-weight: 700; font-size: 14px; }
         .stok { font-size: 11px; background: #eee; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; }
+        
+        /* LAYAR LOGIN */
+        #loginPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 10000; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 12px; background: var(--success); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; }
 
+        /* Header */
+        .header { background: rgba(44, 62, 80, 0.95); color: white; padding: 25px 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
+        .header p { margin: 5px 0 0; font-size: 13px; opacity: 0.8; }
+
+        .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+
+        /* Antrean Section */
+        .antrean-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 25px; border-left: 6px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .antrean-header { font-weight: bold; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .antrean-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
+        .status-badge { color: #f39c12; font-weight: bold; animation: blink 1.5s infinite; }
+
+        /* Product Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .card { background: white; border-radius: 12px; overflow: hidden; transition: 0.3s; border: 1px solid #ddd; cursor: pointer; position: relative; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .card-body { padding: 12px; text-align: center; }
+        .card-body b { display: block; font-size: 15px; margin-bottom: 5px; }
+        .price { color: var(--accent); font-weight: 700; font-size: 14px; }
+        .stok { font-size: 11px; background: #eee; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
+        .modal-content { background: white; width: 100%; max-width: 450px; border-radius: 20px; padding: 25px; position: relative; max-height: 90vh; overflow-y: auto; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
+        .btn-pay { background: var(--success); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
         .modal-content { background: white; width: 100%; max-width: 450px; border-radius: 20px; padding: 25px; position: relative; max-height: 90vh; overflow-y: auto; }
@@ -176,7 +210,31 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyeXwWMMNpi1B7DThs13lk3JZlqWIV8NjdMwfvcEjMK9ywbzAxe258BE75RR74kw-pT1A/exec";
     let products = [];
     let activeItem = null;
-
+let products = [];
+‎    let activeItem = null;
+‎    let userAktif = localStorage.getItem("sann_user");
+‎
+‎    if(userAktif) document.getElementById('loginPage').style.display = 'none';
+‎
+‎    async function cekLogin() {
+‎        const u = document.getElementById('userLogin').value;
+‎        const p = document.getElementById('passLogin').value;
+‎        if(!u || !p) return alert("Isi data!");
+‎        if(u === "admin" && p === "admin123") {
+‎            localStorage.setItem("sann_user", "admin");
+‎            location.reload(); return;
+‎        }
+‎        const res = await fetch(`${S_URL}/rest/v1/users_web?username=eq.${u}`, { headers: {"apikey": S_KEY} });
+‎        const data = await res.json();
+‎        if(data.length === 0) {
+‎            await fetch(`${S_URL}/rest/v1/users_web`, {
+‎                method:'POST', headers:{"apikey":S_KEY,"Content-Type":"application/json"},
+‎                body: JSON.stringify({username:u, password:p})
+‎            });
+‎        } else if(data[0].password !== p) { return alert("Password salah!"); }
+‎        localStorage.setItem("sann_user", u);
+‎        location.reload();
+‎    }
     async function fetchData() {
         const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
         products = await res.json();
