@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Minecraft Edition</title>
+    <title>DZKALL SHOP - Official</title>
     <style>
         :root { --mc-brown: #855e42; --mc-green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png') fixed center/cover; }
         .navbar { background: rgba(133, 94, 66, 0.9); padding: 15px; text-align: center; color: white; position: sticky; top: 0; z-index: 100; }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .item-card { background: rgba(255,255,255,0.8); border-radius: 12px; overflow: hidden; border: 2px solid var(--mc-brown); transition: 0.3s; cursor: pointer; }
+        .item-card { background: rgba(255,255,255,0.9); border-radius: 12px; overflow: hidden; border: 2px solid var(--mc-brown); cursor: pointer; text-align: center; }
         .item-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .item-info { padding: 10px; text-align: center; }
-        .item-name { font-weight: bold; font-size: 14px; }
-        .item-price { color: #d35400; font-weight: bold; }
-        .item-stock { font-size: 11px; background: var(--mc-green); color: white; padding: 2px 8px; border-radius: 10px; }
+        .item-info { padding: 10px; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; box-sizing: border-box; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
@@ -26,12 +23,11 @@
 
 <div class="navbar">
     <h2 style="margin:0">DZKALL SHOP</h2>
-    <p style="margin:0; font-size: 12px;">Top Up Aman & Real-time</p>
 </div>
 
 <div class="container">
     <div id="product-list" class="item-grid">
-        <p style="text-align: center; grid-column: 1/-1; color: white;">Menghubungkan ke Database...</p>
+        <p style="text-align: center; grid-column: 1/-1; color: white;">Memuat produk...</p>
     </div>
 </div>
 
@@ -44,49 +40,41 @@
             <option value="DANA">DANA (08989294545)</option>
             <option value="QRIS">QRIS</option>
         </select>
+        <label style="font-size: 12px;">Upload Bukti Transfer:</label>
         <input type="file" id="m-bukti" accept="image/*">
-        <div style="background: #f9f9f9; padding: 10px; border-radius: 5px; font-weight: bold; margin-bottom: 10px;">
-            Total: <span id="m-total">Rp 0</span>
-        </div>
-        <button class="btn-order" id="btn-submit" onclick="prosesOrder()">KIRIM PESANAN</button>
+        <div style="background: #eee; padding: 10px; margin-bottom: 10px; font-weight: bold;">Total: <span id="m-total">Rp 0</span></div>
+        <button class="btn-order" id="btn-submit" onclick="prosesOrder()">KIRIM KE TELEGRAM</button>
         <button onclick="closeModal()" style="width:100%; background:none; border:none; color:red; margin-top:10px; cursor:pointer;">Batal</button>
     </div>
 </div>
 
 <script>
-    // DATA DARI KAMU
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzcpyW1qUFkgBfeOnOBc7QwIwtdkaE_pLeKx3es14KMsTSGbVAJ0VQKmtnLGoGKe8aSCg/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyXADxk94TEJijiR39CU-ymVsthNk1lNA7GbzHxJL0LNhT1gVgtpi5j2LYSkQMQAvhdUA/exec";
 
     let produkList = [];
     let selected = null;
 
-    async function loadProduk() {
-        try {
-            const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, {
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-            });
-            produkList = await res.json();
-            const list = document.getElementById("product-list");
-            list.innerHTML = produkList.map(p => `
-                <div class="item-card" onclick="openModal(${p.id})">
-                    <img src="${p.img_url}" class="item-img" onerror="this.src='https://via.placeholder.com/150'">
-                    <div class="item-info">
-                        <div class="item-name">${p.nama_produk}</div>
-                        <div class="item-price">Rp ${p.harga.toLocaleString()}</div>
-                        <span class="item-stock">Stok: ${p.stok}</span>
-                    </div>
+    async function loadData() {
+        const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        produkList = await res.json();
+        document.getElementById("product-list").innerHTML = produkList.map(p => `
+            <div class="item-card" onclick="openModal(${p.id})">
+                <img src="${p.img_url}" class="item-img">
+                <div class="item-info">
+                    <b>${p.nama_produk}</b><br>
+                    <span style="color: #d35400;">Rp ${p.harga.toLocaleString()}</span><br>
+                    <small>Stok: ${p.stok}</small>
                 </div>
-            `).join("");
-        } catch (e) {
-            document.getElementById("product-list").innerHTML = "<p style='color:white;'>Gagal memuat data. Cek API Key!</p>";
-        }
+            </div>
+        `).join("");
     }
 
     function openModal(id) {
         selected = produkList.find(p => p.id === id);
-        if(selected.stok <= 0) return alert("Stok Habis!");
         document.getElementById("m-nama").innerText = "Beli " + selected.nama_produk;
         document.getElementById("buyModal").style.display = "flex";
         hitungTotal();
@@ -103,20 +91,13 @@
         const qty = parseInt(document.getElementById("m-qty").value);
         const file = document.getElementById("m-bukti").files[0];
 
-        if(!ign || !file || qty < 1) return alert("Lengkapi data!");
-        
+        if(!ign || !file) return alert("Isi IGN dan upload bukti transfer!");
+
         const btn = document.getElementById("btn-submit");
         btn.innerText = "Mengirim..."; btn.disabled = true;
 
         try {
-            // 1. Kurangi Stok
-            await fetch(`${S_URL}/rest/v1/produk?id=eq.${selected.id}`, {
-                method: "PATCH",
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ stok: selected.stok - qty })
-            });
-
-            // 2. Simpan Data Jual
+            // 1. Simpan ke database dulu
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
@@ -124,7 +105,7 @@
             });
             const dataJual = await resJual.json();
 
-            // 3. Kirim ke Telegram via GAS
+            // 2. Kirim gambar ke Telegram
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(",")[1];
@@ -133,24 +114,22 @@
                     body: JSON.stringify({
                         action: "upload_bukti",
                         image: base64,
-                        id_jual: dataJual[0].id,
-                        id_produk: selected.id,
-                        jumlah_beli: qty,
-                        caption: `🚀 *PESANAN BARU*\n\n👤 IGN: ${ign}\n📦 Item: ${selected.nama_produk}\n🔢 Qty: ${qty}\n💰 Total: Rp ${(qty * selected.harga).toLocaleString()}`
+                        caption: `🔔 *ORDER MASUK*\n\n👤 *IGN:* ${ign}\n📦 *Item:* ${selected.nama_produk}\n🔢 *Jumlah:* ${qty}\n💰 *Total:* Rp ${(qty * selected.harga).toLocaleString()}`
                     })
                 });
-                alert("Berhasil! Pesanan sedang diproses.");
+                alert("Pesanan terkirim! Cek Telegram kamu.");
                 location.reload();
             };
             reader.readAsDataURL(file);
 
         } catch (err) {
-            alert("Gagal: " + err.message);
-            btn.disabled = false; btn.innerText = "KIRIM PESANAN";
+            alert("Gagal kirim: " + err.message);
+            btn.disabled = false; btn.innerText = "KIRIM KE TELEGRAM";
         }
     }
 
-    loadProduk();
+    loadData();
 </script>
 </body>
-</html>
+    </html>
+    
