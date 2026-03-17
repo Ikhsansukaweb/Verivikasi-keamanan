@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Chat Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #121212; color: white; font-family: sans-serif; display: flex; margin: 0; height: 100vh; }
+        .sidebar { width: 30%; border-right: 1px solid #333; background: #1e1e1e; overflow-y: auto; }
+        .chat-main { width: 70%; display: flex; flex-direction: column; }
+        .user-card { padding: 15px; border-bottom: 1px solid #333; cursor: pointer; }
+        .user-card:hover { background: #2a2a2a; }
+        .user-card.active { border-left: 4px solid #ff9800; background: #2a2a2a; }
+        #msgBox { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { padding: 10px; border-radius: 10px; max-width: 80%; }
+        .admin-msg { background: #ff9800; align-self: flex-end; color: white; }
+        .user-msg { background: #333; align-self: flex-start; }
+        .input-reply { padding: 15px; background: #1e1e1e; display: flex; gap: 8px; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: white; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3 style="padding: 15px; margin: 0; background: #252525;">📥 Chat Masuk</h3>
+        <div id="listUser"></div>
+    </div>
+    <div class="chat-main">
+        <div id="msgBox">Pilih chat untuk membalas...</div>
+        <div class="input-reply">
+            <input type="text" id="replyInp" placeholder="Tulis balasan...">
+            <button onclick="kirimBalasan()" style="background:#2ecc71; border:none; color:white; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">BALAS</button>
+        </div>
+    </div>
+
+    <script>
+        const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
+        const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+        let target = "";
+
+        async function muatUser() {
+            const res = await fetch(`${S_URL}/pesan_chat?select=pengirim`, { headers: { "apikey": S_KEY } });
+            const data = await res.json();
+            const unik = [...new Set(data.filter(i => i.pengirim !== 'admin').map(i => i.pengirim))];
+            let html = "";
+            unik.forEach(u => {
+                html += `<div class="user-card ${target === u ? 'active' : ''}" onclick="setTarget('${u}')">👤 ${u}</div>`;
+            });
+            document.getElementById('listUser').innerHTML = html;
+        }
+
+        async function setTarget(u) {
+            target = u;
+            muatUser();
+            const res = await fetch(`${S_URL}/pesan_chat?or=(pengirim.eq.${u},penerima.eq.${u})&order=created_at.asc`, { headers: { "apikey": S_KEY } });
+            const data = await res.json();
+            let html = "";
+            data.forEach(m => {
+                const tipe = m.pengirim === 'admin' ? "admin-msg" : "user-msg";
+                html += `<div class="bubble ${tipe}">${m.isi_pesan}</div>`;
+            });
+            document.getElementById('msgBox').innerHTML = html;
+            const mb = document.getElementById('msgBox');
+            mb.scrollTop = mb.scrollHeight;
+        }
+
+        async function kirimBalasan() {
+            const msg = document.getElementById('replyInp').value;
+            if(!msg || !target) return;
+            await fetch(`${S_URL}/pesan_chat`, {
+                method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ pengirim: 'admin', penerima: target, isi_pesan: msg })
+            });
+            document.getElementById('replyInp').value = "";
+            setTarget(target);
+        }
+
+        setInterval(() => { if(target) setTarget(target); muatUser(); }, 4000);
+        muatUser();
+    </script>
+</body>
+  </html>
+  
