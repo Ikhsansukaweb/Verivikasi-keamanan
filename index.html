@@ -3,214 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SannShop - Money Donut Aman Terpercaya</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>SannShop - Store & Social</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #e67e22; --success: #27ae60; --bg: #f8f9fa; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; background: #ececec url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png') fixed center/cover; color: #333; }
+        :root { --primary: #2ecc71; --bg: #121212; --card: #1e1e1e; --text: #ffffff; --accent: #ff9800; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: auto; }
         
-        /* Header */
-        .header { background: rgba(44, 62, 80, 0.95); color: white; padding: 25px 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
-        .header p { margin: 5px 0 0; font-size: 13px; opacity: 0.8; }
+        /* Box Auth & Info */
+        .box { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #222; color: white; box-sizing: border-box; }
+        
+        /* Grid Shop */
+        .grid-produk { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
+        .card { background: var(--card); border-radius: 15px; padding: 12px; text-align: center; border: 1px solid #333; position: relative; }
+        .card img { width: 100%; border-radius: 10px; height: 130px; object-fit: cover; }
+        
+        /* Live Chat */
+        .chat-container { background: var(--card); border-radius: 15px; border: 1px solid #333; height: 350px; display: flex; flex-direction: column; }
+        #chatDisplay { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { background: #2a2a2a; padding: 8px 12px; border-radius: 10px; width: fit-content; max-width: 85%; border-left: 3px solid var(--accent); }
+        .msg b { color: var(--accent); font-size: 12px; display: block; }
 
-        .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-
-        /* Antrean Section */
-        .antrean-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 25px; border-left: 6px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .antrean-header { font-weight: bold; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .antrean-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
-        .status-badge { color: #f39c12; font-weight: bold; animation: blink 1.5s infinite; }
-
-        /* Product Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .card { background: white; border-radius: 12px; overflow: hidden; transition: 0.3s; border: 1px solid #ddd; cursor: pointer; position: relative; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .card-body { padding: 12px; text-align: center; }
-        .card-body b { display: block; font-size: 15px; margin-bottom: 5px; }
-        .price { color: var(--accent); font-weight: 700; font-size: 14px; }
-        .stok { font-size: 11px; background: #eee; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; }
-
+        /* Buttons */
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-green { background: var(--primary); color: white; }
+        .btn-orange { background: var(--accent); color: white; }
+        
         /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
-        .modal-content { background: white; width: 100%; max-width: 450px; border-radius: 20px; padding: 25px; position: relative; max-height: 90vh; overflow-y: auto; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
-        .btn-pay { background: var(--success); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-
-        /* Admin Link */
-        .admin-float { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 99; }
-
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
+        .modal-content { background: white; color: #333; margin: 10% auto; padding: 20px; width: 90%; max-width: 400px; border-radius: 15px; }
+        
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>SANNSHOP</h1>
-    <p>⚡ DonutSmp Shop Aman Terpercaya ⚡</p>
-</div>
-
 <div class="container">
-    <div class="antrean-card">
-        <div class="antrean-header">⏳ Antrean Pembeli Saat Ini</div>
-        <div id="antrean-list">Memuat antrean...</div>
+    <h1 style="text-align:center; color:var(--accent); margin-bottom:5px;">SANN SHOP</h1>
+    <p style="text-align:center; font-size:12px; margin-bottom:20px;">⚡ DonutSmp Official Store & Community ⚡</p>
+
+    <div id="authSection" class="box">
+        <h3 style="margin-top:0">Login Pelanggan</h3>
+        <input type="text" id="userInp" placeholder="Username">
+        <input type="password" id="passInp" placeholder="Password">
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <button onclick="handleAuth('login')" class="btn btn-green">Login</button>
+            <button onclick="handleAuth('daftar')" class="btn btn-orange">Daftar</button>
+        </div>
     </div>
 
-    <div id="product-grid" class="grid"></div>
+    <div id="userInfo" class="box hidden" style="display:flex; justify-content: space-between; align-items: center;">
+        <span>Halo, <b id="namaUser" style="color:var(--accent)"></b>!</span>
+        <button onclick="logout()" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Logout</button>
+    </div>
+
+    <h2>🛒 Item Shop</h2>
+    <div id="displayProduk" class="grid-produk">Memuat produk...</div>
+
+    <h2 style="margin-top:40px;">💬 Live Chat</h2>
+    <div class="chat-container">
+        <div id="chatDisplay">Memuat chat...</div>
+        <div style="display:flex; padding:10px; gap:5px; border-top:1px solid #333;">
+            <input type="text" id="msgInp" placeholder="Ketik pesan..." style="margin:0;">
+            <button onclick="kirimPesan()" class="btn-green" style="width:80px; border-radius:8px; border:none; cursor:pointer;">Kirim</button>
+        </div>
+    </div>
+
+    <h2 style="margin-top:40px;">⭐ Testimoni</h2>
+    <div id="displayUlasan">Belum ada ulasan...</div>
 </div>
 
-<a href="admin-produk.html" class="admin-float">⚙️ Panel Admin</a>
-
-<div id="orderModal" class="modal">
+<div id="modalBeli" class="modal">
     <div class="modal-content">
-        <h2 id="m-title" style="margin-top:0">Order</h2>
-        <p id="m-price-info" style="color:var(--accent); font-weight:bold;"></p>
+        <h3 id="judulItem" style="margin-top:0">Form Pembelian</h3>
+        <p id="infoHarga" style="color:var(--accent); font-weight:bold;"></p>
         
-        <input type="text" id="m-ign" placeholder="Masukkan IGN / Nickname">
-        <input type="number" id="m-qty" value="1" min="1" oninput="updateTotal()">
+        <input type="text" id="pembeliIGN" placeholder="Masukkan IGN / Nickname">
+        <input type="number" id="pembeliWA" placeholder="Nomor WhatsApp">
+        <input type="number" id="pembeliQty" value="1" min="1" oninput="hitungTotal()">
         
-        <label>Metode Pembayaran:</label>
-        <select id="m-method" onchange="showPaymentDetails()">
-            <option value="DANA">DANA (08989294545)</option>
-            <option value="GOPAY">GOPAY (08989294545)</option>
-            <option value="QRIS">QRIS All Payment</option>
-        </select>
-
-        <div id="qris-area" style="display:none; text-align:center; margin: 15px 0;">
-            <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" style="width:200px; border: 2px solid #ddd; border-radius:10px;">
-            <p style="font-size:11px; color:#666;">Scan QRIS di atas untuk membayar</p>
-        </div>
-
-        <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0;">
+        <div style="background:#f9f9f9; padding:10px; border-radius:10px; margin:10px 0; border:1px solid #eee;">
             <small>Total Bayar:</small>
-            <div id="m-total" style="font-size:20px; font-weight:bold; color:var(--success);">Rp 0</div>
+            <div id="totalBayar" style="font-size:20px; font-weight:bold; color:var(--primary)">Rp 0</div>
+            <p style="font-size:11px; margin-top:5px;">Transfer ke <b>DANA: 08989294545</b></p>
         </div>
 
-        <label>Upload Bukti Transfer:</label>
-        <input type="file" id="m-bukti" accept="image/*">
+        <label style="font-size:12px;">Upload Bukti Transfer:</label>
+        <input type="file" id="buktiTf" accept="image/*">
 
-        <button class="btn-pay" id="btn-submit" onclick="submitOrder()">KIRIM PESANAN</button>
-        <button onclick="closeModal()" style="width:100%; border:none; background:none; color:red; cursor:pointer; margin-top:10px;">Batal</button>
+        <button onclick="prosesCheckout()" class="btn btn-green" id="btnSubmit">KIRIM PESANAN</button>
+        <button onclick="tutupModal()" style="background:none; border:none; color:red; width:100%; margin-top:10px; cursor:pointer;">Batal</button>
     </div>
 </div>
 
 <script>
-    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
-    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    // GANTI URL DI BAWAH INI DENGAN URL GAS EXEC TERBARU KAMU!
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyeXwWMMNpi1B7DThs13lk3JZlqWIV8NjdMwfvcEjMK9ywbzAxe258BE75RR74kw-pT1A/exec";
-    let products = [];
-    let activeItem = null;
+const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
+const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxcOkW3Sawjvq6txaA6BlKGA8VSPvJbESE9Zml0_5iLGAbrZM5Raj0nzIC-gL5KdBGiog/exec";
 
-    async function fetchData() {
-        const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
-        products = await res.json();
-        renderProducts();
-        fetchAntrean();
-    }
+let userAktif = localStorage.getItem("sann_user");
+let produkSkrg = null;
 
-    function renderProducts() {
-        document.getElementById("product-grid").innerHTML = products.map(p => `
-            <div class="card" onclick="openOrder(${p.id})">
-                <img src="${p.img_url}" onerror="this.src='https://via.placeholder.com/150'">
-                <div class="card-body">
-                    <b>${p.nama_produk}</b>
-                    <div class="price">Rp ${p.harga.toLocaleString()}</div>
-                    <div class="stok">Stok: ${p.stok}</div>
-                </div>
-            </div>
-        `).join("");
-    }
+// --- FUNGSI LOGIN & DAFTAR ---
+if(userAktif) {
+    document.getElementById('authSection').classList.add('hidden');
+    document.getElementById('userInfo').classList.remove('hidden');
+    document.getElementById('namaUser').innerText = userAktif;
+}
 
-    // FITUR SENSOR IGN
-    function sensorIGN(name) {
-        if (name.length <= 2) return name + "***";
-        return name.substring(0, 1) + "***" + name.substring(name.length - 1);
-    }
+async function handleAuth(mode) {
+    const user = document.getElementById('userInp').value;
+    const pass = document.getElementById('passInp').value;
+    if(!user || !pass) return alert("Lengkapi data!");
 
-    async function fetchAntrean() {
-        const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc&limit=5`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+    if(mode === 'daftar') {
+        const res = await fetch(`${S_URL}/users_web`, {
+            method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ username: user, password: pass })
+        });
+        if(res.ok) alert("Daftar berhasil! Silakan Login.");
+        else alert("Username sudah ada!");
+    } else {
+        const res = await fetch(`${S_URL}/users_web?username=eq.${user}&password=eq.${pass}`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
         const data = await res.json();
-        const list = document.getElementById("antrean-list");
-        if(data.length === 0) {
-            list.innerHTML = "<div style='color:#999'>Belum ada antrean saat ini.</div>";
-            return;
-        }
-        list.innerHTML = data.map(a => `
-            <div class="antrean-item">
-                <span>👤 <b>${sensorIGN(a.ign)}</b> beli ${a.nama_item} (${a.jumlah})</span>
-                <span class="status-badge">Sedang Diproses</span>
-            </div>
-        `).join("");
+        if(data.length > 0) {
+            localStorage.setItem("sann_user", user);
+            location.reload();
+        } else alert("Username/Password salah!");
     }
+}
+function logout() { localStorage.removeItem("sann_user"); location.reload(); }
 
-    function openOrder(id) {
-        activeItem = products.find(p => p.id === id);
-        if(activeItem.stok <= 0) return alert("Stok habis bosku!");
-        document.getElementById("m-title").innerText = activeItem.nama_produk;
-        document.getElementById("m-price-info").innerText = "@ Rp " + activeItem.harga.toLocaleString();
-        document.getElementById("orderModal").style.display = "flex";
-        updateTotal();
+// --- FUNGSI SHOP ---
+async function muatProduk() {
+    const res = await fetch(`${S_URL}/produk?select=*&order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+    const data = await res.json();
+    let html = "";
+    data.forEach(p => {
+        html += `<div class="card">
+            <img src="${p.img_url}">
+            <h4 style="margin:10px 0 5px 0;">${p.nama_produk}</h4>
+            <b style="color:var(--accent)">Rp ${Number(p.harga).toLocaleString()}</b><br>
+            <button onclick='bukaModal(${JSON.stringify(p)})' class="btn-green" style="margin-top:10px; border:none; padding:8px; border-radius:5px; width:100%; cursor:pointer;">BELI</button>
+        </div>`;
+    });
+    document.getElementById('displayProduk').innerHTML = html;
+}
+
+function bukaModal(p) {
+    produkSkrg = p;
+    document.getElementById('modalBeli').style.display = 'block';
+    document.getElementById('judulItem').innerText = p.nama_produk;
+    document.getElementById('infoHarga').innerText = "Harga: Rp " + p.harga.toLocaleString();
+    hitungTotal();
+}
+function tutupModal() { document.getElementById('modalBeli').style.display = 'none'; }
+function hitungTotal() {
+    const qty = document.getElementById('pembeliQty').value;
+    document.getElementById('totalBayar').innerText = "Rp " + (qty * produkSkrg.harga).toLocaleString();
+}
+
+async function prosesCheckout() {
+    const ign = document.getElementById('pembeliIGN').value;
+    const wa = document.getElementById('pembeliWA').value;
+    const file = document.getElementById('buktiTf').files[0];
+    if(!ign || !wa || !file) return alert("Isi semua data!");
+
+    document.getElementById('btnSubmit').innerText = "Mengirim...";
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async function() {
+        const imgBase64 = reader.result.split(',')[1];
+        const res = await fetch(`${S_URL}/penjualan`, {
+            method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
+            body: JSON.stringify({ ign: ign, wa_pembeli: wa, nama_item: produkSkrg.nama_produk, qty: document.getElementById('pembeliQty').value, total_bayar: (document.getElementById('pembeliQty').value * produkSkrg.harga), status: "PENDING" })
+        });
+        const jual = await res.json();
+        await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "upload_bukti", id_jual: jual[0].id, ign: ign, wa_pembeli: wa, nama_item: produkSkrg.nama_produk, qty: jual[0].qty, total_bayar: jual[0].total_bayar, image: imgBase64 }) });
+        alert("Pesanan dikirim! Tunggu konfirmasi di WA.");
+        location.reload();
     }
+}
 
-    function closeModal() { document.getElementById("orderModal").style.display = "none"; }
-    function showPaymentDetails() { document.getElementById("qris-area").style.display = document.getElementById("m-method").value === "QRIS" ? "block" : "none"; }
-    function updateTotal() { document.getElementById("m-total").innerText = "Rp " + (document.getElementById("m-qty").value * activeItem.harga).toLocaleString(); }
+// --- FUNGSI LIVE CHAT ---
+async function muatChat() {
+    const res = await fetch(`${S_URL}/pesan_chat?select=*&order=created_at.desc&limit=15`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+    const data = await res.json();
+    let html = "";
+    data.reverse().forEach(m => {
+        html += `<div class="msg"><b>${m.username}</b>${m.isi_pesan}</div>`;
+    });
+    document.getElementById('chatDisplay').innerHTML = html;
+    const cd = document.getElementById('chatDisplay');
+    cd.scrollTop = cd.scrollHeight;
+}
 
-    async function submitOrder() {
-        const ign = document.getElementById("m-ign").value;
-        const qty = parseInt(document.getElementById("m-qty").value);
-        const file = document.getElementById("m-bukti").files[0];
+async function kirimPesan() {
+    if(!userAktif) return alert("Login dulu buat chat!");
+    const msg = document.getElementById('msgInp').value;
+    if(!msg) return;
+    await fetch(`${S_URL}/pesan_chat`, {
+        method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ username: userAktif, isi_pesan: msg })
+    });
+    document.getElementById('msgInp').value = "";
+    muatChat();
+}
 
-        if(!ign || !file) return alert("Lengkapi IGN dan Bukti Transfer!");
-
-        const btn = document.getElementById("btn-submit");
-        btn.innerText = "Mengirim..."; btn.disabled = true;
-
-        try {
-            // 1. Potong Stok
-            await fetch(`${S_URL}/rest/v1/produk?id=eq.${activeItem.id}`, {
-                method: "PATCH",
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ stok: activeItem.stok - qty })
-            });
-
-            // 2. Simpan Data Jual
-            const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
-                method: "POST",
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
-                body: JSON.stringify({ ign, nama_item: activeItem.nama_produk, jumlah: qty, total_bayar: qty * activeItem.harga, status: "PENDING" })
-            });
-            const dataJual = await resJual.json();
-
-            // 3. Kirim Telegram
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const base64 = e.target.result.split(",")[1];
-                await fetch(GAS_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "upload_bukti",
-                        image: base64,
-                        id_jual: dataJual[0].id,
-                        id_produk: activeItem.id,
-                        jumlah_beli: qty,
-                        caption: `🔔 *PESANAN BARU SANN SHOP*\n\n👤 IGN: ${ign}\n📦 Item: ${activeItem.nama_produk}\n🔢 Qty: ${qty}\n💰 Total: Rp ${(qty * activeItem.harga).toLocaleString()}`
-                    })
-                });
-                alert("Berhasil! Silakan tunggu konfirmasi admin.");
-                location.reload();
-            };
-            reader.readAsDataURL(file);
-        } catch (err) {
-            alert("Gagal: " + err.message);
-            btn.disabled = false;
-        }
-    }
-
-    fetchData();
-    setInterval(fetchAntrean, 15000);
+// Inisialisasi
+muatProduk();
+muatChat();
+setInterval(muatChat, 4000); // Update chat tiap 4 detik
 </script>
 </body>
-</html>
+                </html>
+        
