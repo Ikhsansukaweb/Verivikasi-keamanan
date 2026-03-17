@@ -210,30 +210,7 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyeXwWMMNpi1B7DThs13lk3JZlqWIV8NjdMwfvcEjMK9ywbzAxe258BE75RR74kw-pT1A/exec";
     let products = [];
     let activeItem = null;
-let products = [];
-‎    let activeItem = null;
-‎    let userAktif = localStorage.getItem("sann_user");
-‎
-‎    if(userAktif) document.getElementById('loginPage').style.display = 'none';
-‎
-‎    async function cekLogin() {
-‎        const u = document.getElementById('userLogin').value;
-‎        const p = document.getElementById('passLogin').value;
-‎        if(!u || !p) return alert("Isi data!");
-‎        if(u === "admin" && p === "admin123") {
-‎            localStorage.setItem("sann_user", "admin");
-‎            location.reload(); return;
-‎        }
-‎        const res = await fetch(`${S_URL}/rest/v1/users_web?username=eq.${u}`, { headers: {"apikey": S_KEY} });
-‎        const data = await res.json();
-‎        if(data.length === 0) {
-‎            await fetch(`${S_URL}/rest/v1/users_web`, {
-‎                method:'POST', headers:{"apikey":S_KEY,"Content-Type":"application/json"},
-‎                body: JSON.stringify({username:u, password:p})
-‎            });
-‎        } else if(data[0].password !== p) { return alert("Password salah!"); }
-‎        localStorage.setItem("sann_user", u);
-‎        location.reload();
+    
 ‎    }
     async function fetchData() {
         const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
