@@ -3,177 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Minecraft Edition</title>
+    <title>DZKALL SHOP - Official Store</title>
     <style>
-        :root { --primary: #855e42; --secondary: #2ecc71; }
+        :root { --mc-brown: #855e42; --mc-green: #2ecc71; }
         body { 
-            font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif; margin: 0; 
             background: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png') fixed center/cover;
         }
-        .navbar { 
-            background: rgba(133, 94, 66, 0.9); padding: 15px; text-align: center; color: white; 
-            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5); 
-        }
+        .navbar { background: rgba(133, 94, 66, 0.9); padding: 15px; text-align: center; color: white; position: sticky; top: 0; z-index: 100; }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .item-card { 
-            background: rgba(255,255,255,0.6); border-radius: 12px; overflow: hidden; 
-            backdrop-filter: blur(10px); border: 2px solid rgba(133,94,66,0.3);
-            transition: 0.3s; cursor: pointer; display: flex; flex-direction: column;
+            background: rgba(255,255,255,0.8); border-radius: 12px; overflow: hidden; 
+            border: 2px solid var(--mc-brown); transition: 0.3s; cursor: pointer;
         }
-        .item-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #eee; }
+        .item-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
         .item-info { padding: 10px; text-align: center; }
-        .item-name { font-weight: bold; font-size: 14px; color: #111; }
-        .item-price { color: #d35400; font-weight: bold; }
-        .item-stock { font-size: 10px; background: var(--secondary); color: white; padding: 2px 8px; border-radius: 10px; }
+        .item-name { font-weight: bold; margin-bottom: 5px; }
+        .item-price { color: #d35400; font-weight: bold; font-size: 14px; }
+        .item-stock { font-size: 11px; color: #27ae60; font-weight: bold; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-order { background: var(--mc-green); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
         
-        /* MODAL & ANTREAN */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; }
-        .modal-body { padding: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-beli { background: var(--secondary); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; }
-        
-        .pending-section { background: rgba(255,255,255,0.8); border-radius: 10px; padding: 15px; margin-top: 20px; }
-        .pending-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ccc; font-size: 13px; }
+        .antrean { background: white; padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 5px solid var(--mc-brown); }
     </style>
 </head>
 <body>
 
 <div class="navbar">
     <h2 style="margin:0">DZKALL SHOP</h2>
-    <small>Top Up Aman & Real-time</small>
+    <p style="margin:0; font-size: 12px;">Top Up Aman & Real-time</p>
 </div>
 
 <div class="container">
     <div id="product-list" class="item-grid">
-        <p style="text-align: center; grid-column: 1/-1;">Memuat produk...</p>
+        <p style="text-align: center; grid-column: 1/-1; color: white;">Memuat produk...</p>
     </div>
 
-    <div class="pending-section">
+    <div class="antrean">
         <h4 style="margin:0 0 10px 0;">⏳ Antrean Pembeli</h4>
-        <div id="pending-list"></div>
+        <div id="pending-list" style="font-size: 13px;"></div>
     </div>
 </div>
 
 <div id="buyModal" class="modal">
     <div class="modal-content">
-        <div class="modal-body">
-            <h3 id="modalTitle" style="margin-top:0">Konfirmasi</h3>
-            <label>Jumlah Beli:</label>
-            <input type="number" id="buyQty" value="1" min="1" oninput="updateModalPrice()">
-            <label>In Game Name (IGN):</label>
-            <input type="text" id="buyIgn" placeholder="Nickname Game">
-            <label>Metode:</label>
-            <select id="buyMetode">
-                <option value="DANA">DANA (08989294545)</option>
-                <option value="QRIS">QRIS</option>
-            </select>
-            <label>Bukti Transfer:</label>
-            <input type="file" id="buyBukti" accept="image/*">
-            <div style="background: #fff9e6; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                Total: <b id="modalTotalPrice">Rp 0</b>
-            </div>
-            <button class="btn-beli" id="btn-submit-order" onclick="prosesBeli()">KIRIM PESANAN</button>
-            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:red; margin-top:10px; cursor:pointer;">Batal</button>
+        <h3 id="m-nama" style="margin-top:0">Beli Produk</h3>
+        <label>Jumlah Beli:</label>
+        <input type="number" id="m-qty" value="1" min="1" oninput="hitungTotal()">
+        <input type="text" id="m-ign" placeholder="Nickname Game (IGN)">
+        <select id="m-metode">
+            <option value="DANA">DANA (08989294545)</option>
+            <option value="QRIS">QRIS</option>
+        </select>
+        <label>Bukti Transfer (Gambar):</label>
+        <input type="file" id="m-bukti" accept="image/*">
+        <div style="background: #f9f9f9; padding: 10px; border-radius: 5px; font-weight: bold;">
+            Total Bayar: <span id="m-total">Rp 0</span>
         </div>
+        <button class="btn-order" id="btn-submit" onclick="prosesOrder()">KIRIM PESANAN</button>
+        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:red; margin-top:10px; cursor:pointer;">Batal</button>
     </div>
 </div>
 
 <script>
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
-    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-    
-    // LINK EXEC BARU KAMU
+    const S_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzcpyW1qUFkgBfeOnOBc7QwIwtdkaE_pLeKx3es14KMsTSGbVAJ0VQKmtnLGoGKe8aSCg/exec";
-    
-    let allProducts = [];
-    let selectedProduct = null;
+
+    let produkAktif = [];
+    let terpilih = null;
 
     async function loadData() {
-        try {
-            const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { 
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
-            });
-            allProducts = await res.json();
-            renderProducts(allProducts);
-            fetchPending();
-        } catch(e) { console.error("Gagal load produk"); }
-    }
-
-    function renderProducts(data) {
+        const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        produkAktif = await res.json();
         const list = document.getElementById("product-list");
-        list.innerHTML = data.map(p => `
+        list.innerHTML = produkAktif.map(p => `
             <div class="item-card" onclick="openModal(${p.id})">
-                <img src="${p.img_url || 'https://via.placeholder.com/150'}" class="item-img">
+                <img src="${p.img_url}" class="item-img" onerror="this.src='https://via.placeholder.com/150'">
                 <div class="item-info">
                     <div class="item-name">${p.nama_produk}</div>
                     <div class="item-price">Rp ${p.harga.toLocaleString()}</div>
-                    <span class="item-stock">Stok: ${p.stok}</span>
+                    <div class="item-stock">Stok: ${p.stok}</div>
                 </div>
             </div>
         `).join("");
+        loadAntrean();
     }
 
-    async function fetchPending() {
-        try {
-            const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc`, {
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-            });
-            const data = await res.json();
-            const list = document.getElementById("pending-list");
-            list.innerHTML = data.length === 0 ? '<p style="font-size:11px;">Tidak ada antrean</p>' : 
-            data.map(i => `<div class="pending-item"><span><b>${i.ign}</b> (${i.nama_item})</span><span style="color:orange">Proses</span></div>`).join("");
-        } catch(e) {}
+    async function loadAntrean() {
+        const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&limit=5`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        const data = await res.json();
+        document.getElementById("pending-list").innerHTML = data.length ? data.map(a => `<div>• <b>${a.ign}</b> memproses ${a.nama_item}</div>`).join("") : "Belum ada antrean.";
     }
 
     function openModal(id) {
-        selectedProduct = allProducts.find(p => p.id === id);
-        if(!selectedProduct || selectedProduct.stok <= 0) return alert("Stok Habis!");
-        document.getElementById("modalTitle").innerText = "Beli " + selectedProduct.nama_produk;
+        terpilih = produkAktif.find(p => p.id === id);
+        if(terpilih.stok <= 0) return alert("Maaf, stok habis!");
+        document.getElementById("m-nama").innerText = "Beli " + terpilih.nama_produk;
         document.getElementById("buyModal").style.display = "flex";
-        updateModalPrice();
+        hitungTotal();
     }
 
     function closeModal() { document.getElementById("buyModal").style.display = "none"; }
-
-    function updateModalPrice() {
-        const qty = parseInt(document.getElementById("buyQty").value) || 0;
-        document.getElementById("modalTotalPrice").innerText = "Rp " + (qty * selectedProduct.harga).toLocaleString();
+    function hitungTotal() {
+        const qty = document.getElementById("m-qty").value;
+        document.getElementById("m-total").innerText = "Rp " + (qty * terpilih.harga).toLocaleString();
     }
 
-    async function prosesBeli() {
-        const ign = document.getElementById("buyIgn").value;
-        const qty = parseInt(document.getElementById("buyQty").value);
-        const file = document.getElementById("buyBukti").files[0];
+    async function prosesOrder() {
+        const ign = document.getElementById("m-ign").value;
+        const qty = parseInt(document.getElementById("m-qty").value);
+        const bukti = document.getElementById("m-bukti").files[0];
 
-        if (!ign || !file || qty < 1) return alert("Lengkapi data!");
-        
-        const btn = document.getElementById("btn-submit-order");
-        btn.innerText = "Booking Stok..."; btn.disabled = true;
+        if(!ign || !bukti || qty < 1) return alert("Mohon lengkapi data dan bukti transfer!");
+        if(qty > terpilih.stok) return alert("Stok tidak mencukupi!");
+
+        const btn = document.getElementById("btn-submit");
+        btn.innerText = "Memproses..."; btn.disabled = true;
 
         try {
-            // 1. Booking Stok di Supabase
-            const resProd = await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}&select=stok`, { 
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
-            });
-            const dataProd = await resProd.json();
-            if(dataProd[0].stok < qty) throw new Error("Stok mendadak habis!");
-
-            await fetch(`${S_URL}/rest/v1/produk?id=eq.${selectedProduct.id}`, {
+            // 1. Kurangi Stok
+            await fetch(`${S_URL}/rest/v1/produk?id=eq.${terpilih.id}`, {
                 method: "PATCH",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ stok: dataProd[0].stok - qty })
+                body: JSON.stringify({ stok: terpilih.stok - qty })
             });
 
-            // 2. Simpan Data Penjualan
+            // 2. Simpan Penjualan
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
-                body: JSON.stringify({ 
-                    ign: ign, jumlah: qty, total_bayar: qty * selectedProduct.harga, 
-                    status: "PENDING", nama_item: selectedProduct.nama_produk 
-                })
+                body: JSON.stringify({ ign, nama_item: terpilih.nama_produk, jumlah: qty, total_bayar: qty * terpilih.harga, status: "PENDING" })
             });
             const dataJual = await resJual.json();
 
@@ -187,24 +156,25 @@
                         action: "upload_bukti",
                         image: base64,
                         id_jual: dataJual[0].id,
-                        id_produk: selectedProduct.id,
+                        id_produk: terpilih.id,
                         jumlah_beli: qty,
-                        caption: `🚀 PESANAN BARU\n📦 Item: ${selectedProduct.nama_produk}\n👤 IGN: ${ign}\n🔢 Qty: ${qty}\n💰 Total: Rp ${(qty * selectedProduct.harga).toLocaleString()}`
+                        caption: `🛒 *PESANAN BARU*\n━━━━━━━━━━━━━━\n👤 *IGN:* ${ign}\n📦 *Item:* ${terpilih.nama_produk}\n🔢 *Qty:* ${qty}\n💰 *Total:* Rp ${(qty * terpilih.harga).toLocaleString()}`
                     })
                 });
-                alert("Berhasil! Menunggu Konfirmasi.");
+                alert("Pesanan berhasil dikirim! Silakan cek antrean.");
                 location.reload();
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(bukti);
 
         } catch (err) {
-            alert("Gagal: " + err.message);
+            alert("Error: " + err.message);
             btn.disabled = false; btn.innerText = "KIRIM PESANAN";
         }
     }
 
     loadData();
-    setInterval(fetchPending, 10000);
+    setInterval(loadAntrean, 10000);
 </script>
 </body>
-</html>
+    </html>
+    
