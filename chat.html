@@ -1,63 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Chat with Admin</title>
+    <title>SannShop - Chat System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background: #121212; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        #chatBox { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 14px; }
-        .me { background: #2ecc71; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .admin { background: #333; align-self: flex-start; border-bottom-left-radius: 2px; border-left: 3px solid #ff9800; }
+        body { background: #121212; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* LOGIN STYLING */
+        #loginOverlay { position: fixed; inset: 0; background: #121212; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        
+        /* CHAT STYLING */
+        #chatInterface { display: none; flex-direction: column; height: 100%; }
+        #chatBox { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #121212; }
+        .bubble { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 14px; line-height: 1.4; }
+        .me { background: #ff9800; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .admin { background: #252525; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #333; }
+        
+        /* INPUT AREA */
         .input-area { padding: 15px; background: #1e1e1e; display: flex; gap: 8px; border-top: 1px solid #333; }
-        input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; }
+        input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #252525; color: white; outline: none; }
+        input:focus { border-color: #ff9800; }
         button { background: #ff9800; border: none; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        .header { padding: 15px; background: #1e1e1e; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
-    <div style="padding: 15px; background: #1e1e1e; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
-        <b>💬 Chat Admin</b>
-        <a href="index.html" style="color:#ff9800; text-decoration:none; font-size:12px;">Kembali ke Toko</a>
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2 style="color: #ff9800; margin-top: 0;">💬 Masuk Chat</h2>
+            <p style="font-size: 12px; color: #aaa;">Gunakan Username Akun Kamu</p>
+            <input type="text" id="userInp" placeholder="Username">
+            <input type="password" id="passInp" placeholder="Password">
+            <button onclick="prosesLogin()" style="width: 100%; margin-top: 10px;">MASUK</button>
+            <br><br>
+            <a href="index.html" style="color: #aaa; font-size: 12px; text-decoration: none;">← Kembali ke Toko</a>
+        </div>
     </div>
-    <div id="chatBox"></div>
-    <div class="input-area">
-        <input type="text" id="msgInp" placeholder="Tulis pesan ke admin...">
-        <button onclick="kirim()">Kirim</button>
+
+    <div id="chatInterface">
+        <div class="header">
+            <div>
+                <b id="displayUser" style="color: #ff9800;">Admin</b>
+                <div style="font-size: 10px; color: #4caf50;">● Online</div>
+            </div>
+            <button onclick="logout()" style="background: transparent; color: #f44336; font-size: 12px; padding: 5px;">Logout</button>
+        </div>
+        
+        <div id="chatBox"></div>
+
+        <div class="input-area">
+            <input type="text" id="msgInp" placeholder="Tulis pesan ke admin..." onkeypress="if(event.key === 'Enter') kirim()">
+            <button onclick="kirim()">Kirim</button>
+        </div>
     </div>
 
     <script>
         const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
         const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
-        const userAktif = localStorage.getItem("sann_user");
+        
+        let userAktif = localStorage.getItem("chat_user");
 
-        if(!userAktif) window.location.href = "login.html";
+        // Cek jika sudah login sebelumnya
+        if(userAktif) {
+            bukaChat();
+        }
+
+        async function prosesLogin() {
+            const user = document.getElementById('userInp').value;
+            const pass = document.getElementById('passInp').value;
+
+            // PROTEKSI: Admin dilarang login di sini
+            if(user.toLowerCase() === "admin" || pass === "admin123") {
+                alert("Akses Ditolak! Akun Admin hanya untuk Panel Kontrol.");
+                return;
+            }
+
+            // Cek ke Database (Tabel Users)
+            const res = await fetch(`${S_URL}/users?username=eq.${user}&password=eq.${pass}&select=*`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+
+            if(data.length > 0) {
+                localStorage.setItem("chat_user", user);
+                userAktif = user;
+                bukaChat();
+            } else {
+                alert("Username atau Password salah!");
+            }
+        }
+
+        function bukaChat() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('chatInterface').style.display = 'flex';
+            document.getElementById('displayUser').innerText = "Chat: " + userAktif;
+            muatChat();
+            setInterval(muatChat, 3000); // Auto refresh chat
+        }
 
         async function muatChat() {
-            const res = await fetch(`${S_URL}/pesan_chat?or=(pengirim.eq.${userAktif},penerima.eq.${userAktif})&order=created_at.asc`, { headers: { "apikey": S_KEY } });
+            const res = await fetch(`${S_URL}/pesan_chat?or=(pengirim.eq.${userAktif},penerima.eq.${userAktif})&order=created_at.asc`, { 
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
+            });
             const data = await res.json();
             let html = "";
             data.forEach(m => {
                 const tipe = m.pengirim === userAktif ? "me" : "admin";
                 html += `<div class="bubble ${tipe}">${m.isi_pesan}</div>`;
             });
-            document.getElementById('chatBox').innerHTML = html;
             const cb = document.getElementById('chatBox');
+            cb.innerHTML = html;
             cb.scrollTop = cb.scrollHeight;
         }
 
         async function kirim() {
             const msg = document.getElementById('msgInp').value;
             if(!msg) return;
+
             await fetch(`${S_URL}/pesan_chat`, {
-                method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                method: 'POST',
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ pengirim: userAktif, penerima: 'admin', isi_pesan: msg })
             });
+
             document.getElementById('msgInp').value = "";
             muatChat();
         }
 
-        setInterval(muatChat, 3000);
-        muatChat();
+        function logout() {
+            localStorage.removeItem("chat_user");
+            location.reload();
+        }
     </script>
 </body>
-</html>
+    </html>
+    
