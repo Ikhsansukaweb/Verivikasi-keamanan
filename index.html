@@ -47,8 +47,6 @@
         /* FLOAT GROUP KANAN BAWAH */
         .float-group { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 9999; align-items: flex-end; }
         
-        .btn-chat-pribadi { background: var(--accent); color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
-        
         .btn-wa-logo { background: #25d366; width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; }
         .btn-wa-logo img { width: 32px !important; height: 32px !important; display: block; }
         
@@ -83,7 +81,6 @@
 
 <div class="float-group">
     <a href="admin-produk.html" class="admin-link">⚙️ Panel Admin</a>
-    <a href="chat.html" class="btn-chat-pribadi" id="chatBtn" style="display:none;">💬 Chat Admin</a>
     <a href="https://wa.me/628989294545?text=Halo%20Admin%20SannShop" target="_blank" class="btn-wa-logo">
         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA">
     </a>
@@ -117,6 +114,7 @@
 </div>
 
 <script>
+    // Script tetap sama dengan versi sebelumnya untuk fungsionalitas Supabase & Order
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyeXwWMMNpi1B7DThs13lk3JZlqWIV8NjdMwfvcEjMK9ywbzAxe258BE75RR74kw-pT1A/exec";
@@ -125,11 +123,7 @@
     let activeItem = null;
     let userAktif = localStorage.getItem("sann_user");
 
-    // LOGIKA LOGIN
-    if(userAktif) {
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('chatBtn').style.display = 'flex';
-    }
+    if(userAktif) document.getElementById('loginPage').style.display = 'none';
 
     async function cekLogin() {
         const u = document.getElementById('userLogin').value;
@@ -181,7 +175,7 @@
         const data = await res.json();
         const list = document.getElementById("antrean-list");
         if(data.length === 0) { list.innerHTML = "<div style='color:#999'>Belum ada antrean saat ini.</div>"; return; }
-        list.innerHTML = data.map(a => `<div class="antrean-item"><span>👤 <b>${sensorIGN(a.ign)}</b> beli ${a.nama_item} (${a.jumlah})</span><span class="status-badge">Sedang Diproses</span></div>`).join("");
+        list.innerHTML = data.map(a => `<div class="antrean-item"><span>👤 <b>${sensorIGN(a.ign)}</b> beli ${a.nama_item}</span><span class="status-badge">Sedang Diproses</span></div>`).join("");
     }
 
     function openOrder(id) {
@@ -201,7 +195,7 @@
         const ign = document.getElementById("m-ign").value;
         const qty = parseInt(document.getElementById("m-qty").value);
         const file = document.getElementById("m-bukti").files[0];
-        if(!ign || !file) return alert("Lengkapi IGN dan Bukti!");
+        if(!ign || !file) return alert("Lengkapi data!");
         const btn = document.getElementById("btn-submit");
         btn.innerText = "Mengirim..."; btn.disabled = true;
         try {
@@ -216,7 +210,7 @@
                 const base64 = e.target.result.split(",")[1];
                 await fetch(GAS_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "upload_bukti", image: base64, id_jual: dataJual[0].id, caption: `👤 IGN: ${ign}\n📦 Item: ${activeItem.nama_produk}\n🔢 Qty: ${qty}` })
+                    body: JSON.stringify({ action: "upload_bukti", image: base64, id_jual: dataJual[0].id, caption: `👤 IGN: ${ign}\n📦 Item: ${activeItem.nama_produk}` })
                 });
                 alert("Berhasil!"); location.reload();
             };
@@ -228,4 +222,5 @@
     setInterval(fetchAntrean, 15000);
 </script>
 </body>
-</html>
+    </html>
+            
