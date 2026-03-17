@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZKALL SHOP - Official</title>
+    <title>DZKALL SHOP - Minecraft Edition</title>
     <style>
         :root { --mc-brown: #855e42; --mc-green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: url('https://i.ibb.co.com/SX9rTn7L/1773672279828.png') fixed center/cover; }
         .navbar { background: rgba(133, 94, 66, 0.9); padding: 15px; text-align: center; color: white; position: sticky; top: 0; z-index: 100; }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .item-card { background: rgba(255,255,255,0.9); border-radius: 12px; overflow: hidden; border: 2px solid var(--mc-brown); cursor: pointer; text-align: center; }
+        .item-card { background: rgba(255,255,255,0.9); border-radius: 12px; border: 2px solid var(--mc-brown); cursor: pointer; text-align: center; overflow: hidden; }
         .item-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .item-info { padding: 10px; }
+        .antrean-box { background: white; padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 5px solid var(--mc-brown); }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; position: relative; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .btn-order { background: var(--mc-green); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+        .qris-img { width: 100%; max-width: 200px; display: block; margin: 10px auto; border: 1px solid #ddd; }
+        .admin-link { position: fixed; bottom: 10px; right: 10px; color: white; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -29,22 +31,40 @@
     <div id="product-list" class="item-grid">
         <p style="text-align: center; grid-column: 1/-1; color: white;">Memuat produk...</p>
     </div>
+
+    <div class="antrean-box">
+        <h4 style="margin:0 0 10px 0;">⏳ Antrean Pembeli</h4>
+        <div id="pending-list" style="font-size: 13px;">Belum ada antrean.</div>
+    </div>
 </div>
+
+<a href="admin-produk.html" class="admin-link">⚙️ Admin Panel</a>
 
 <div id="buyModal" class="modal">
     <div class="modal-content">
-        <h3 id="m-nama">Beli Produk</h3>
+        <h3 id="m-nama" style="margin-top:0">Beli Produk</h3>
         <input type="number" id="m-qty" value="1" min="1" oninput="hitungTotal()">
         <input type="text" id="m-ign" placeholder="Nickname Game (IGN)">
-        <select id="m-metode">
+        
+        <select id="m-metode" onchange="toggleQRIS()">
             <option value="DANA">DANA (08989294545)</option>
-            <option value="QRIS">QRIS</option>
+            <option value="QRIS">QRIS (Scan Me)</option>
         </select>
-        <label style="font-size: 12px;">Upload Bukti Transfer:</label>
+
+        <div id="qris-box" style="display:none; text-align:center;">
+            <img src="https://i.ibb.co.com/mCBvVvB/qris.jpg" class="qris-img" alt="QRIS">
+            <small>Scan untuk membayar</small>
+        </div>
+
+        <label style="font-size: 12px; display:block; margin-top:10px;">Bukti Transfer:</label>
         <input type="file" id="m-bukti" accept="image/*">
-        <div style="background: #eee; padding: 10px; margin-bottom: 10px; font-weight: bold;">Total: <span id="m-total">Rp 0</span></div>
-        <button class="btn-order" id="btn-submit" onclick="prosesOrder()">KIRIM KE TELEGRAM</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:red; margin-top:10px; cursor:pointer;">Batal</button>
+        
+        <div style="background: #f9f9f9; padding: 10px; border-radius: 5px; font-weight: bold; margin: 10px 0;">
+            Total: <span id="m-total">Rp 0</span>
+        </div>
+
+        <button class="btn-order" id="btn-submit" onclick="prosesOrder()">KIRIM PESANAN</button>
+        <button onclick="closeModal()" id="btn-cancel" style="width:100%; background:none; border:none; color:red; margin-top:10px; cursor:pointer;">Batalkan Pesanan</button>
     </div>
 </div>
 
@@ -63,7 +83,7 @@
         produkList = await res.json();
         document.getElementById("product-list").innerHTML = produkList.map(p => `
             <div class="item-card" onclick="openModal(${p.id})">
-                <img src="${p.img_url}" class="item-img">
+                <img src="${p.img_url}" class="item-img" onerror="this.src='https://via.placeholder.com/150'">
                 <div class="item-info">
                     <b>${p.nama_produk}</b><br>
                     <span style="color: #d35400;">Rp ${p.harga.toLocaleString()}</span><br>
@@ -71,16 +91,36 @@
                 </div>
             </div>
         `).join("");
+        loadAntrean();
+    }
+
+    async function loadAntrean() {
+        const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&limit=5`, {
+            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+        });
+        const data = await res.json();
+        document.getElementById("pending-list").innerHTML = data.length ? data.map(a => `<div>• <b>${a.ign}</b> memproses ${a.nama_item} <span style="color:orange">[Proses]</span></div>`).join("") : "Belum ada antrean.";
     }
 
     function openModal(id) {
         selected = produkList.find(p => p.id === id);
+        if(selected.stok <= 0) return alert("Stok Habis!");
         document.getElementById("m-nama").innerText = "Beli " + selected.nama_produk;
         document.getElementById("buyModal").style.display = "flex";
         hitungTotal();
     }
 
-    function closeModal() { document.getElementById("buyModal").style.display = "none"; }
+    function closeModal() { 
+        if(confirm("Apakah Anda yakin ingin membatalkan pesanan ini?")) {
+            document.getElementById("buyModal").style.display = "none"; 
+        }
+    }
+
+    function toggleQRIS() {
+        const metode = document.getElementById("m-metode").value;
+        document.getElementById("qris-box").style.display = metode === "QRIS" ? "block" : "none";
+    }
+
     function hitungTotal() {
         const qty = document.getElementById("m-qty").value;
         document.getElementById("m-total").innerText = "Rp " + (qty * selected.harga).toLocaleString();
@@ -91,13 +131,21 @@
         const qty = parseInt(document.getElementById("m-qty").value);
         const file = document.getElementById("m-bukti").files[0];
 
-        if(!ign || !file) return alert("Isi IGN dan upload bukti transfer!");
+        if(!ign || !file || qty < 1) return alert("Mohon lengkapi data dan bukti transfer!");
+        if(qty > selected.stok) return alert("Stok tidak mencukupi!");
 
         const btn = document.getElementById("btn-submit");
         btn.innerText = "Mengirim..."; btn.disabled = true;
 
         try {
-            // 1. Simpan ke database dulu
+            // 1. SISTEM BOOKING/KURANGI STOK (FIX)
+            await fetch(`${S_URL}/rest/v1/produk?id=eq.${selected.id}`, {
+                method: "PATCH",
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ stok: selected.stok - qty })
+            });
+
+            // 2. SIMPAN DATA JUAL KE ANTREAN
             const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
                 method: "POST",
                 headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
@@ -105,7 +153,7 @@
             });
             const dataJual = await resJual.json();
 
-            // 2. Kirim gambar ke Telegram
+            // 3. KIRIM KE TELEGRAM
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(",")[1];
@@ -117,19 +165,19 @@
                         caption: `🔔 *ORDER MASUK*\n\n👤 *IGN:* ${ign}\n📦 *Item:* ${selected.nama_produk}\n🔢 *Jumlah:* ${qty}\n💰 *Total:* Rp ${(qty * selected.harga).toLocaleString()}`
                     })
                 });
-                alert("Pesanan terkirim! Cek Telegram kamu.");
+                alert("Berhasil! Pesanan sedang diproses.");
                 location.reload();
             };
             reader.readAsDataURL(file);
 
         } catch (err) {
-            alert("Gagal kirim: " + err.message);
-            btn.disabled = false; btn.innerText = "KIRIM KE TELEGRAM";
+            alert("Gagal: " + err.message);
+            btn.disabled = false; btn.innerText = "KIRIM PESANAN";
         }
     }
 
     loadData();
+    setInterval(loadAntrean, 10000); // Update antrean tiap 10 detik
 </script>
 </body>
-    </html>
-    
+</html>
