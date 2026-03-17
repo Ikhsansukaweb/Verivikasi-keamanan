@@ -9,29 +9,23 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
         .container { max-width: 1000px; margin: auto; }
         
-        /* Header & Form */
-        .header { background: var(--blue-dark); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { background: var(--blue-dark); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
         .form-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
         
         .grid-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        .full-width { grid-column: span 2; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         
         .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-primary { background: var(--blue-light); color: white; width: 100%; margin-top: 10px; }
-        .btn-primary:hover { background: #2980b9; }
-        .btn-cancel { background: #95a5a6; color: white; margin-top: 5px; display: none; }
+        .btn-cancel { background: #95a5a6; color: white; margin-top: 5px; display: none; width: 100%; }
 
-        /* Tabel */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
         th { background: var(--blue-dark); color: white; padding: 15px; text-align: left; }
         td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .img-table { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+        .img-table { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
         
-        /* Action Buttons */
-        .btn-edit { background: #f1c40f; color: #000; padding: 6px 12px; font-size: 12px; margin-right: 5px; }
-        .btn-del { background: #e74c3c; color: white; padding: 6px 12px; font-size: 12px; }
-        .badge-stok { background: #eee; padding: 4px 8px; border-radius: 5px; font-weight: bold; color: var(--blue-dark); }
+        .btn-edit { background: #f1c40f; color: #000; padding: 6px 12px; border-radius: 4px; border:none; cursor:pointer; }
+        .btn-del { background: #e74c3c; color: white; padding: 6px 12px; border-radius: 4px; border:none; cursor:pointer; }
     </style>
 </head>
 <body>
@@ -66,7 +60,8 @@
             </tr>
         </thead>
         <tbody id="tabel-body">
-            </tbody>
+            <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+        </tbody>
     </table>
 </div>
 
@@ -74,28 +69,28 @@
     const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
     const S_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
 
-    // LOAD DATA PRODUK
     async function loadProduk() {
-        const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, {
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-        });
-        const data = await res.json();
-        const tbody = document.getElementById("tabel-body");
-        tbody.innerHTML = data.map(p => `
-            <tr>
-                <td><img src="${p.img_url}" class="img-table" onerror="this.src='https://via.placeholder.com/50'"></td>
-                <td><b>${p.nama_produk}</b></td>
-                <td>Rp ${p.harga.toLocaleString()}</td>
-                <td><span class="badge-stok">${p.stok}</span></td>
-                <td>
-                    <button class="btn btn-edit" onclick="isiForm(${JSON.stringify(p).replace(/"/g, '&quot;')})">Edit</button>
-                    <button class="btn btn-del" onclick="hapusProduk(${p.id})">Hapus</button>
-                </td>
-            </tr>
-        `).join("");
+        try {
+            const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, {
+                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
+            });
+            const data = await res.json();
+            const tbody = document.getElementById("tabel-body");
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td><img src="${p.img_url}" class="img-table" onerror="this.src='https://via.placeholder.com/50'"></td>
+                    <td><b>${p.nama_produk}</b></td>
+                    <td>Rp ${p.harga.toLocaleString()}</td>
+                    <td>${p.stok}</td>
+                    <td>
+                        <button class="btn-edit" onclick="isiForm(${JSON.stringify(p).replace(/"/g, '&quot;')})">Edit</button>
+                        <button class="btn-del" onclick="hapusProduk(${p.id})">Hapus</button>
+                    </td>
+                </tr>
+            `).join("");
+        } catch (e) { console.error("Gagal load data"); }
     }
 
-    // ISI FORM SAAT KLIK EDIT
     function isiForm(p) {
         document.getElementById("form-title").innerText = "📝 Edit Produk: " + p.nama_produk;
         document.getElementById("p_id").value = p.id;
@@ -103,12 +98,10 @@
         document.getElementById("p_harga").value = p.harga;
         document.getElementById("p_stok").value = p.stok;
         document.getElementById("p_img").value = p.img_url;
-        
         document.getElementById("btn-save").innerText = "UPDATE PERUBAHAN";
         document.getElementById("btn-cancel").style.display = "block";
     }
 
-    // RESET FORM
     function resetForm() {
         document.getElementById("form-title").innerText = "➕ Tambah Produk Baru";
         document.getElementById("p_id").value = "";
@@ -120,54 +113,54 @@
         document.getElementById("btn-cancel").style.display = "none";
     }
 
-    // SIMPAN ATAU UPDATE PRODUK
     async function simpanProduk() {
         const id = document.getElementById("p_id").value;
         const obj = {
             nama_produk: document.getElementById("p_nama").value,
             harga: parseInt(document.getElementById("p_harga").value),
             stok: parseInt(document.getElementById("p_stok").value),
-            img_url: document.getElementById("p_img").value
+            img_url: document.getElementById("p_img").value // Nama kolom harus img_url
         };
 
-        if(!obj.nama_produk || !obj.harga) return alert("Nama dan Harga wajib diisi!");
+        if(!obj.nama_produk || isNaN(obj.harga)) return alert("Isi data dengan benar!");
 
-        let res;
-        if (id) {
-            // MODE EDIT (PATCH)
-            res = await fetch(`${S_URL}/rest/v1/produk?id=eq.${id}`, {
-                method: "PATCH",
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
+        const btn = document.getElementById("btn-save");
+        btn.innerText = "Memproses..."; btn.disabled = true;
+
+        const method = id ? "PATCH" : "POST";
+        const url = id ? `${S_URL}/rest/v1/produk?id=eq.${id}` : `${S_URL}/rest/v1/produk`;
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal" 
+                },
                 body: JSON.stringify(obj)
             });
-        } else {
-            // MODE TAMBAH (POST)
-            res = await fetch(`${S_URL}/rest/v1/produk`, {
-                method: "POST",
-                headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify(obj)
-            });
-        }
 
-        if (res.ok) {
-            alert("Berhasil!");
-            resetForm();
-            loadProduk();
-        } else {
-            alert("Error: Gagal menyimpan data ke Supabase.");
-        }
+            if (res.ok) {
+                alert("Berhasil!");
+                resetForm();
+                loadProduk();
+            } else {
+                const error = await res.json();
+                alert("Gagal: " + error.message);
+            }
+        } catch (err) { alert("Terjadi kesalahan koneksi!"); }
+        finally { btn.innerText = id ? "UPDATE PERUBAHAN" : "SIMPAN PRODUK"; btn.disabled = false; }
     }
 
-    // HAPUS PRODUK
     async function hapusProduk(id) {
-        if (!confirm("Yakin ingin menghapus produk ini?")) return;
+        if (!confirm("Hapus produk ini?")) return;
         const res = await fetch(`${S_URL}/rest/v1/produk?id=eq.${id}`, {
             method: "DELETE",
             headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
         });
-        if (res.ok) {
-            loadProduk();
-        }
+        if (res.ok) loadProduk();
     }
 
     loadProduk();
