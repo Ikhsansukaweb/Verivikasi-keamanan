@@ -1,151 +1,106 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Kelola Produk DZKALL</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .admin-card { background: white; max-width: 800px; margin: auto; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: #34495e; color: white; padding: 20px; text-align: center; }
-        .form-section { padding: 20px; border-bottom: 2px solid #eee; }
-        .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; }
-        .btn-save { background: #3498db; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .table-section { padding: 20px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #34495e; color: white; padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .prod-img { width: 40px; height: 40px; object-fit: cover; border-radius: 5px; }
-        .btn-edit { background: #f1c40f; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
-        .btn-delete { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .badge-stok { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .stok-aman { background: #dff9fb; color: #2ecc71; }
-        .stok-habis { background: #fab1a0; color: #d63031; }
-    </style>
+  <title>Admin SannShop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #121212; color: white; padding: 20px; }
+    .login-container { max-width: 300px; margin: 100px auto; text-align: center; background: #1e1e1e; padding: 20px; border-radius: 10px; }
+    .admin-content { display: none; } /* Tersembunyi sebelum login */
+    input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: none; }
+    button { width: 100%; padding: 100%; padding: 10px; background: #ff9800; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e1e1e; }
+    th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+    th { background: #333; }
+    .omset-box { margin-top: 30px; padding: 20px; background: #2e7d32; border-radius: 10px; }
+    h2 { color: #ff9800; }
+  </style>
 </head>
 <body>
 
-<div class="admin-card">
-    <div class="header">
-        <h2 style="margin:0">⚙️ KELOLA PRODUK DZKALL</h2>
-        <small>Supabase & Telegram Integration Fix</small>
-    </div>
+  <div id="loginBox" class="login-container">
+    <h2>Admin Login</h2>
+    <input type="password" id="passInput" placeholder="Masukkan Password">
+    <button onclick="cekLogin()">Masuk</button>
+  </div>
 
-    <div class="form-section">
-        <h4 style="margin-top:0">➕ Tambah / Edit Produk</h4>
-        <input type="hidden" id="p-id">
-        <div class="grid-form">
-            <input type="text" id="p-nama" placeholder="Nama Produk">
-            <input type="number" id="p-harga" placeholder="Harga (Contoh: 2000)">
-            <input type="number" id="p-stok" placeholder="Jumlah Stok">
-            <input type="text" id="p-img" placeholder="Link Gambar (URL)">
-        </div>
-        <button class="btn-save" onclick="simpanProduk()">SIMPAN PERUBAHAN</button>
-    </div>
+  <div id="adminContent" class="admin-content">
+    <h1>🚀 Panel Admin SannShop</h1>
+    
+    <h3>Daftar Produk & Stok</h3>
+    <div id="tabelProduk">Loading data...</div>
 
-    <div class="table-section">
-        <table>
-            <thead>
-                <tr>
-                    <th>Foto</th>
-                    <th>Produk</th>
-                    <th>Harga</th>
-                    <th>Stok</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="list-produk">
-                </tbody>
-        </table>
-    </div>
-</div>
+    <hr>
 
-<script>
-    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
+    <div class="omset-box">
+      <h2>💰 Total Omset Penjualan</h2>
+      <div id="displayOmset">Menghitung pemasukan...</div>
+      <table id="tabelRiwayat">
+        <thead>
+          <tr>
+            <th>Hari/Tanggal</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Total Bayar</th>
+          </tr>
+        </thead>
+        <tbody id="listOmset"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co/rest/v1";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+    const PASS_BENAR = "admin123"; // GANTI PASSWORD KAMU DI SINI
 
-    async function loadProduk() {
-        const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, {
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-        });
-        const data = await res.json();
-        const container = document.getElementById("list-produk");
-        container.innerHTML = data.map(p => `
-            <tr>
-                <td><img src="${p.img_url}" class="prod-img" onerror="this.src='https://via.placeholder.com/50'"></td>
-                <td><b>${p.nama_produk}</b></td>
-                <td>Rp ${p.harga.toLocaleString()}</td>
-                <td><span class="badge-stok ${p.stok > 0 ? 'stok-aman' : 'stok-habis'}">${p.stok}</span></td>
-                <td>
-                    <button class="btn-edit" onclick="isiForm(${JSON.stringify(p).replace(/"/g, '&quot;')})">Edit</button>
-                    <button class="btn-delete" onclick="hapusProduk(${p.id}, '${p.nama_produk}')">Hapus</button>
-                </td>
-            </tr>
-        `).join("");
+    function cekLogin() {
+      const input = document.getElementById('passInput').value;
+      if(input === PASS_BENAR) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+        muatData();
+      } else {
+        alert("Password Salah San!");
+      }
     }
 
-    function isiForm(p) {
-        document.getElementById("p-id").value = p.id;
-        document.getElementById("p-nama").value = p.nama_produk;
-        document.getElementById("p-harga").value = p.harga;
-        document.getElementById("p-stok").value = p.stok;
-        document.getElementById("p-img").value = p.img_url;
-        window.scrollTo(0,0);
+    async function muatData() {
+      // 1. Ambil Data Produk
+      const resProd = await fetch(`${S_URL}/produk`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
+      const produk = await resProd.json();
+      
+      let htmlProd = "<table><tr><th>Item</th><th>Stok</th><th>Harga</th></tr>";
+      produk.forEach(p => {
+        htmlProd += `<tr><td>${p.nama_produk}</td><td>${p.stok}</td><td>Rp ${p.harga}</td></tr>`;
+      });
+      document.getElementById('tabelProduk').innerHTML = htmlProd + "</table>";
+
+      // 2. Ambil Data Penjualan (Hanya yang SUCCESS)
+      const resJual = await fetch(`${S_URL}/penjualan?status=eq.SUCCESS&select=*`, { 
+        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
+      });
+      const penjualan = await resJual.json();
+
+      let totalPemasukan = 0;
+      let htmlJual = "";
+      
+      penjualan.forEach(j => {
+        totalPemasukan += parseInt(j.total_bayar || 0);
+        // Format tanggal biar enak dibaca
+        let tgl = new Date(j.created_at).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        
+        htmlJual += `<tr>
+          <td>${tgl}</td>
+          <td>${j.nama_item}</td>
+          <td>${j.qty}</td>
+          <td>Rp ${Number(j.total_bayar).toLocaleString()}</td>
+        </tr>`;
+      });
+
+      document.getElementById('displayOmset').innerHTML = `<h3>Total Pemasukan Bersih: Rp ${totalPemasukan.toLocaleString()}</h3>`;
+      document.getElementById('listOmset').innerHTML = htmlJual;
     }
-
-    async function simpanProduk() {
-        const id = document.getElementById("p-id").value;
-        const body = {
-            nama_produk: document.getElementById("p-nama").value,
-            harga: parseInt(document.getElementById("p-harga").value),
-            stok: parseInt(document.getElementById("p-stok").value),
-            img_url: document.getElementById("p-img").value
-        };
-
-        const method = id ? "PATCH" : "POST";
-        const url = id ? `${S_URL}/rest/v1/produk?id=eq.${id}` : `${S_URL}/rest/v1/produk`;
-
-        await fetch(url, {
-            method: method,
-            headers: { 
-                "apikey": S_KEY, 
-                "Authorization": `Bearer ${S_KEY}`,
-                "Content-Type": "application/json",
-                "Prefer": "return=minimal"
-            },
-            body: JSON.stringify(body)
-        });
-
-        alert("Berhasil disimpan!");
-        location.reload();
-    }
-
-    // --- FITUR HAPUS PRODUK ---
-    async function hapusProduk(id, nama) {
-        if (confirm(`Yakin ingin menghapus produk "${nama}"? Tindakan ini tidak bisa dibatalkan.`)) {
-            try {
-                const res = await fetch(`${S_URL}/rest/v1/produk?id=eq.${id}`, {
-                    method: "DELETE",
-                    headers: { 
-                        "apikey": S_KEY, 
-                        "Authorization": `Bearer ${S_KEY}`
-                    }
-                });
-                
-                if (res.ok) {
-                    alert("Produk berhasil dihapus!");
-                    loadProduk(); // Refresh list tanpa reload halaman penuh
-                } else {
-                    alert("Gagal menghapus produk.");
-                }
-            } catch (err) {
-                alert("Error: " + err.message);
-            }
-        }
-    }
-
-    loadProduk();
-</script>
+  </script>
 </body>
 </html>
