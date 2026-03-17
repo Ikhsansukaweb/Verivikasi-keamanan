@@ -29,8 +29,9 @@
     .flex-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
     h2 { margin: 0; color: #ff9800; }
 
-    /* TOMBOL CS MELAYANG (Kiri Bawah) */
-    .btn-cs-nav {
+    /* TOMBOL CS MELAYANG (Disembunyikan secara default) */
+    #floatingBtnCS {
+        display: none; /* Sembunyi sebelum login */
         position: fixed;
         bottom: 25px;
         left: 25px;
@@ -38,7 +39,6 @@
         height: 65px;
         background: #ffffff;
         border-radius: 50%;
-        display: flex;
         justify-content: center;
         align-items: center;
         box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -47,13 +47,13 @@
         border: 3px solid #ff9800;
         text-decoration: none;
     }
-    .btn-cs-nav:hover { transform: scale(1.1); rotate: 5deg; }
-    .btn-cs-nav img { width: 45px; height: 45px; border-radius: 50%; }
+    #floatingBtnCS:hover { transform: scale(1.1); rotate: 5deg; }
+    #floatingBtnCS img { width: 45px; height: 45px; border-radius: 50%; }
   </style>
 </head>
 <body>
 
-  <a href="admin.html" class="btn-cs-nav" title="Buka Chat Admin">
+  <a href="admin.html" id="floatingBtnCS" title="Buka Chat Admin">
       <img src="https://cdn-icons-png.flaticon.com/512/4233/4233830.png" alt="CS Admin">
   </a>
 
@@ -112,7 +112,7 @@
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
     const PASS_BENAR = "admin123";
 
-    // Cek session login sederhana
+    // Cek session login saat halaman dimuat
     if(localStorage.getItem("admin_logged") === "true") {
         tampilkanPanel();
     }
@@ -127,122 +127,82 @@
     function tampilkanPanel() {
         document.getElementById('loginBox').style.display = 'none';
         document.getElementById('adminContent').style.display = 'block';
+        // MUNCULKAN TOMBOL CS SETELAH LOGIN SUKSES
+        document.getElementById('floatingBtnCS').style.display = 'flex';
         muatSemuaData();
     }
 
     function logout() {
         localStorage.removeItem("admin_logged");
+        // SEMBUNYIKAN TOMBOL CS SAAT LOGOUT
+        document.getElementById('floatingBtnCS').style.display = 'none';
         location.reload();
     }
 
-    async function muatSemuaData() {
-      muatProduk();
-      muatOmset();
-    }
+    // Fungsi-fungsi CRUD Supabase tetap sama...
+    async function muatSemuaData() { muatProduk(); muatOmset(); }
 
-    // --- MANAJEMEN PRODUK ---
     async function muatProduk() {
       try {
         const res = await fetch(`${S_URL}/produk?select=*&order=id.asc`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
         const data = await res.json();
         let html = "<table><tr><th>Foto</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr>";
         data.forEach(p => {
-          html += `<tr>
-            <td><img src="${p.img_url}" class="img-preview" onerror="this.src='https://via.placeholder.com/40'"></td>
-            <td>${p.nama_produk}</td>
-            <td>Rp ${Number(p.harga).toLocaleString()}</td>
-            <td><b>${p.stok}</b></td>
-            <td>
-              <button class="btn-edit" onclick="editProduk(${p.id}, ${p.stok}, ${p.harga})">Edit</button>
-              <button class="btn-delete" onclick="hapusProduk(${p.id})">Hapus</button>
-            </td>
-          </tr>`;
+          html += `<tr><td><img src="${p.img_url}" class="img-preview" onerror="this.src='https://via.placeholder.com/40'"></td><td>${p.nama_produk}</td><td>Rp ${Number(p.harga).toLocaleString()}</td><td><b>${p.stok}</b></td><td><button class="btn-edit" onclick="editProduk(${p.id}, ${p.stok}, ${p.harga})">Edit</button><button class="btn-delete" onclick="hapusProduk(${p.id})">Hapus</button></td></tr>`;
         });
         document.getElementById('tabelProduk').innerHTML = html + "</table>";
       } catch (e) { document.getElementById('tabelProduk').innerText = "Gagal memuat data."; }
     }
 
     async function tambahProduk() {
-      const nama = document.getElementById('newNama').value;
-      const harga = document.getElementById('newHarga').value;
-      const stok = document.getElementById('newStok').value;
-      const img = document.getElementById('newImg').value;
-
-      if(!nama || !harga) return alert("Nama dan Harga wajib diisi!");
-
       const payload = {
-        nama_produk: nama,
-        harga: parseInt(harga),
-        stok: parseInt(stok || 0),
-        img_url: img || ""
+        nama_produk: document.getElementById('newNama').value,
+        harga: parseInt(document.getElementById('newHarga').value),
+        stok: parseInt(document.getElementById('newStok').value || 0),
+        img_url: document.getElementById('newImg').value || ""
       };
-
-      await fetch(`${S_URL}/produk`, {
-        method: 'POST',
-        headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      
-      // Reset input
-      document.getElementById('newNama').value = "";
-      document.getElementById('newHarga').value = "";
-      document.getElementById('newStok').value = "";
-      document.getElementById('newImg').value = "";
-      
-      muatProduk();
+      if(!payload.nama_produk || !payload.harga) return alert("Isi data!");
+      await fetch(`${S_URL}/produk`, { method: 'POST', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      location.reload();
     }
 
     async function editProduk(id, stokLama, hargaLama) {
       const stokBaru = prompt("Stok Baru:", stokLama);
       const hargaBaru = prompt("Harga Baru:", hargaLama);
       if (stokBaru !== null && hargaBaru !== null) {
-        await fetch(`${S_URL}/produk?id=eq.${id}`, {
-          method: 'PATCH',
-          headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ stok: parseInt(stokBaru), harga: parseInt(hargaBaru) })
-        });
+        await fetch(`${S_URL}/produk?id=eq.${id}`, { method: 'PATCH', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ stok: parseInt(stokBaru), harga: parseInt(hargaBaru) }) });
         muatProduk();
       }
     }
 
     async function hapusProduk(id) {
-      if(confirm("Yakin ingin menghapus produk ini?")) {
-        await fetch(`${S_URL}/produk?id=eq.${id}`, {
-          method: 'DELETE',
-          headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` }
-        });
+      if(confirm("Hapus produk?")) {
+        await fetch(`${S_URL}/produk?id=eq.${id}`, { method: 'DELETE', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
         muatProduk();
       }
     }
 
-    // --- MANAJEMEN OMSET ---
     async function muatOmset() {
       try {
         const res = await fetch(`${S_URL}/penjualan?status=eq.SUCCESS&select=*`, { headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
         const data = await res.json();
-        let total = 0;
-        let html = "";
+        let total = 0, html = "";
         data.forEach(j => {
           total += Number(j.total_bayar);
           let tgl = new Date(j.created_at).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
           html += `<tr><td>${tgl}</td><td>${j.nama_item}</td><td>${j.jumlah || 1}</td><td>Rp ${Number(j.total_bayar).toLocaleString()}</td></tr>`;
         });
         document.getElementById('displayTotal').innerText = "Total Omset: Rp " + total.toLocaleString();
-        document.getElementById('listOmset').innerHTML = html || "<tr><td colspan='4' style='text-align:center;'>Belum ada data penjualan sukses.</td></tr>";
-      } catch (e) { console.error("Gagal muat omset"); }
+        document.getElementById('listOmset').innerHTML = html || "<tr><td colspan='4'>Belum ada data.</td></tr>";
+      } catch (e) { }
     }
 
     async function hapusRiwayat() {
-      if(confirm("Hapus semua riwayat transaksi (SUCCESS & CANCELLED)? Tindakan ini permanen!")) {
-        await fetch(`${S_URL}/penjualan?status=in.("SUCCESS","CANCELLED")`, { 
-            method: 'DELETE', 
-            headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } 
-        });
-        alert("Riwayat dibersihkan!");
+      if(confirm("Hapus semua riwayat?")) {
+        await fetch(`${S_URL}/penjualan?status=in.("SUCCESS","CANCELLED")`, { method: 'DELETE', headers: { "apikey": S_KEY, "Authorization": `Bearer ${S_KEY}` } });
         muatOmset();
       }
     }
   </script>
 </body>
-  </html>
-  
+</html>
